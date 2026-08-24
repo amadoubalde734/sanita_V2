@@ -1,0 +1,53 @@
+                    DEMANDE DE PRISE EN CHARGE
+                              |
+                              ↓
+              Employé / Ayant droit se présente
+                              |
+                              ↓
+                    Identification RH Clinique
+                              |
+                              ↓
+        Vérification des informations administratives
+                              |
+        ┌─────────────────────────────────────┐
+        │                                     │
+        ↓                                     ↓
+ Document conforme                     Document non conforme
+        |                                     |
+        ↓                                     ↓
+Photo validée                         Demande correction
+Certificat valide                     Documents manquants
+Âge conforme
+        |
+        ↓
+              Création / Mise à jour fiche patient
+                              |
+                              ↓
+              Vérification de la fiche créée
+                              |
+        ┌─────────────────────────────────────┐
+        │                                     │
+        ↓                                     ↓
+ Validation RH / Responsable Médical     Rejet / Correction
+        |
+        ↓
+              Patient autorisé pour soins
+                              |
+                              ↓
+                    Parcours médical
+                              |
+        ┌─────────────────────────────────────┐
+        │                                     │
+        ↓                                     ↓
+   Consultation médecin              Dossier médical
+        |
+        |
+        ├──────────────→ Prescription laboratoire
+        |
+        ├──────────────→ Ordonnance
+        |
+        ├──────────────→ Orientation
+        |
+        ├──────────────→ Arrêt de travail
+        |
+        └──────────────→ Documents médicaux

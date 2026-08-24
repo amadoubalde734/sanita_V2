@@ -1,0 +1,16 @@
+✓ Accounts
+✓ Dashboard
+✓ Paramétrage Général
+✓ Patients
+✓ Médecins
+✓ Consultations
+✓ Consultations dentaires
+✓ Infirmiers
+✓ Laboratoire
+✓ Imagerie
+✓ Pharmacie
+✓ Médicaments
+✓ Stock
+✓ Documents
+✓ Workflow
+✓ API

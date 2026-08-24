@@ -1,0 +1,142 @@
+templates/
+│
+├── backend/
+│
+│   ├── base.html
+│   ├── index_global.html
+│   │
+│   ├── includes/
+│   │      header.html
+│   │      footer.html
+│   │      topbar.html
+│   │      sidebar_global.html
+│   │      breadcrumb.html
+│   │      messages.html
+│   │
+│   ├──────────────────────────────────────
+│   │ ADMINISTRATION
+│   ├──────────────────────────────────────
+│   │
+│   ├── administration/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ PARAMETRAGE
+│   ├──────────────────────────────────────
+│   │
+│   ├── parametrage_general/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ RH
+│   ├──────────────────────────────────────
+│   │
+│   ├── personnels/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ DOSSIER PATIENT
+│   ├──────────────────────────────────────
+│   │
+│   ├── patients/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ CONSULTATIONS
+│   ├──────────────────────────────────────
+│   │
+│   ├── consultations/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ DENTAIRE
+│   ├──────────────────────────────────────
+│   │
+│   ├── consultations_dentaires/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ LABORATOIRE
+│   ├──────────────────────────────────────
+│   │
+│   ├── laboratoires/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ ORDONNANCES
+│   ├──────────────────────────────────────
+│   │
+│   ├── ordonnances/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ INFIRMIER
+│   ├──────────────────────────────────────
+│   │
+│   ├── infirmier/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ PHARMACIE
+│   ├──────────────────────────────────────
+│   │
+│   ├── pharmacie/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ MEDICAMENTS
+│   ├──────────────────────────────────────
+│   │
+│   ├── medicaments/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ STOCK
+│   ├──────────────────────────────────────
+│   │
+│   ├── stock/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ CLINIQUES
+│   ├──────────────────────────────────────
+│   │
+│   ├── cliniques/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   ├──────────────────────────────────────
+│   │ DOCUMENTS
+│   ├──────────────────────────────────────
+│   │
+│   ├── documents/
+│   │      base.html
+│   │      index.html
+│   │      menu.html
+│   │
+│   └──────────────────────────────────────

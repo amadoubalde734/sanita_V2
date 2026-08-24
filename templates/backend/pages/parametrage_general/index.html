@@ -1,0 +1,145 @@
+{% extends 'backend/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                    <h4 class="mb-sm-0">Paramétrage général</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PARAMETRAGE UNIVERSEL (toujours visible) -->
+        <!-- ============================== -->
+        <div class="row">
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body text-center">
+                        <div class="avatar-sm mx-auto mb-3">
+                            <span class="avatar-title bg-dark-subtle text-dark rounded-circle fs-24">
+                                <i class="ri-hospital-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="fs-15 mb-1">Établissement</h5>
+                        <p class="text-muted fs-13 mb-3">Informations générales, logo et modules actifs.</p>
+                        <a href="{% url 'parametrage_general:configuration_etablissement' %}" class="stretched-link text-decoration-none">Voir la configuration</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body text-center">
+                        <div class="avatar-sm mx-auto mb-3">
+                            <span class="avatar-title bg-success-subtle text-success rounded-circle fs-24">
+                                <i class="ri-map-pin-2-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="fs-15 mb-1">Villes</h5>
+                        <p class="text-muted fs-13 mb-3">Ajouter et gérer les villes couvertes par le système.</p>
+                        <a href="{% url 'parametrage_general:liste_villes' %}" class="stretched-link text-decoration-none">Voir les villes</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body text-center">
+                        <div class="avatar-sm mx-auto mb-3">
+                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-24">
+                                <i class="ri-store-2-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="fs-15 mb-1">Sites</h5>
+                        <p class="text-muted fs-13 mb-3">Gestion des sites d’activité et des implantations physiques.</p>
+                        <a href="{% url 'parametrage_general:liste_sites' %}" class="stretched-link text-decoration-none">Voir les sites</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end Paramétrage universel -->
+
+        <!-- ============================== -->
+        <!-- PARAMETRAGE PRISE EN CHARGE (module optionnel) -->
+        <!-- ============================== -->
+        {% if config_etablissement.module_prise_en_charge_actif %}
+        <div class="row mt-2">
+            <div class="col-12">
+                <h5 class="fs-14 text-uppercase text-muted fw-semibold mb-3">
+                    Prise en Charge &amp; Entreprises
+                    <span class="badge bg-primary-subtle text-primary fs-10 align-middle ms-1">Module optionnel</span>
+                </h5>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body text-center">
+                        <div class="avatar-sm mx-auto mb-3">
+                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-24">
+                                <i class="ri-building-4-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="fs-15 mb-1">Sociétés</h5>
+                        <p class="text-muted fs-13 mb-3">Gestion des entreprises clientes et de leurs filiales.</p>
+                        <a href="{% url 'parametrage_general:liste_societes' %}" class="stretched-link text-decoration-none">Voir les sociétés</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body text-center">
+                        <div class="avatar-sm mx-auto mb-3">
+                            <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-24">
+                                <i class="ri-building-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="fs-15 mb-1">Départements</h5>
+                        <p class="text-muted fs-13 mb-3">Départements RH des sociétés clientes.</p>
+                        <a href="{% url 'parametrage_general:liste_departements' %}" class="stretched-link text-decoration-none">Voir les départements</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body text-center">
+                        <div class="avatar-sm mx-auto mb-3">
+                            <span class="avatar-title bg-info-subtle text-info rounded-circle fs-24">
+                                <i class="ri-tools-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="fs-15 mb-1">Services</h5>
+                        <p class="text-muted fs-13 mb-3">Services liés aux départements des sociétés clientes.</p>
+                        <a href="{% url 'parametrage_general:liste_services' %}" class="stretched-link text-decoration-none">Voir les services</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body text-center">
+                        <div class="avatar-sm mx-auto mb-3">
+                            <span class="avatar-title bg-secondary-subtle text-secondary rounded-circle fs-24">
+                                <i class="ri-briefcase-4-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="fs-15 mb-1">Fonctions</h5>
+                        <p class="text-muted fs-13 mb-3">Fonctions occupées par les employés/bénéficiaires.</p>
+                        <a href="{% url 'parametrage_general:liste_fonctions' %}" class="stretched-link text-decoration-none">Voir les fonctions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- end Paramétrage Prise en Charge -->
+
+    </div>
+</div>
+{% endblock %}

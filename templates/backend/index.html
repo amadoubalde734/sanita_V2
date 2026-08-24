@@ -1,0 +1,650 @@
+{% extends 'backend/base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .sanita-hero {
+        background: linear-gradient(135deg, #0b3d3a 0%, #12766e 100%);
+        border-radius: 18px;
+        padding: 1.75rem 2rem;
+        color: #fff;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .sanita-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 85% 15%, rgba(255,255,255,0.12), transparent 55%);
+    }
+    .sanita-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .sanita-hero h4 { font-weight: 700; margin-bottom: 0.25rem; font-size: 1.3rem; color: #fff; }
+    .sanita-hero p { color: rgba(255,255,255,0.8); margin: 0; font-size: 0.9rem; }
+
+    .sanita-toolbar .form-control {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+    }
+    .sanita-toolbar .form-control::placeholder { color: rgba(255,255,255,0.7); }
+    .sanita-toolbar .input-group-text { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .sanita-toolbar .btn-soft-success,
+    .sanita-toolbar .btn-soft-primary,
+    .sanita-toolbar .btn-soft-info {
+        background: rgba(255,255,255,0.14);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.25);
+    }
+    .sanita-toolbar .btn-soft-success:hover,
+    .sanita-toolbar .btn-soft-primary:hover,
+    .sanita-toolbar .btn-soft-info:hover { background: rgba(255,255,255,0.24); color: #fff; }
+
+    .kpi-card {
+        border: 1px solid #edf1f0;
+        border-radius: 16px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -10px rgba(15,92,86,0.18); }
+    .kpi-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+    }
+    .ic-teal { background: #e6f5f2; color: #12766e; }
+    .ic-blue { background: #e8f1fd; color: #2563eb; }
+    .ic-amber { background: #fef6e6; color: #b45309; }
+    .ic-slate { background: #eef1f2; color: #475569; }
+
+    .sanita-card { border: 1px solid #edf1f0; border-radius: 16px; }
+    .sanita-card .card-header { border-bottom: 1px solid #edf1f0; background: transparent; }
+
+    .segmented-btn { border-radius: 8px !important; }
+
+    .avatar-initials {
+        width: 40px; height: 40px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600; font-size: 0.9rem;
+    }
+</style>
+
+<div class="page-content">
+    <div class="container-fluid">
+
+        <!-- Page title -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <ol class="breadcrumb m-0 justify-content-end">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">SANITA</a></li>
+                    <li class="breadcrumb-item active">Tableau de bord</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="sanita-hero">
+            <div class="sanita-hero-content">
+                <div>
+                    <h4>Bonjour, {{ user.get_full_name|default:user.username }} 👋</h4>
+                    <p>Voici les informations les plus importantes de votre établissement aujourd’hui.</p>
+                </div>
+                <div class="sanita-toolbar">
+                    <form action="javascript:void(0);">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" data-provider="flatpickr" data-range-date="true" data-date-format="d M, Y" placeholder="Choisir une période">
+                                    <div class="input-group-text"><i class="ri-calendar-2-line"></i></div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-soft-success material-shadow-none"><i class="ri-add-circle-line align-middle me-1"></i> Ajouter un dossier</button>
+                            </div>
+                            <div class="col-auto">
+                                <a href="{% url 'dashboard:index_global' %}" class="btn btn-soft-primary material-shadow-none"><i class="ri-menu-3-line align-middle me-1"></i> Modules</a>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-soft-info btn-icon waves-effect material-shadow-none waves-light layout-rightside-btn"><i class="ri-pulse-line"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="h-100">
+
+                    <!-- KPI cards -->
+                    <div class="row g-3 mb-1">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card kpi-card card-animate mb-0">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0 fs-12">Patients actifs</p>
+                                        <span class="badge bg-success-subtle text-success"><i class="ri-arrow-right-up-line align-middle"></i> +8.9%</span>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between mt-3">
+                                        <div>
+                                            <h4 class="fs-22 fw-semibold mb-2"><span class="counter-value" data-target="1284">0</span></h4>
+                                            <a href="#" class="text-decoration-none fs-13">Voir les patients →</a>
+                                        </div>
+                                        <div class="kpi-icon ic-teal"><i class="bx bx-user-check"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card kpi-card card-animate mb-0">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0 fs-12">Consultations</p>
+                                        <span class="badge bg-success-subtle text-success"><i class="ri-arrow-right-up-line align-middle"></i> +12.4%</span>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between mt-3">
+                                        <div>
+                                            <h4 class="fs-22 fw-semibold mb-2"><span class="counter-value" data-target="432">0</span></h4>
+                                            <a href="#" class="text-decoration-none fs-13">Voir les consultations →</a>
+                                        </div>
+                                        <div class="kpi-icon ic-blue"><i class="bx bx-health"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card kpi-card card-animate mb-0">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0 fs-12">Personnels</p>
+                                        <span class="badge bg-success-subtle text-success"><i class="ri-arrow-right-up-line align-middle"></i> +4.6%</span>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between mt-3">
+                                        <div>
+                                            <h4 class="fs-22 fw-semibold mb-2"><span class="counter-value" data-target="76">0</span></h4>
+                                            <a href="#" class="text-decoration-none fs-13">Voir le personnel →</a>
+                                        </div>
+                                        <div class="kpi-icon ic-amber"><i class="bx bx-briefcase-alt-2"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card kpi-card card-animate mb-0">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0 fs-12">Documents</p>
+                                        <span class="badge bg-light text-muted">stable</span>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between mt-3">
+                                        <div>
+                                            <h4 class="fs-22 fw-semibold mb-2"><span class="counter-value" data-target="98">0</span></h4>
+                                            <a href="#" class="text-decoration-none fs-13">Voir les documents →</a>
+                                        </div>
+                                        <div class="kpi-icon ic-slate"><i class="bx bx-file"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts row -->
+                    <div class="row mt-3">
+                        <div class="col-xl-8">
+                            <div class="card sanita-card">
+                                <div class="card-header d-flex align-items-center">
+                                    <h4 class="card-title mb-0 flex-grow-1">Revenu &amp; activité</h4>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-soft-secondary segmented-btn material-shadow-none btn-sm">ALL</button>
+                                        <button type="button" class="btn btn-soft-secondary segmented-btn material-shadow-none btn-sm">1M</button>
+                                        <button type="button" class="btn btn-soft-secondary segmented-btn material-shadow-none btn-sm">6M</button>
+                                        <button type="button" class="btn btn-primary segmented-btn material-shadow-none btn-sm">1Y</button>
+                                    </div>
+                                </div>
+
+                                <div class="card-header p-0 border-0 bg-light-subtle">
+                                    <div class="row g-0 text-center">
+                                        <div class="col-6 col-sm-3">
+                                            <div class="p-3 border border-dashed border-start-0">
+                                                <h5 class="mb-1"><span class="counter-value" data-target="432">0</span></h5>
+                                                <p class="text-muted mb-0 fs-13">Consultations</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="p-3 border border-dashed border-start-0">
+                                                <h5 class="mb-1"><span class="counter-value" data-target="1284">0</span></h5>
+                                                <p class="text-muted mb-0 fs-13">Patients</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="p-3 border border-dashed border-start-0">
+                                                <h5 class="mb-1"><span class="counter-value" data-target="76">0</span></h5>
+                                                <p class="text-muted mb-0 fs-13">Personnels</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="p-3 border border-dashed border-start-0 border-end-0">
+                                                <h5 class="mb-1 text-success"><span class="counter-value" data-target="92.4">0</span>%</h5>
+                                                <p class="text-muted mb-0 fs-13">Taux de remplissage</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-body p-0 pb-2">
+                                    <div id="revenue_activity_charts" class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4">
+                            <div class="card sanita-card card-height-100">
+                                <div class="card-header d-flex align-items-center">
+                                    <h4 class="card-title mb-0 flex-grow-1">Consultations par service</h4>
+                                    <button type="button" class="btn btn-soft-primary material-shadow-none btn-sm">Exporter</button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="consultations_by_service" class="apex-charts" style="height: 220px" dir="ltr"></div>
+                                    <div class="px-2 py-2 mt-1">
+                                        <p class="mb-1 fs-13">Consultations générales <span class="float-end">75%</span></p>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div class="progress-bar bg-primary" style="width: 75%"></div>
+                                        </div>
+                                        <p class="mt-3 mb-1 fs-13">Urgences <span class="float-end">47%</span></p>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div class="progress-bar bg-primary" style="width: 47%"></div>
+                                        </div>
+                                        <p class="mt-3 mb-1 fs-13">Consultations spécialisées <span class="float-end">82%</span></p>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div class="progress-bar bg-primary" style="width: 82%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tables row -->
+                    <div class="row mt-1">
+                        <div class="col-xl-6">
+                            <div class="card sanita-card">
+                                <div class="card-header d-flex align-items-center">
+                                    <h4 class="card-title mb-0 flex-grow-1">Top services</h4>
+                                    <div class="dropdown card-header-dropdown">
+                                        <a class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown">
+                                            <span class="text-muted fs-13">Aujourd’hui <i class="mdi mdi-chevron-down ms-1"></i></span>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item" href="#">Aujourd’hui</a>
+                                            <a class="dropdown-item" href="#">Hier</a>
+                                            <a class="dropdown-item" href="#">Derniers 7 jours</a>
+                                            <a class="dropdown-item" href="#">Derniers 30 jours</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle table-nowrap mb-0">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-teal me-2">C</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Consultation générale</a></h5>
+                                                                <span class="text-muted fs-12">Données du mois</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">1 250</h5><span class="text-muted fs-12">Consultations</span></td>
+                                                    <td><span class="badge bg-success-subtle text-success">Disponible</span></td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">8 420</h5><span class="text-muted fs-12">Factures</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-blue me-2">U</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Urgences</a></h5>
+                                                                <span class="text-muted fs-12">Données du mois</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">412</h5><span class="text-muted fs-12">Consultations</span></td>
+                                                    <td><span class="badge bg-danger-subtle text-danger">Élevé</span></td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">3 240</h5><span class="text-muted fs-12">Factures</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-amber me-2">S</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Consultations spécialisées</a></h5>
+                                                                <span class="text-muted fs-12">Données du mois</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">316</h5><span class="text-muted fs-12">Consultations</span></td>
+                                                    <td><span class="badge bg-info-subtle text-info">Stable</span></td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">4 180</h5><span class="text-muted fs-12">Factures</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-slate me-2">T</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Télémédecine</a></h5>
+                                                                <span class="text-muted fs-12">Données du mois</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">126</h5><span class="text-muted fs-12">Consultations</span></td>
+                                                    <td><span class="badge bg-success-subtle text-success">En hausse</span></td>
+                                                    <td><h5 class="fs-14 my-1 fw-normal">2 010</h5><span class="text-muted fs-12">Factures</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2">
+                                        <div class="text-muted fs-13">Affichage <span class="fw-semibold">4</span> de <span class="fw-semibold">12</span> services</div>
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item"><a href="#" class="page-link">1</a></li>
+                                            <li class="page-item active"><a href="#" class="page-link">2</a></li>
+                                            <li class="page-item"><a href="#" class="page-link">3</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6">
+                            <div class="card sanita-card card-height-100">
+                                <div class="card-header d-flex align-items-center">
+                                    <h4 class="card-title mb-0 flex-grow-1">Top médecins</h4>
+                                    <button type="button" class="btn btn-soft-primary material-shadow-none btn-sm">Exporter</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle table-nowrap mb-0">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-teal me-2">AK</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Dr. Amina K.</a></h5>
+                                                                <span class="text-muted fs-12">Cardiologie</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><p class="mb-0">854</p><span class="text-muted fs-12">Actes</span></td>
+                                                    <td><h5 class="fs-14 mb-0">32% <i class="ri-bar-chart-fill text-success fs-16 align-middle ms-1"></i></h5></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-blue me-2">AT</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Dr. Ali T.</a></h5>
+                                                                <span class="text-muted fs-12">Pédiatrie</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><p class="mb-0">895</p><span class="text-muted fs-12">Actes</span></td>
+                                                    <td><h5 class="fs-14 mb-0">79% <i class="ri-bar-chart-fill text-success fs-16 align-middle ms-1"></i></h5></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-amber me-2">NM</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Dr. Nathalie M.</a></h5>
+                                                                <span class="text-muted fs-12">Radiologie</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><p class="mb-0">347</p><span class="text-muted fs-12">Actes</span></td>
+                                                    <td><h5 class="fs-14 mb-0">90% <i class="ri-bar-chart-fill text-success fs-16 align-middle ms-1"></i></h5></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-initials ic-slate me-2">SL</div>
+                                                            <div>
+                                                                <h5 class="fs-14 my-1"><a href="#" class="text-reset">Dr. Sami L.</a></h5>
+                                                                <span class="text-muted fs-12">Gynécologie</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><p class="mb-0">548</p><span class="text-muted fs-12">Actes</span></td>
+                                                    <td><h5 class="fs-14 mb-0">40% <i class="ri-bar-chart-fill text-success fs-16 align-middle ms-1"></i></h5></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent activity table -->
+                    <div class="row mt-1">
+                        <div class="col-xl-4">
+                            <div class="card sanita-card card-height-100">
+                                <div class="card-header d-flex align-items-center">
+                                    <h4 class="card-title mb-0 flex-grow-1">Patients par canal</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="patients_by_source" class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-8">
+                            <div class="card sanita-card">
+                                <div class="card-header d-flex align-items-center">
+                                    <h4 class="card-title mb-0 flex-grow-1">Activités récentes</h4>
+                                    <button type="button" class="btn btn-soft-info btn-sm material-shadow-none"><i class="ri-file-list-3-line align-middle"></i> Générer rapport</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-borderless align-middle table-nowrap mb-0">
+                                            <thead class="text-muted table-light">
+                                                <tr>
+                                                    <th>Dossier</th><th>Patient</th><th>Service</th><th>Montant</th><th>Médecin</th><th>Statut</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><a href="#" class="fw-medium link-primary">#SAN2112</a></td>
+                                                    <td>Alex Smith</td>
+                                                    <td>Cardiologie</td>
+                                                    <td class="text-success">$109.00</td>
+                                                    <td>Dr. Amina K.</td>
+                                                    <td><span class="badge bg-success-subtle text-success">Terminé</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><a href="#" class="fw-medium link-primary">#SAN2111</a></td>
+                                                    <td>Jansh Brown</td>
+                                                    <td>Obstétrique</td>
+                                                    <td class="text-success">$149.00</td>
+                                                    <td>Dr. Sami L.</td>
+                                                    <td><span class="badge bg-warning-subtle text-warning">En attente</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><a href="#" class="fw-medium link-primary">#SAN2109</a></td>
+                                                    <td>Ayaan Bowen</td>
+                                                    <td>Radiologie</td>
+                                                    <td class="text-success">$215.00</td>
+                                                    <td>Dr. Nathalie M.</td>
+                                                    <td><span class="badge bg-success-subtle text-success">Terminé</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><a href="#" class="fw-medium link-primary">#SAN2108</a></td>
+                                                    <td>Prezy Mark</td>
+                                                    <td>Chirurgie</td>
+                                                    <td class="text-success">$199.00</td>
+                                                    <td>Dr. Karim R.</td>
+                                                    <td><span class="badge bg-danger-subtle text-danger">Non payé</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Right sidebar -->
+            <div class="col-auto layout-rightside-col">
+                <div class="overlay"></div>
+                <div class="layout-rightside">
+                    <div class="card h-100 rounded-0">
+                        <div class="card-body p-0">
+                            <div class="p-3">
+                                <h6 class="text-muted mb-0 text-uppercase fw-semibold fs-12">Activité récente</h6>
+                            </div>
+                            <div data-simplebar style="max-height: 380px;" class="p-3 pt-0">
+                                <div class="acitivity-timeline">
+                                    <div class="acitivity-item d-flex">
+                                        <div class="flex-shrink-0 avatar-xs acitivity-avatar">
+                                            <div class="avatar-title bg-success-subtle text-success rounded-circle"><i class="ri-hospital-line"></i></div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1 lh-base">Nouveau patient admis</h6>
+                                            <p class="text-muted mb-1 fs-13">Admission urgente au service garde.</p>
+                                            <small class="text-muted">Aujourd’hui, 14:14</small>
+                                        </div>
+                                    </div>
+                                    <div class="acitivity-item py-3 d-flex">
+                                        <div class="flex-shrink-0 avatar-xs acitivity-avatar">
+                                            <div class="avatar-title bg-danger-subtle text-danger rounded-circle"><i class="ri-stethoscope-line"></i></div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1 lh-base">Nouveau protocole <span class="fw-semibold">COVID-19</span></h6>
+                                            <p class="text-muted mb-1 fs-13">Mise à jour des consignes pour le personnel soignant.</p>
+                                            <small class="text-muted">Hier, 21:47</small>
+                                        </div>
+                                    </div>
+                                    <div class="acitivity-item py-3 d-flex">
+                                        <div class="flex-shrink-0 avatar-xs acitivity-avatar">
+                                            <div class="avatar-title bg-info-subtle text-info rounded-circle"><i class="ri-user-heart-line"></i></div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1 lh-base">Nouvelle évaluation du patient</h6>
+                                            <p class="text-muted mb-1 fs-13">Suivi post-opératoire mis à jour dans le dossier.</p>
+                                            <small class="text-muted">25 Déc, 2021</small>
+                                        </div>
+                                    </div>
+                                    <div class="acitivity-item py-3 d-flex">
+                                        <div class="flex-shrink-0 avatar-xs acitivity-avatar">
+                                            <div class="avatar-title bg-secondary-subtle text-secondary rounded-circle"><i class="mdi mdi-sale"></i></div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1 lh-base">Campagne de prévention</h6>
+                                            <p class="text-muted mb-1 fs-13">Programme dédié au personnel hospitalier.</p>
+                                            <small class="text-muted">12 Déc, 2021</small>
+                                        </div>
+                                    </div>
+                                    <div class="acitivity-item d-flex">
+                                        <div class="flex-shrink-0 avatar-xs acitivity-avatar">
+                                            <div class="avatar-title bg-warning-subtle text-warning rounded-circle"><i class="ri-line-chart-line"></i></div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1 lh-base">Rapport mensuel</h6>
+                                            <p class="text-muted mb-1 fs-13"><span class="text-danger">2 jours restants</span> pour soumettre le rapport de performance.</p>
+                                            <small class="text-muted">15 Oct</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 mt-2">
+                                <h6 class="text-muted mb-3 text-uppercase fw-semibold fs-12">Top 10 services</h6>
+                                <ol class="ps-3 text-muted fs-13">
+                                    <li class="py-1">Consultation générale <span class="float-end">10 294</span></li>
+                                    <li class="py-1">Urgences <span class="float-end">6 256</span></li>
+                                    <li class="py-1">Gynécologie <span class="float-end">3 479</span></li>
+                                    <li class="py-1">Cardiologie <span class="float-end">2 275</span></li>
+                                    <li class="py-1">Radiologie <span class="float-end">1 950</span></li>
+                                </ol>
+                            </div>
+
+                            <div class="p-3">
+                                <h6 class="text-muted mb-3 text-uppercase fw-semibold fs-12">Avis patients</h6>
+                                <div class="swiper vertical-swiper" style="height: 220px;">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide">
+                                            <div class="card border border-dashed shadow-none">
+                                                <div class="card-body">
+                                                    <p class="text-muted mb-1 fst-italic fs-13">"Excellent suivi et très bon accueil du personnel."</p>
+                                                    <div class="fs-11 text-warning mb-1">★★★★★</div>
+                                                    <div class="text-end text-muted fs-12">— Patient, service Cardiologie</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="swiper-slide">
+                                            <div class="card border border-dashed shadow-none">
+                                                <div class="card-body">
+                                                    <p class="text-muted mb-1 fst-italic fs-13">"Système clair, rapide et très professionnel."</p>
+                                                    <div class="fs-11 text-warning mb-1">★★★★☆</div>
+                                                    <div class="text-end text-muted fs-12">— Patient, service Urgences</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="swiper-slide">
+                                            <div class="card border border-dashed shadow-none">
+                                                <div class="card-body">
+                                                    <p class="text-muted mb-1 fst-italic fs-13">"Le dossier patient est très bien géré, je recommande."</p>
+                                                    <div class="fs-11 text-warning mb-1">★★★★☆</div>
+                                                    <div class="text-end text-muted fs-12">— Famille d'un patient</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3">
+                                <h6 class="text-muted mb-3 text-uppercase fw-semibold fs-12">Satisfaction des patients</h6>
+                                <div class="bg-light px-3 py-2 rounded-2 mb-2 d-flex align-items-center justify-content-between">
+                                    <div class="fs-16 text-warning">★★★★☆</div>
+                                    <h6 class="mb-0">4.5 sur 5</h6>
+                                </div>
+                                <div class="text-center text-muted fs-13">Total <span class="fw-medium">5 500</span> avis</div>
+                            </div>
+
+                            <div class="card border-0 text-center mx-4 mb-3 mt-3" style="background: #e6f5f2;">
+                                <div class="card-body">
+                                    <div class="kpi-icon ic-teal mx-auto mb-3" style="width:56px;height:56px;font-size:1.5rem;"><i class="ri-mail-fill"></i></div>
+                                    <h5 class="fs-15">Inviter un nouveau praticien</h5>
+                                    <p class="text-muted fs-13">Référez un nouveau médecin et renforcez votre équipe SANITA.</p>
+                                    <button type="button" class="btn btn-primary btn-sm rounded-pill"><i class="ri-mail-fill align-middle me-1"></i> Inviter</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

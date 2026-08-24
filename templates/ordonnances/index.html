@@ -1,0 +1,49 @@
+{% extends 'ordonnances/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+<div class="row">
+    <div class="col-12">
+        <h4 class="fs-16 mb-3">Module Ordonnances</h4>
+        <p class="text-muted">Bienvenue dans le module Ordonnances. Suivez ici vos prescriptions et la délivrance des médicaments.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Ordonnances actives</h5>
+                <p class="fs-24 mb-0">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">En attente</h5>
+                <p class="fs-24 mb-0">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Médicaments préparés</h5>
+                <p class="fs-24 mb-0">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Actions rapides</h5>
+                <p class="text-muted mb-0">Utilisez le menu pour accéder aux ordonnances ou revenir au tableau de bord principal.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

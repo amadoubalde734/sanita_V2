@@ -1,0 +1,101 @@
+{% load static %}
+<!doctype html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+
+<head>
+
+    <meta charset="utf-8" />
+    <base href="{% static 'backend/' %}">
+    <title>SANITA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="Themesbrand" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'backend/assets/images/favicon.ico' %}" />
+
+    <!-- jsvectormap css -->
+    <link href="{% static 'backend/assets/libs/jsvectormap/jsvectormap.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!--Swiper slider css-->
+    <link href="{% static 'backend/assets/libs/swiper/swiper-bundle.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- Layout config Js -->
+    <script src="{% static 'backend/assets/js/layout.js' %}"></script>
+    <!-- Bootstrap Css -->
+    <link href="{% static 'backend/assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="{% static 'backend/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="{% static 'backend/assets/css/app.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- custom Css-->
+    <link href="{% static 'backend/assets/css/custom.min.css' %}" rel="stylesheet" type="text/css" />
+
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+    <!--datatable responsive css-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+
+    <!-- ✅ Harmonisation de la sidebar avec la palette SANITA (teal) -->
+    <style>
+        [data-sidebar="dark"] {
+            --vz-vertical-menu-bg: #0b3d3a;
+            --vz-vertical-menu-bg-rgb: 11, 61, 58;
+            --vz-vertical-menu-item-color: rgba(255, 255, 255, 0.65);
+            --vz-vertical-menu-item-hover-color: #ffffff;
+            --vz-vertical-menu-item-active-color: #ffffff;
+            --vz-vertical-menu-sub-item-color: rgba(255, 255, 255, 0.55);
+            --vz-vertical-menu-title-color: rgba(255, 255, 255, 0.45);
+            --vz-vertical-menu-border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Filet de sécurité si le thème ne repose pas entièrement sur ces variables */
+        .app-menu.navbar-menu,
+        .navbar-brand-box {
+            background: linear-gradient(180deg, #0b3d3a 0%, #12766e 100%) !important;
+        }
+
+        .app-menu .nav-link.active,
+        .app-menu .nav-link:hover {
+            color: #ffffff !important;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <div id="layout-wrapper">
+
+        {% include 'backend/includes/header.html' %}
+        {% include 'backend/includes/removenotif_modal.html' %}
+
+        {% block sidebar %}
+            <div class="app-menu navbar-menu">
+                {% include 'backend/includes/sidebar.html' %}
+            </div>
+        {% endblock %}
+
+        <div class="main-content">
+
+            {% block content %}
+            <!-- LA STRUCTURE page-content ET container-fluid RESTE ICI -->
+            <div class="page-content">
+                <div class="container-fluid">
+                    {% block inner_content %}{% endblock %}
+                </div>
+            </div>
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+    {% include 'backend/includes/footer.html' %}
+    {% include 'backend/includes/theme_customiser.html' %}
+    {% include 'backend/includes/foot.html' %}
+
+</body>
+</html>

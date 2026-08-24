@@ -1,0 +1,37 @@
+workflow/
+│
+├── migrations/
+├── models/
+│   ├── __init__.py
+│   ├── workflow_models.py
+│   ├── etape_models.py
+│   ├── transition_models.py
+│   ├── historique_models.py
+│   ├── permission_models.py
+│   └── notification_models.py
+│
+├── views/
+│   ├── __init__.py
+│   ├── workflow_views.py
+│   ├── etape_views.py
+│   ├── transition_views.py
+│   └── historique_views.py
+│
+├── templates/
+│   └── backend/
+│       └── workflow/
+│           ├── index.html
+│           ├── workflow_list.html
+│           ├── workflow_form.html
+│           ├── etape_list.html
+│           ├── transition_list.html
+│           └── historique.html
+│
+├── admin.py
+├── apps.py
+├── urls.py
+├── services.py
+├── utils.py
+├── permissions.py
+├── signals.py
+└── tests.py

@@ -1,0 +1,61 @@
+patients/
+│
+├── admin.py
+├── apps.py
+├── urls.py
+├── signals.py
+├── permissions.py
+├── utils.py
+│
+├── models/
+│   ├── __init__.py
+│   ├── patient.py
+│   ├── dossier_medical.py
+│   └── historique_patient.py
+│
+├── views/
+│   ├── __init__.py
+│   ├── patient_views.py
+│   ├── dossier_medical_views.py
+│   └── historique_views.py
+│
+├── forms/
+│   ├── __init__.py
+│   ├── patient_forms.py
+│   └── dossier_medical_forms.py
+│
+├── services/
+│   ├── __init__.py
+│   ├── patient_service.py
+│   └── dossier_medical_service.py
+│
+├── filters/
+│   ├── __init__.py
+│   └── patient_filter.py
+│
+├── tables/
+│   ├── __init__.py
+│   └── patient_table.py
+│
+├── templates/
+│   └── patients/
+│       │
+│       ├── patient/
+│       │   ├── liste.html
+│       │   ├── ajouter.html
+│       │   ├── modifier.html
+│       │   └── detail.html
+│       │
+│       ├── dossier_medical/
+│       │   └── detail.html
+│       │
+│       └── historique/
+│           └── liste.html
+│
+├── static/
+│   └── patients/
+│       ├── css/
+│       ├── js/
+│       └── images/
+│
+└── migrations/

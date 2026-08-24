@@ -1,0 +1,536 @@
+{% extends 'backend/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+{% include 'backend/includes/message.html' %}
+
+<style>
+    :root {
+        --sanita-accent: #12766e;
+        --sanita-accent-dark: #0f5c56;
+    }
+
+    .modules-hero {
+        background: linear-gradient(135deg, #0b3d3a 0%, #12766e 100%);
+        border-radius: 18px;
+        padding: 2rem 2.25rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modules-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 85% 20%, rgba(255,255,255,0.12), transparent 55%);
+    }
+
+    .modules-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .modules-hero h4 {
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        font-size: 1.35rem;
+    }
+
+    .modules-hero p {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .modules-hero .btn-back {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        font-weight: 500;
+        padding: 0.55rem 1.1rem;
+        border-radius: 10px;
+        transition: background 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .modules-hero .btn-back:hover {
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
+    }
+
+    .modules-section {
+        margin-bottom: 2.25rem;
+    }
+
+    .modules-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .modules-section-title .bar {
+        width: 4px;
+        height: 18px;
+        border-radius: 4px;
+        background: var(--sanita-accent);
+    }
+
+    .modules-section-title span {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #10312e;
+    }
+
+    .module-card-link {
+        display: block;
+    }
+
+    .module-card {
+        border: 1px solid #edf1f0;
+        border-radius: 16px;
+        padding: 1.5rem 1.25rem;
+        height: 100%;
+        text-align: center;
+        background: #fff;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        position: relative;
+    }
+
+    .module-card-link:hover .module-card {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px -10px rgba(15, 92, 86, 0.18);
+        border-color: rgba(18, 118, 110, 0.25);
+    }
+
+    .module-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+
+    .module-card h5 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #10312e;
+        margin-bottom: 0.3rem;
+    }
+
+    .module-card p {
+        font-size: 0.8rem;
+        color: #8a9997;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .module-card-disabled {
+        cursor: not-allowed;
+    }
+
+    .module-card-disabled .module-card {
+        opacity: 0.7;
+    }
+
+    .module-card-disabled:hover .module-card {
+        transform: none;
+        box-shadow: none;
+        border-color: #edf1f0;
+    }
+
+    .module-badge-soon {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 0.25rem 0.55rem;
+        border-radius: 20px;
+        background: #fff4e0;
+        color: #a16207;
+    }
+
+    /* Palette d'icônes par thème */
+    .ic-blue { background: #e8f1fd; color: #2563eb; }
+    .ic-green { background: #e7f7ef; color: #16a34a; }
+    .ic-red { background: #fdecec; color: #dc2626; }
+    .ic-teal { background: #e6f5f2; color: #12766e; }
+    .ic-amber { background: #fef6e6; color: #b45309; }
+    .ic-purple { background: #f1ecfb; color: #7c3aed; }
+    .ic-slate { background: #eef1f2; color: #475569; }
+    .ic-dark { background: #ececec; color: #1f2937; }
+</style>
+
+<div class="page-content">
+    <div class="container-fluid">
+
+        <!-- Hero -->
+        <div class="modules-hero">
+            <div class="modules-hero-content">
+                <div>
+                    <h4>Modules SANITA</h4>
+                    <p>Sélectionnez un module pour accéder à son contenu.</p>
+                </div>
+                <a href="{% url 'dashboard:index' %}" class="btn-back">
+                    <i class="ri-arrow-left-line align-middle me-1"></i> Tableau de bord
+                </a>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- GESTION MEDICALE -->
+        <!-- ============================== -->
+        <div class="modules-section">
+            <div class="modules-section-title">
+                <span class="bar"></span>
+                <span>Gestion Médicale</span>
+            </div>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-3">
+
+                <div class="col">
+                    <a href="{% url 'medecins:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-blue"><i class="ri-stethoscope-fill"></i></div>
+                            <h5>Médecins</h5>
+                            <p>Gestion des médecins et spécialités</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'patients:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-green"><i class="ri-user-heart-line"></i></div>
+                            <h5>Patients</h5>
+                            <p>Dossiers et suivi des patients</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'consultations:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-red"><i class="ri-stethoscope-line"></i></div>
+                            <h5>Consultations</h5>
+                            <p>Consultations médicales générales</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'consultations_dentaires:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-teal"><i class="mdi mdi-tooth-outline"></i></div>
+                            <h5>Consultations Dentaires</h5>
+                            <p>Suivi et soins dentaires</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'ordonnances:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-amber"><i class="ri-file-list-3-line"></i></div>
+                            <h5>Ordonnances</h5>
+                            <p>Prescriptions médicales</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'laboratoires:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-blue"><i class="ri-flask-line"></i></div>
+                            <h5>Laboratoires</h5>
+                            <p>Analyses et résultats de labo</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'infirmiers:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-slate"><i class="ri-nurse-line"></i></div>
+                            <h5>Infirmiers</h5>
+                            <p>Espace soins infirmiers</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- IMAGERIE & DIAGNOSTIC -->
+        <!-- ============================== -->
+        <div class="modules-section">
+            <div class="modules-section-title">
+                <span class="bar"></span>
+                <span>Imagerie &amp; Diagnostic</span>
+            </div>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-3">
+
+                <div class="col">
+                    <a href="{% url 'imagerie:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-red"><i class="ri-scan-2-line"></i></div>
+                            <h5>Imagerie Médicale</h5>
+                            <p>Radiologie, Scanner, IRM, Échographie et résultats</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- INNOVATION & TELECONSULTATION -->
+        <!-- ============================== -->
+        <div class="modules-section">
+            <div class="modules-section-title">
+                <span class="bar"></span>
+                <span>Innovation &amp; Téléconsultation</span>
+            </div>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-3">
+
+                <div class="col">
+                    <a href="javascript:void(0);" class="module-card-link module-card-disabled">
+                        <div class="module-card">
+                            <span class="module-badge-soon">Bientôt disponible</span>
+                            <div class="module-icon ic-teal"><i class="ri-vidicon-line"></i></div>
+                            <h5>Vidéo Consultation</h5>
+                            <p>Consultations médicales à distance</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="javascript:void(0);" class="module-card-link module-card-disabled">
+                        <div class="module-card">
+                            <span class="module-badge-soon">Bientôt disponible</span>
+                            <div class="module-icon ic-purple"><i class="ri-robot-2-line"></i></div>
+                            <h5>Agent IA</h5>
+                            <p>Assistant intelligent pour l'aide au diagnostic</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PHARMACIE & STOCK -->
+        <!-- ============================== -->
+        <div class="modules-section">
+            <div class="modules-section-title">
+                <span class="bar"></span>
+                <span>Pharmacie &amp; Stock</span>
+            </div>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-3">
+
+                <div class="col">
+                    <a href="{% url 'medicaments:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-blue"><i class="ri-capsule-line"></i></div>
+                            <h5>Médicaments</h5>
+                            <p>Catalogue des médicaments</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'pharmacie:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-amber"><i class="ri-medicine-bottle-line"></i></div>
+                            <h5>Pharmacie</h5>
+                            <p>Gestion de la pharmacie</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'stock:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-teal"><i class="ri-archive-line"></i></div>
+                            <h5>Stock</h5>
+                            <p>Gestion des stocks et inventaire</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- STRUCTURE & PERSONNEL -->
+        <!-- ============================== -->
+        <div class="modules-section">
+            <div class="modules-section-title">
+                <span class="bar"></span>
+                <span>Structure &amp; Personnel</span>
+            </div>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-3">
+
+                <div class="col">
+                    <a href="{% url 'cliniques_partenaires:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-green"><i class="ri-hospital-line"></i></div>
+                            <h5>Cliniques</h5>
+                            <p>Gestion des établissements</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'personnels:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-teal"><i class="ri-team-line"></i></div>
+                            <h5>Personnel</h5>
+                            <p>Gestion du personnel médical</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'accounts:list_users' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-blue"><i class="ri-user-3-line"></i></div>
+                            <h5>Comptes</h5>
+                            <p>Gestion des comptes utilisateurs</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PRISE EN CHARGE -->
+        <!-- ============================== -->
+        {% if config_etablissement.module_prise_en_charge_actif %}
+        <div class="modules-section">
+            <div class="modules-section-title">
+                <span class="bar"></span>
+                <span>Prise en Charge</span>
+            </div>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-3">
+
+                <div class="col">
+                    <a href="{% url 'entreprises:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-blue"><i class="ri-building-2-line"></i></div>
+                            <h5>Prise en charge</h5>
+                            <p>Gestion des entreprises, bénéficiaires, contrats et cartes sanitaires</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ============================== -->
+        <!-- DOCUMENTS & SYSTEME -->
+        <!-- ============================== -->
+        <div class="modules-section">
+            <div class="modules-section-title">
+                <span class="bar"></span>
+                <span>Documents &amp; Système</span>
+            </div>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-3">
+
+                <div class="col">
+                    <a href="{% url 'dashboard:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-blue"><i class="ri-dashboard-3-line"></i></div>
+                            <h5>Tableau de Bord</h5>
+                            <p>Vue d'ensemble de l'activité</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'documents:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-teal"><i class="ri-folder-3-line"></i></div>
+                            <h5>Documents</h5>
+                            <p>Gestion documentaire</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'parametrage_general:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-slate"><i class="ri-settings-4-line"></i></div>
+                            <h5>Paramétrage Général</h5>
+                            <p>Configuration du système</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'administration:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-dark"><i class="ri-shield-user-line"></i></div>
+                            <h5>Administration</h5>
+                            <p>Administration du système</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="{% url 'api:index' %}" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-amber"><i class="ri-code-s-slash-line"></i></div>
+                            <h5>API</h5>
+                            <p>Intégrations et API</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="/workflow/" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-blue"><i class="ri-flow-chart"></i></div>
+                            <h5>Workflow</h5>
+                            <p>Gestion des workflows et processus</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a href="/portail/" class="module-card-link">
+                        <div class="module-card">
+                            <div class="module-icon ic-green"><i class="ri-global-line"></i></div>
+                            <h5>Site Public</h5>
+                            <p>Portail public / vitrine</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- container-fluid -->
+</div>
+
+{% endblock content %}

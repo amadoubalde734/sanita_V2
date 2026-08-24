@@ -1,0 +1,122 @@
+{% extends 'base_auth.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+    .sanita-logout-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg, #0b3d3a 0%, #0f5c56 45%, #12766e 100%);
+    }
+
+    .sanita-logout-card {
+        width: 100%;
+        max-width: 440px;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 3rem 2.5rem;
+        text-align: center;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.35);
+    }
+
+    .sanita-logout-logo img {
+        height: 42px;
+        margin-bottom: 2rem;
+    }
+
+    .sanita-check-circle {
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 1.75rem;
+        border-radius: 50%;
+        background: #e6f5f2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: sanita-pop 0.4s ease;
+    }
+
+    @keyframes sanita-pop {
+        0% { transform: scale(0.6); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .sanita-check-circle svg {
+        width: 40px;
+        height: 40px;
+        stroke: #12766e;
+    }
+
+    .sanita-logout-card h5 {
+        font-weight: 700;
+        color: #10312e;
+        margin-bottom: 0.5rem;
+    }
+
+    .sanita-logout-card p {
+        color: #6b7c7a;
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+    }
+
+    .sanita-logout-card p .brand {
+        font-weight: 600;
+        color: #10312e;
+    }
+
+    .sanita-login-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.85rem;
+        border-radius: 10px;
+        background: #12766e;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.975rem;
+        text-decoration: none;
+        transition: background 0.2s ease;
+    }
+
+    .sanita-login-btn:hover {
+        background: #0f5c56;
+        color: #ffffff;
+    }
+</style>
+
+<div class="sanita-logout-wrapper">
+    <div class="sanita-logout-card">
+
+        <div class="sanita-logout-logo">
+            <a href="{% url 'dashboard:index' %}">
+                <img src="{% static 'backend/assets/images/logo_sanita/logo-light_sanita.png' %}" alt="SANITA">
+            </a>
+        </div>
+
+        <div class="sanita-check-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+
+        <h5>Vous êtes déconnecté</h5>
+        <p>Merci d'avoir utilisé <span class="brand">SANITA V2.0</span></p>
+
+        <a href="{% url 'accounts:admin_login' %}" class="sanita-login-btn">
+            <i class="mdi mdi-login"></i>
+            Se connecter
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,70 @@
+consultations/
+│
+├── admin.py
+├── apps.py
+├── urls.py
+├── signals.py
+├── permissions.py
+├── utils.py
+│
+├── models/
+│   ├── __init__.py
+│   ├── consultation.py
+│   ├── hospitalisation.py
+│   ├── rendez_vous.py
+│   ├── diagnostic.py
+│   ├── signe_vital.py
+│   ├── acte_medical.py
+│   ├── arret_travail.py
+│   ├── certificat_medical.py
+│   ├── orientation.py
+│   ├── referement.py
+│   └── historique_consultation.py
+│
+├── views/
+│   ├── __init__.py
+│   ├── consultation_views.py
+│   ├── hospitalisation_views.py
+│   ├── rendez_vous_views.py
+│   └── ...
+│
+├── forms/
+│   ├── __init__.py
+│   ├── consultation_forms.py
+│   └── ...
+│
+├── services/
+│   ├── __init__.py
+│   ├── consultation_service.py
+│   └── hospitalisation_service.py
+│
+├── filters/
+│   ├── __init__.py
+│   └── consultation_filter.py
+│
+├── tables/
+│   ├── __init__.py
+│   └── consultation_table.py
+│
+├── templates/
+│   └── consultations/
+│       ├── consultation/
+│       │   ├── liste.html
+│       │   ├── ajouter.html
+│       │   ├── modifier.html
+│       │   └── detail.html
+│       │
+│       ├── hospitalisation/
+│       ├── rendez_vous/
+│       ├── diagnostic/
+│       ├── acte_medical/
+│       ├── certificats/
+│       └── historique/
+│
+├── static/
+│   └── consultations/
+│       ├── css/
+│       ├── js/
+│       └── images/
+│
+└── migrations/

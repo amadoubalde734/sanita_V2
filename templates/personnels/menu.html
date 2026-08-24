@@ -1,0 +1,61 @@
+{% load static %}
+<div class="navbar-brand-box">
+    <a href="{% url 'personnels:index' %}" class="logo logo-dark">
+        <span class="logo-lg"><strong>Personnels</strong></span>
+    </a>
+</div>
+<div id="scrollbar">
+    <div class="container-fluid">
+        <ul class="navbar-nav" id="navbar-nav">
+            <li class="menu-title"><span>RH</span></li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'personnels:index' %}">
+                    <i class="ri-dashboard-line"></i>
+                    Tableau de bord
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'personnels:employe_list' %}">
+                    <i class="ri-group-line"></i>
+                    Liste des employés
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'personnels:employe_create' %}">
+                    <i class="ri-add-circle-line"></i>
+                    Ajouter un employé
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'personnels:ayant_droit_list' %}">
+                    <i class="ri-user-star-line"></i>
+                    Ayants droit
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'personnels:enfant_create' %}">
+                    <i class="ri-genderless-line"></i>
+                    Ajouter un enfant
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'personnels:conjoint_create' %}">
+                    <i class="ri-heart-line"></i>
+                    Ajouter un conjoint
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'personnels:autre_ayant_droit_create' %}">
+                    <i class="ri-contacts-line"></i>
+                    Ajouter un autre ayant droit
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:index' %}">
+                    <i class="ri-arrow-go-back-line"></i>
+                    Retour au dashboard
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

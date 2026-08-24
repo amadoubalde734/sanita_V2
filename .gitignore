@@ -1,0 +1,34 @@
+﻿# Environnements virtuels
+venv/
+venvSanita/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.log
+
+# Variables d'environnement et secrets
+.env
+.env.*
+
+# Base SQLite locale
+db.sqlite3
+
+# Fichiers générés Django
+staticfiles/
+
+# Médias locaux
+media/
+
+# IDE
+.vscode/
+.idea/
+
+# Windows
+Thumbs.db
+.DS_Store
+sanita_projet_db.sql
+
+# Fichier contenant une clé Mapbox
+static/backend/assets/js/pages/leaflet-map.init.js

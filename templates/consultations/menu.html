@@ -1,0 +1,74 @@
+{% load static %}
+
+<div class="navbar-brand-box">
+    <a href="{% url 'consultations:index' %}" class="logo logo-dark">
+        <span class="logo-sm">
+            <img src="{% static 'backend/assets/images/logo-sm.svg' %}" alt="Logo" height="22">
+        </span>
+        <span class="logo-lg">
+            <img src="{% static 'backend/assets/images/logo-dark.png' %}" alt="Logo" height="17">
+        </span>
+    </a>
+</div>
+
+<div class="app-menu-content">
+    <ul class="navbar-nav" id="navbar-nav">
+        <li class="menu-title"><span>Consultations</span></li>
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'consultations:index' %}">
+                <i class="ri-dashboard-line"></i>
+                <span data-key="t-dashboard">Tableau de bord</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'consultations:consultation_list' %}">
+                <i class="ri-file-list-3-line"></i>
+                <span data-key="t-consultations">Consultations</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'consultations:rendez_vous_list' %}">
+                <i class="ri-calendar-line"></i>
+                <span data-key="t-rendezvous">Rendez-vous</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'consultations:arret_travail_list' %}">
+                <i class="ri-heart-pulse-line"></i>
+                <span data-key="t-arrets">Arrêts médicaux</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'consultations:orientation_list' %}">
+                <i class="ri-map-pin-line"></i>
+                <span data-key="t-orientations">Orientations</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'consultations:referement_list' %}">
+                <i class="ri-shuffle-line"></i>
+                <span data-key="t-referements">Référés</span>
+            </a>
+        </li>
+        <li class="menu-title mt-2"><span>Examens externes</span></li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'laboratoires:index' %}">
+                <i class="ri-flask-line"></i>
+                <span data-key="t-laboratoires">Laboratoires</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'imagerie:index' %}">
+                <i class="ri-camera-line"></i>
+                <span data-key="t-imagerie">Imagerie</span>
+            </a>
+        </li>
+        <li class="menu-title mt-2"><span>Navigation globale</span></li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:index' %}">
+                <i class="ri-arrow-go-back-line"></i>
+                <span data-key="t-back-to-dashboard">Retour au dashboard</span>
+            </a>
+        </li>
+    </ul>
+</div>

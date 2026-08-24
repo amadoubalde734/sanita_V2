@@ -1,0 +1,285 @@
+{% extends 'base_auth.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+    .sanita-auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg, #0b3d3a 0%, #0f5c56 45%, #12766e 100%);
+    }
+
+    .sanita-auth-card {
+        width: 100%;
+        max-width: 980px;
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.35);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 900px) {
+        .sanita-auth-card {
+            grid-template-columns: 1fr;
+        }
+        .sanita-auth-brand {
+            display: none;
+        }
+    }
+
+    .sanita-auth-brand {
+        position: relative;
+        padding: 3rem 2.5rem;
+        color: #ffffff;
+        background: linear-gradient(160deg, #0f5c56, #0b3d3a);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .sanita-auth-brand::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 60%);
+    }
+
+    .sanita-auth-logo img {
+        height: 48px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .sanita-auth-tagline {
+        position: relative;
+        z-index: 1;
+    }
+
+    .sanita-auth-tagline h3 {
+        font-weight: 600;
+        font-size: 1.5rem;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+    }
+
+    .sanita-auth-tagline p {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .sanita-auth-form-side {
+        padding: 3rem 2.75rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .sanita-auth-form-side h4 {
+        font-weight: 700;
+        color: #10312e;
+        margin-bottom: 0.35rem;
+    }
+
+    .sanita-auth-form-side .subtitle {
+        color: #6b7c7a;
+        font-size: 0.925rem;
+        margin-bottom: 2rem;
+    }
+
+    .sanita-field {
+        margin-bottom: 1.35rem;
+    }
+
+    .sanita-field label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #10312e;
+        margin-bottom: 0.4rem;
+    }
+
+    .sanita-input-group {
+        position: relative;
+    }
+
+    .sanita-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid #e1e7e6;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: #10312e;
+        background: #f8faf9;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .sanita-input:focus {
+        outline: none;
+        border-color: #12766e;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(18, 118, 110, 0.12);
+    }
+
+    .sanita-toggle-pass {
+        position: absolute;
+        right: 0.9rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #8a9997;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+    }
+
+    .sanita-toggle-pass:hover {
+        color: #12766e;
+    }
+
+    .sanita-row-between {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .sanita-remember {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #10312e;
+    }
+
+    .sanita-remember input {
+        width: 16px;
+        height: 16px;
+        accent-color: #12766e;
+    }
+
+    .sanita-forgot {
+        color: #12766e;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .sanita-forgot:hover {
+        text-decoration: underline;
+    }
+
+    .sanita-submit-btn {
+        width: 100%;
+        padding: 0.85rem;
+        border: none;
+        border-radius: 10px;
+        background: #12766e;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.975rem;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .sanita-submit-btn:hover {
+        background: #0f5c56;
+    }
+
+    .sanita-submit-btn:active {
+        transform: scale(0.99);
+    }
+
+    .sanita-footer-note {
+        text-align: center;
+        margin-top: 1.75rem;
+        font-size: 0.85rem;
+        color: #8a9997;
+    }
+</style>
+
+<div class="sanita-auth-wrapper">
+    <div class="sanita-auth-card">
+
+        <div class="sanita-auth-brand">
+            <div class="sanita-auth-logo">
+                <a href="{% url 'dashboard:index' %}">
+                    <img src="{% static 'backend/assets/images/logo_sanita/logo-light_sanita.png' %}" alt="SANITA">
+                </a>
+            </div>
+            <div class="sanita-auth-tagline">
+                <h3>Gérez vos activités médicales en toute sérénité</h3>
+                <p>Une plateforme sécurisée pour le suivi des patients, du personnel et des ressources de votre établissement.</p>
+            </div>
+        </div>
+
+        <div class="sanita-auth-form-side">
+            <h4>Bienvenue sur SANITA</h4>
+            <p class="subtitle">Connectez-vous pour accéder à votre espace médical.</p>
+
+            {% include "backend/includes/message.html" %}
+
+            <form action="{% url 'accounts:admin_login' %}" method="POST">
+                {% csrf_token %}
+
+                <div class="sanita-field">
+                    <label for="username">Identifiant</label>
+                    <div class="sanita-input-group">
+                        <input type="text" class="sanita-input" id="username" name="username"
+                               value="{{ fieldValues.username }}" placeholder="Votre nom d'utilisateur" autocomplete="username" required>
+                    </div>
+                </div>
+
+                <div class="sanita-field">
+                    <label for="password-input">Mot de passe</label>
+                    <div class="sanita-input-group">
+                        <input type="password" name="password" class="sanita-input" placeholder="••••••••"
+                               id="password-input" autocomplete="current-password" required>
+                        <button class="sanita-toggle-pass" type="button" id="password-addon" aria-label="Afficher le mot de passe">
+                            <i class="ri-eye-fill" id="password-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sanita-row-between">
+                    <label class="sanita-remember">
+                        <input type="checkbox" id="auth-remember-check">
+                        Se souvenir de moi
+                    </label>
+                    <a href="{% url 'accounts:reset_code' %}" class="sanita-forgot">Mot de passe oublié ?</a>
+                </div>
+
+                <button class="sanita-submit-btn" type="submit">Se connecter</button>
+            </form>
+
+            <p class="sanita-footer-note">© {% now "Y" %} SANITA — Tous droits réservés</p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        const toggle = document.getElementById('password-addon');
+        const input = document.getElementById('password-input');
+        const icon = document.getElementById('password-icon');
+        if (toggle && input && icon) {
+            toggle.addEventListener('click', function () {
+                const isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                icon.className = isHidden ? 'ri-eye-off-fill' : 'ri-eye-fill';
+            });
+        }
+    })();
+</script>
+
+{% endblock %}

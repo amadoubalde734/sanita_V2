@@ -1,0 +1,37 @@
+1. parametrage_general        ✅
+        |
+        |
+2. accounts                   ✅
+        |
+        |
+3. personnels                 ⬅️ priorité actuelle
+        |
+        |
+4. patients
+        |
+        |
+5. consultations
+        |
+        |
+6. laboratoire
+        |
+        |
+7. ordonnances
+        |
+        |
+8. medicaments + stock
+        |
+        |
+9. pharmacie
+        |
+        |
+10. documents
+        |
+        |
+11. notifications
+        |
+        |
+12. audit
+        |
+        |
+13. api + synchronisation offline

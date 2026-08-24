@@ -1,0 +1,23 @@
+PARAMETRAGE
+      |
+      ↓
+UTILISATEURS / DROITS
+      |
+      ↓
+EMPLOYÉS + AYANTS DROIT
+      |
+      ↓
+PATIENTS
+      |
+      ↓
+PRISE EN CHARGE MÉDICALE
+      |
+      ├── Consultation
+      |
+      ├── Laboratoire
+      |
+      ├── Ordonnance
+      |
+      ├── Médicaments / Stock
+      |
+      └── Pharmacie

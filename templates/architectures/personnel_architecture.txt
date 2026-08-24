@@ -1,0 +1,72 @@
+personnels/
+│
+├── admin.py
+├── apps.py
+├── urls.py
+├── signals.py
+├── permissions.py
+├── utils.py
+│
+├── models/
+│   ├── __init__.py
+│   ├── employe.py
+│   ├── ayant_droit.py
+│   ├── famille.py
+│   ├── poste.py
+│   ├── departement.py
+│   ├── service.py
+│   └── historique_personnel.py
+│
+├── views/
+│   ├── __init__.py
+│   ├── employe_views.py
+│   ├── ayant_droit_views.py
+│   ├── famille_views.py
+│   └── recherche_views.py
+│
+├── forms/
+│   ├── __init__.py
+│   ├── employe_forms.py
+│   └── ayant_droit_forms.py
+│
+├── services/
+│   ├── __init__.py
+│   ├── employe_service.py
+│   └── matricule_service.py
+│
+├── filters/
+│   ├── __init__.py
+│   └── employe_filter.py
+│
+├── tables/
+│   ├── __init__.py
+│   └── employe_table.py
+│
+├── templates/
+│   └── personnels/
+│       │
+│       ├── employes/
+│       │   ├── liste.html
+│       │   ├── ajouter.html
+│       │   ├── modifier.html
+│       │   └── detail.html
+│       │
+│       ├── ayants_droit/
+│       │   ├── liste.html
+│       │   ├── ajouter.html
+│       │   ├── modifier.html
+│       │   └── detail.html
+│       │
+│       ├── familles/
+│       │   └── detail.html
+│       │
+│       └── historique/
+│           └── liste.html
+│
+├── static/
+│   └── personnels/
+│       ├── css/
+│       ├── js/
+│       └── images/
+│
+└── migrations/

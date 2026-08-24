@@ -1,0 +1,65 @@
+{% load static %}
+
+<div class="navbar-brand-box">
+    <a href="{% url 'entreprises:index' %}" class="logo logo-dark">
+        <span class="logo-lg">
+            <strong>Entreprises</strong>
+        </span>
+    </a>
+</div>
+
+<div id="scrollbar">
+    <div class="container-fluid">
+
+        <ul class="navbar-nav" id="navbar-nav">
+
+            <li class="menu-title">
+                <span>Entreprises</span>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'entreprises:index' %}">
+                    <i class="ri-building-2-line"></i>
+                    Tableau de bord
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="ri-building-line"></i>
+                    Liste des entreprises
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="ri-add-circle-line"></i>
+                    Nouvelle entreprise
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="ri-file-list-3-line"></i>
+                    Contrats
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="ri-bar-chart-line"></i>
+                    Statistiques
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:index' %}">
+                    <i class="ri-dashboard-line"></i>
+                    Retour au tableau de bord
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+</div>

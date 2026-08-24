@@ -1,0 +1,73 @@
+{% extends 'consultations/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+<div class="row">
+    <div class="col-12">
+        <h4 class="fs-16 mb-3">Module Consultations</h4>
+        <p class="text-muted">Pilotez les consultations et déléguez les examens spécialisés aux modules Laboratoires et Imagerie.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Consultations</h5>
+                <p class="text-muted">Suivez les consultations, les motifs et les détails patients.</p>
+                <a href="{% url 'consultations:consultation_list' %}" class="btn btn-soft-primary btn-sm mt-2">Voir les consultations</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Rendez-vous</h5>
+                <p class="text-muted">Gestion des rendez-vous médicaux programmés.</p>
+                <a href="{% url 'consultations:rendez_vous_list' %}" class="btn btn-soft-warning btn-sm mt-2">Voir les rendez-vous</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Hospitalisations</h5>
+                <p class="text-muted">Suivi des hospitalisations et séjours patients.</p>
+                <a href="{% url 'consultations:hospitalisation_list' %}" class="btn btn-soft-success btn-sm mt-2">Voir les hospitalisations</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-6 col-md-6">
+        <div class="card border-success">
+            <div class="card-body">
+                <h5 class="card-title">Examens de laboratoire</h5>
+                <p class="text-muted">Les analyses sanguines et biologiques sont gérées dans le module Laboratoires.</p>
+                <a href="{% url 'laboratoires:index' %}" class="btn btn-soft-success btn-sm mt-2">Ouvrir Laboratoires</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <div class="card border-info">
+            <div class="card-body">
+                <h5 class="card-title">Imagerie médicale</h5>
+                <p class="text-muted">Les demandes d’écho, scanner, IRM et radiologie sont pris en charge par Imagerie.</p>
+                <a href="{% url 'imagerie:index' %}" class="btn btn-soft-info btn-sm mt-2">Ouvrir Imagerie</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Flux métier</h5>
+                <p class="text-muted mb-0">Consultations reste le point d’entrée patient, tandis que Laboratoires et Imagerie traitent les examens spécialisés.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

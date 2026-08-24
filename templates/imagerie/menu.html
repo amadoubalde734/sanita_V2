@@ -1,0 +1,30 @@
+{% load static %}
+
+<div class='navbar-brand-box'>
+    <a href='{% url 'imagerie:index' %}' class='logo logo-dark'>
+        <span class='logo-sm'>
+            <img src='{% static 'backend/assets/images/logo-sm.svg' %}' alt='Logo' height='22'>
+        </span>
+        <span class='logo-lg'>
+            <img src='{% static 'backend/assets/images/logo-dark.png' %}' alt='Logo' height='17'>
+        </span>
+    </a>
+</div>
+
+<div class='app-menu-content'>
+    <ul class='navbar-nav' id='navbar-nav'>
+        <li class='menu-title'><span>Imagerie</span></li>
+        <li class='nav-item'>
+            <a class='nav-link active' href='{% url 'imagerie:index' %}'>
+                <i class='ri-dashboard-line'></i>
+                <span data-key='t-dashboard'>Tableau de bord</span>
+            </a>
+        </li>
+        <li class='nav-item'>
+            <a class='nav-link' href='{% url 'dashboard:index' %}'>
+                <i class='ri-arrow-go-back-line'></i>
+                <span data-key='t-back-to-dashboard'>Retour dashboard</span>
+            </a>
+        </li>
+    </ul>
+</div>
