@@ -1,22 +1,159 @@
 {% load static %}
 
-<div class='navbar-brand-box'>
-    <a href='{% url 'administration:index' %}' class='logo logo-dark'>
-        <span class='logo-sm'>
-            <img src='{% static 'backend/assets/images/logo-sm.svg' %}' alt='Logo' height='22'>
-        </span>
-        <span class='logo-lg'>
-            <img src='{% static 'backend/assets/images/logo-dark.png' %}' alt='Logo' height='17'>
+<div class="navbar-brand-box">
+    <a href="{% url 'administration:index' %}" class="logo logo-dark">
+        <span class="logo-lg">
+            <strong>Administration</strong>
         </span>
     </a>
 </div>
 
-<div class='app-menu-content'>
-    <ul class='navbar-nav'>
-        <li class='nav-item'>
-            <a class='nav-link active' href='{% url 'administration:index' %}'>
-                <span data-key='t-dashboard'>Tableau de bord</span>
-            </a>
-        </li>
-    </ul>
+<div id="scrollbar">
+    <div class="container-fluid">
+
+        {% with admin_namespaces="accounts,abonnement" %}
+        <ul class="navbar-nav" id="navbar-nav">
+
+            <li class="menu-title">
+                <span>Administration</span>
+            </li>
+
+            <!-- Tableau de bord -->
+            <li class="nav-item">
+                <a class="nav-link{% if request.resolver_match.url_name == 'index' and request.resolver_match.namespace == 'administration' %} active{% endif %}"
+                   href="{% url 'administration:index' %}">
+                    <i class="las la-tachometer-alt" aria-hidden="true"></i>
+                    Tableau de bord
+                </a>
+            </li>
+
+            <!-- Utilisateurs -->
+            <li class="nav-item">
+                <a href="{% url 'accounts:list_users' %}"
+                   class="nav-link{% if request.resolver_match.url_name == 'list_users' %} active{% endif %}"
+                   {% if request.resolver_match.url_name == 'list_users' %}aria-current="page"{% endif %}>
+                    <i class="las la-users-cog" aria-hidden="true"></i> Utilisateurs
+                    {% if total_users %}
+                        <span class="badge bg-secondary-subtle text-secondary ms-1 fs-11">{{ total_users }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Rôles & permissions -->
+            <li class="nav-item">
+                <a href="{% url 'accounts:list_roles' %}"
+                   class="nav-link{% if request.resolver_match.url_name in "list_roles,add_role,edit_role" %} active{% endif %}"
+                   {% if request.resolver_match.url_name in "list_roles,add_role,edit_role" %}aria-current="page"{% endif %}>
+                    <i class="las la-user-tag" aria-hidden="true"></i> Rôles &amp; permissions
+                    {% if roles_count %}
+                        <span class="badge bg-secondary-subtle text-secondary ms-1 fs-11">{{ roles_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Modules -->
+            <li class="nav-item">
+                <a href="{% url 'accounts:list_modules' %}"
+                   class="nav-link{% if request.resolver_match.url_name == 'list_modules' %} active{% endif %}">
+                    <i class="las la-cubes" aria-hidden="true"></i>
+                    <span>Modules</span>
+                    {% if modules_count %}
+                        <span class="badge bg-secondary-subtle text-secondary ms-1 fs-11">{{ modules_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Groupes -->
+            <li class="nav-item">
+                <a href="{% url 'accounts:list_groups' %}"
+                   class="nav-link{% if request.resolver_match.url_name == 'list_groups' %} active{% endif %}">
+                    <i class="las la-users" aria-hidden="true"></i>
+                    <span>Groupes</span>
+                </a>
+            </li>
+
+            <!-- Abonnement (Licences + Référentiel des plans) -->
+            <li class="nav-item">
+                {% with abo_active="list,add,detail,edit,suspend,cancel,activate,renew,plans,plan_add,plan_detail,plan_edit,plan_toggle" %}
+                <a class="nav-link menu-link{% if request.resolver_match.namespace == 'abonnement' and request.resolver_match.url_name in abo_active %} active{% endif %}"
+                   href="#sidebarAbonnement" data-bs-toggle="collapse" role="button"
+                   aria-expanded="{% if request.resolver_match.namespace == 'abonnement' and request.resolver_match.url_name in abo_active %}true{% else %}false{% endif %}"
+                   aria-controls="sidebarAbonnement">
+                    <i class="ri-shield-key-line" aria-hidden="true"></i>
+                    <span>Abonnement</span>
+                </a>
+                <div class="collapse menu-dropdown{% if request.resolver_match.namespace == 'abonnement' and request.resolver_match.url_name in abo_active %} show{% endif %}"
+                     id="sidebarAbonnement">
+                    <ul class="nav nav-sm flex-column">
+                        <li class="nav-item">
+                            <a href="{% url 'abonnement:list' %}"
+                               class="nav-link{% if request.resolver_match.namespace == 'abonnement' and request.resolver_match.url_name in "list,add,detail,edit,suspend,cancel,activate,renew" %} active{% endif %}">
+                                Licences
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'abonnement:plans' %}"
+                               class="nav-link{% if request.resolver_match.namespace == 'abonnement' and request.resolver_match.url_name in "plans,plan_add,plan_detail,plan_edit,plan_toggle" %} active{% endif %}">
+                                Référentiel des plans
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% endwith %}
+            </li>
+
+            <!-- Contrats de maintenance -->
+            <li class="nav-item">
+                {% with contract_active="contract_list,contract_add,contract_detail,contract_edit,contract_suspend,contract_cancel,contract_activate" %}
+                <a href="{% url 'abonnement:contract_list' %}"
+                   class="nav-link{% if request.resolver_match.namespace == 'abonnement' and request.resolver_match.url_name in contract_active %} active{% endif %}"
+                   {% if request.resolver_match.namespace == 'abonnement' and request.resolver_match.url_name in contract_active %}aria-current="page"{% endif %}>
+                    <i class="las la-file-contract" aria-hidden="true"></i>
+                    <span>Contrats de maintenance</span>
+                </a>
+                {% endwith %}
+            </li>
+
+            <!-- Journal des activités : vue pas encore créée -->
+            <li class="nav-item">
+                <a href="#" class="nav-link disabled" aria-disabled="true" tabindex="-1">
+                    <i class="las la-history" aria-hidden="true"></i> Journal des activités
+                </a>
+            </li>
+
+            <!-- Utilisateurs connectés -->
+            <li class="nav-item">
+                <a href="{% url 'accounts:connected_users' %}"
+                   class="nav-link{% if request.resolver_match.url_name == 'connected_users' %} active{% endif %}"
+                   {% if request.resolver_match.url_name == 'connected_users' %}aria-current="page"{% endif %}>
+                    <i class="las la-sign-in-alt" aria-hidden="true"></i> Utilisateurs connectés
+                </a>
+            </li>
+
+            <!-- Notifications : vue pas encore créée -->
+            <li class="nav-item">
+                <a href="#" class="nav-link disabled" aria-disabled="true" tabindex="-1">
+                    <i class="las la-bell" aria-hidden="true"></i> Notifications
+                </a>
+            </li>
+
+            <!-- Paramètres système : vue pas encore créée -->
+            <li class="nav-item">
+                <a href="#" class="nav-link disabled" aria-disabled="true" tabindex="-1">
+                    <i class="las la-cogs" aria-hidden="true"></i> Paramètres système
+                </a>
+            </li>
+
+            <!-- Retour aux modules -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:index' %}">
+                    <i class="ri-arrow-left-line" aria-hidden="true"></i>
+                    Retour aux modules
+                </a>
+            </li>
+
+        </ul>
+        {% endwith %}
+
+    </div>
 </div>

@@ -1,0 +1,365 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<!-- ====================================================== -->
+<!-- ===================== TITRE PAGE ===================== -->
+<!-- ====================================================== -->
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+
+        <div>
+            <h4 class="mb-1">
+                <i class="ri-edit-2-line align-middle me-1 text-primary"></i>
+                Modifier le plan
+            </h4>
+
+            <p class="text-muted mb-0">
+                Modification de la formule <strong>{{ object.name }}</strong>
+            </p>
+        </div>
+
+        <a href="{% url 'abonnement:plans' %}" class="btn btn-secondary btn-sm">
+            <i class="ri-arrow-left-line align-middle me-1"></i>
+            Retour aux plans
+        </a>
+
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- ====================== FORMULAIRE ==================== -->
+<!-- ====================================================== -->
+<div class="row">
+    <div class="col-lg-12">
+
+        <div class="card shadow-sm border-0">
+
+            <!-- ================= HEADER ================= -->
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="ri-price-tag-3-line me-1"></i>
+                    Informations du plan
+                </h5>
+            </div>
+
+
+            <!-- ================= BODY ================= -->
+            <div class="card-body">
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- ================= ERREURS GÉNÉRALES ================= -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger d-flex align-items-start" role="alert">
+                            <i class="ri-error-warning-line fs-18 me-2 mt-1"></i>
+
+                            <div>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+
+                    <div class="row g-3">
+
+                        <!-- ================= CODE ================= -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label for="{{ form.code.id_for_label }}" class="form-label">
+                                    Code <span class="text-danger">*</span>
+                                </label>
+
+                                {{ form.code }}
+
+                                {% for error in form.code.errors %}
+                                    <div class="text-danger mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+
+                        <!-- ================= NOM ================= -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label for="{{ form.name.id_for_label }}" class="form-label">
+                                    Nom du plan <span class="text-danger">*</span>
+                                </label>
+
+                                {{ form.name }}
+
+                                {% for error in form.name.errors %}
+                                    <div class="text-danger mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+
+                        <!-- ================= DESCRIPTION ================= -->
+                        <div class="col-12">
+                            <div class="form-group">
+
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    Description
+                                </label>
+
+                                {{ form.description }}
+
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+
+                        <!-- ================= PRIX ================= -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-group">
+
+                                <label for="{{ form.price.id_for_label }}" class="form-label">
+                                    Prix <span class="text-danger">*</span>
+                                </label>
+
+                                {{ form.price }}
+
+                                {% for error in form.price.errors %}
+                                    <div class="text-danger mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+
+                        <!-- ================= DEVISE ================= -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-group">
+
+                                <label for="{{ form.currency.id_for_label }}" class="form-label">
+                                    Devise <span class="text-danger">*</span>
+                                </label>
+
+                                {{ form.currency }}
+
+                                {% for error in form.currency.errors %}
+                                    <div class="text-danger mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+
+                        <!-- ================= STATUT ================= -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-check mt-4">
+
+                                {{ form.active }}
+
+                                <label for="{{ form.active.id_for_label }}" class="form-check-label">
+                                    Plan actif
+                                </label>
+
+                                {% for error in form.active.errors %}
+                                    <div class="text-danger mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+
+                        <!-- ================= LIMITES ================= -->
+                        <div class="col-12">
+                            <div class="card border">
+
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="ri-group-line me-1 text-primary"></i>
+                                        Limites du plan
+                                    </h6>
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="row g-3">
+
+                                        <!-- UTILISATEURS -->
+                                        <div class="col-md-6">
+
+                                            <label for="{{ form.max_users.id_for_label }}" class="form-label">
+                                                Nombre maximum d'utilisateurs
+                                            </label>
+
+                                            {{ form.max_users }}
+
+                                            {% for error in form.max_users.errors %}
+                                                <div class="text-danger mt-1">
+                                                    {{ error }}
+                                                </div>
+                                            {% endfor %}
+
+                                        </div>
+
+
+                                        <!-- SITES -->
+                                        <div class="col-md-6">
+
+                                            <label for="{{ form.max_sites.id_for_label }}" class="form-label">
+                                                Nombre maximum de sites
+                                            </label>
+
+                                            {{ form.max_sites }}
+
+                                            {% for error in form.max_sites.errors %}
+                                                <div class="text-danger mt-1">
+                                                    {{ error }}
+                                                </div>
+                                            {% endfor %}
+
+                                        </div>
+
+
+                                        <!-- UTILISATEURS ILLIMITÉS -->
+                                        <div class="col-md-6">
+
+                                            <div class="form-check">
+
+                                                {{ form.unlimited_users }}
+
+                                                <label
+                                                    for="{{ form.unlimited_users.id_for_label }}"
+                                                    class="form-check-label"
+                                                >
+                                                    Utilisateurs illimités
+                                                </label>
+
+                                            </div>
+
+                                            {% for error in form.unlimited_users.errors %}
+                                                <div class="text-danger mt-1">
+                                                    {{ error }}
+                                                </div>
+                                            {% endfor %}
+
+                                        </div>
+
+
+                                        <!-- SITES ILLIMITÉS -->
+                                        <div class="col-md-6">
+
+                                            <div class="form-check">
+
+                                                {{ form.unlimited_sites }}
+
+                                                <label
+                                                    for="{{ form.unlimited_sites.id_for_label }}"
+                                                    class="form-check-label"
+                                                >
+                                                    Sites illimités
+                                                </label>
+
+                                            </div>
+
+                                            {% for error in form.unlimited_sites.errors %}
+                                                <div class="text-danger mt-1">
+                                                    {{ error }}
+                                                </div>
+                                            {% endfor %}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- ================= INFORMATION ================= -->
+                        <div class="col-12">
+
+                            <div class="alert alert-info border-0 mb-0">
+
+                                <div class="d-flex align-items-start">
+
+                                    <i class="ri-information-line fs-20 me-2"></i>
+
+                                    <div>
+
+                                        <h6 class="mb-1">
+                                            Attention
+                                        </h6>
+
+                                        <p class="mb-0 text-muted">
+                                            La modification des limites du plan peut avoir un impact
+                                            sur les licences qui utilisent actuellement cette formule.
+                                            Les nouvelles licences utiliseront automatiquement les
+                                            limites définies ici.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================= BOUTONS ================= -->
+                        <div class="col-12 mt-4">
+
+                            <button type="submit" class="btn btn-primary">
+
+                                <i class="ri-save-line me-1"></i>
+                                Enregistrer les modifications
+
+                            </button>
+
+
+                            <a
+                                href="{% url 'abonnement:plans' %}"
+                                class="btn btn-outline-secondary"
+                            >
+
+                                <i class="ri-close-line me-1"></i>
+                                Annuler
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

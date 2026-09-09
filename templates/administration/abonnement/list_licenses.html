@@ -1,0 +1,391 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<!-- ====================================================== -->
+<!-- ==================== TITRE DE PAGE =================== -->
+<!-- ====================================================== -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+      <h4 class="mb-sm-0">
+        <i class="ri-key-2-line align-middle me-1 text-primary"></i>
+        Abonnements &amp; licences
+      </h4>
+
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          <li class="breadcrumb-item">
+            <a href="/dashboard/">Administration</a>
+          </li>
+          <li class="breadcrumb-item active">Licences</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- ======================= STATISTIQUES ================= -->
+<!-- ====================================================== -->
+<div class="row">
+
+  <!-- Total -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card card-animate">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <p class="text-uppercase fw-medium text-muted mb-0">Total licences</p>
+            <h4 class="fs-22 fw-semibold mb-0">{{ total_licenses }}</h4>
+          </div>
+          <div class="flex-shrink-0">
+            <div class="avatar-sm">
+              <span class="avatar-title bg-primary-subtle text-primary rounded fs-3">
+                <i class="ri-key-2-line"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actives -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card card-animate">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <p class="text-uppercase fw-medium text-muted mb-0">Licences actives</p>
+            <h4 class="fs-22 fw-semibold mb-0">{{ active_licenses }}</h4>
+          </div>
+          <div class="flex-shrink-0">
+            <div class="avatar-sm">
+              <span class="avatar-title bg-success-subtle text-success rounded fs-3">
+                <i class="ri-checkbox-circle-line"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expirent bientôt -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card card-animate">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <p class="text-uppercase fw-medium text-muted mb-0">Expirent bientôt</p>
+            <h4 class="fs-22 fw-semibold mb-0">{{ expiring_licenses }}</h4>
+          </div>
+          <div class="flex-shrink-0">
+            <div class="avatar-sm">
+              <span class="avatar-title bg-warning-subtle text-warning rounded fs-3">
+                <i class="ri-time-line"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expirées -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card card-animate">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <p class="text-uppercase fw-medium text-muted mb-0">Licences expirées</p>
+            <h4 class="fs-22 fw-semibold mb-0">{{ expired_licenses }}</h4>
+          </div>
+          <div class="flex-shrink-0">
+            <div class="avatar-sm">
+              <span class="avatar-title bg-danger-subtle text-danger rounded fs-3">
+                <i class="ri-close-circle-line"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- ======================== LISTE ======================= -->
+<!-- ====================================================== -->
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card shadow-sm border-0" id="licensesList">
+
+      <!-- ================= HEADER ================= -->
+      <div class="card-header border-0">
+        <div class="row align-items-center g-3">
+
+          <div class="col-md-4">
+            <h5 class="card-title mb-0">Liste des licences</h5>
+          </div>
+
+          <!-- Recherche rapide -->
+          <div class="col-md-4 ms-auto">
+            <form method="get">
+              <div class="search-box">
+                <input type="text" name="search" class="form-control search"
+                       placeholder="Rechercher une licence ou une société..."
+                       value="{{ current_search }}">
+                <i class="ri-search-line search-icon"></i>
+              </div>
+            </form>
+          </div>
+
+          <!-- Ajouter -->
+         <div class="col-md-auto">
+              <a href="{% url 'abonnement:add' %}" class="btn btn-primary">
+                  <i class="ri-add-line align-bottom me-1"></i>
+                  Nouvelle licence
+              </a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= FILTRES ================= -->
+      <div class="card-body border-bottom">
+        <form method="get">
+          <div class="row g-3 align-items-end">
+
+            <div class="col-md-4">
+              <label class="form-label">Recherche</label>
+              <input type="text" name="search" class="form-control"
+                     placeholder="Clé de licence, société..." value="{{ current_search }}">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Statut</label>
+              <select name="status" class="form-select">
+                <option value="">Tous les statuts</option>
+                {% for value, label in status_choices %}
+                  <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-auto">
+              <button type="submit" class="btn btn-primary">
+                <i class="ri-filter-3-line me-1"></i>
+                Filtrer
+              </button>
+            </div>
+
+            <div class="col-md-auto">
+              <a href="{% url 'abonnement:list' %}" class="btn btn-light">
+                <i class="ri-refresh-line me-1"></i>
+                Réinitialiser
+              </a>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <!-- ================= TABLEAU ================= -->
+      <div class="card-body">
+        <div class="table-responsive table-card">
+          <table class="table align-middle table-nowrap mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Clé de licence</th>
+                <th>Société</th>
+                <th>Formule</th>
+                <th>Période</th>
+                <th>Utilisateurs</th>
+                <th>Sites</th>
+                <th>Statut</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for license in licenses %}
+              <tr>
+
+                <!-- Clé -->
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-xs me-2">
+                      <span class="avatar-title bg-primary-subtle text-primary rounded">
+                        <i class="ri-key-2-line"></i>
+                      </span>
+                    </div>
+                    <div>
+                      <h6 class="mb-0 fw-medium">{{ license.license_key }}</h6>
+                      <small class="text-muted">Créée le {{ license.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Société -->
+                <td><span class="fw-medium">{{ license.societe }}</span></td>
+
+                <!-- Formule -->
+                <td>
+                  {% if license.plan.code == "STANDARD" %}
+                    <span class="badge bg-secondary-subtle text-secondary">Standard</span>
+                  {% elif license.plan.code == "PROFESSIONAL" %}
+                    <span class="badge bg-primary-subtle text-primary">Professional</span>
+                  {% elif license.plan.code == "ENTERPRISE" %}
+                    <span class="badge bg-info-subtle text-info">Enterprise</span>
+                  {% else %}
+                    <span class="badge bg-light text-muted">{{ license.plan.name }}</span>
+                  {% endif %}
+                </td>
+
+                <!-- Période -->
+                <td>
+                  <div>
+                    <div class="fw-medium">
+                      {{ license.start_date|date:"d/m/Y" }}
+                      <span class="text-muted mx-1">→</span>
+                      {{ license.end_date|date:"d/m/Y" }}
+                    </div>
+                    <small class="text-muted">{{ license.get_duration_years_display }}</small>
+                  </div>
+                </td>
+
+                <!-- Utilisateurs -->
+                <td>
+                  <span class="badge bg-info-subtle text-info">
+                    {% if license.max_users %}{{ license.max_users }}{% else %}Illimité{% endif %}
+                  </span>
+                </td>
+
+                <!-- Sites -->
+                <td>
+                  <span class="badge bg-info-subtle text-info">
+                    {% if license.max_sites %}{{ license.max_sites }}{% else %}Illimité{% endif %}
+                  </span>
+                </td>
+
+                <!-- Statut -->
+                <td>
+                  {% if license.status == "ACTIVE" %}
+                    <span class="badge bg-success-subtle text-success">
+                      <i class="ri-checkbox-circle-line me-1"></i> Active
+                    </span>
+                  {% elif license.status == "EXPIRING_SOON" %}
+                    <span class="badge bg-warning-subtle text-warning">
+                      <i class="ri-time-line me-1"></i> Expire bientôt
+                    </span>
+                  {% elif license.status == "EXPIRED" %}
+                    <span class="badge bg-danger-subtle text-danger">
+                      <i class="ri-close-circle-line me-1"></i> Expirée
+                    </span>
+                  {% elif license.status == "SUSPENDED" %}
+                    <span class="badge bg-warning-subtle text-warning">
+                      <i class="ri-pause-circle-line me-1"></i> Suspendue
+                    </span>
+                  {% elif license.status == "CANCELLED" %}
+                    <span class="badge bg-secondary-subtle text-secondary">
+                      <i class="ri-forbid-line me-1"></i> Annulée
+                    </span>
+                  {% endif %}
+                </td>
+
+                <!-- Actions -->
+                <td class="text-end">
+                  <a href="{% url 'abonnement:detail' license.pk %}" class="btn btn-sm btn-soft-info" title="Voir">
+                    <i class="ri-eye-line"></i>
+                  </a>
+
+                  <a href="{% url 'abonnement:update' license.pk %}" class="btn btn-sm btn-soft-primary" title="Modifier">
+                    <i class="ri-pencil-line"></i>
+                  </a>
+
+                  {% if license.status == "EXPIRED" or license.status == "EXPIRING_SOON" %}
+                    <a href="{% url 'abonnement:renew' license.pk %}" class="btn btn-sm btn-soft-success" title="Renouveler">
+                      <i class="ri-refresh-line"></i>
+                    </a>
+                  {% endif %}
+                </td>
+
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8">
+                  <div class="text-center py-5">
+                    <div class="avatar-lg mx-auto mb-4">
+                      <div class="avatar-title bg-light text-muted rounded-circle fs-1">
+                        <i class="ri-key-2-line"></i>
+                      </div>
+                    </div>
+                    <h5 class="mb-2">Aucune licence trouvée</h5>
+                    <p class="text-muted mb-3">Aucune licence ne correspond à vos critères de recherche.</p>
+                    <a href="{% url 'abonnement:add' %}" class="btn btn-primary">
+                      <i class="ri-add-line me-1"></i>
+                      Créer une licence
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ================= PAGINATION ================= -->
+        {% if is_paginated %}
+        <div class="d-flex justify-content-end align-items-center mt-4">
+          <nav aria-label="Pagination">
+            <ul class="pagination mb-0">
+
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ current_search }}&status={{ current_status }}">
+                    <i class="ri-arrow-left-s-line"></i>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link"><i class="ri-arrow-left-s-line"></i></span>
+                </li>
+              {% endif %}
+
+              <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+              </li>
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ current_search }}&status={{ current_status }}">
+                    <i class="ri-arrow-right-s-line"></i>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link"><i class="ri-arrow-right-s-line"></i></span>
+                </li>
+              {% endif %}
+
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

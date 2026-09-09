@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     # =====================================================
     'accounts',
     'parametrage_general',
+    'abonnement',
     'personnels',
     'patients',
     'consultations',

@@ -1,9 +1,5 @@
 {% extends 'base_auth.html' %}
 {% load static %}
-{% load i18n %}
-{% load crispy_forms_tags %}
-{% load humanize %}
-{% load widget_tweaks %}
 {% block content %}
 
 <style>
@@ -109,7 +105,7 @@
         </div>
 
         <h5>Vous êtes déconnecté</h5>
-        <p>Merci d'avoir utilisé <span class="brand">SANITA V2.0</span></p>
+        <p>Merci d'avoir utilisé <span class="brand">SANITA</span></p>
 
         <a href="{% url 'accounts:admin_login' %}" class="sanita-login-btn">
             <i class="mdi mdi-login"></i>

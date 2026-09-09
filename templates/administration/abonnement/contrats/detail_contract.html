@@ -1,0 +1,500 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<!-- ===================================================== -->
+
+<!-- EN-TÊTE -->
+
+<!-- ===================================================== -->
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+```
+        <div>
+            <h4 class="mb-sm-0">
+                <i class="ri-file-shield-2-line align-middle me-1 text-primary"></i>
+                Détail du contrat de maintenance
+            </h4>
+
+            <p class="text-muted mb-0 mt-1">
+                Consultez les informations et l'état du contrat.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a href="{% url 'abonnement:contract_list' %}"
+               class="btn btn-secondary btn-sm">
+                <i class="ri-arrow-left-line align-bottom me-1"></i>
+                Retour à la liste
+            </a>
+
+            <a href="{% url 'abonnement:contract_edit' contract.pk %}"
+               class="btn btn-primary btn-sm">
+                <i class="ri-edit-line align-bottom me-1"></i>
+                Modifier
+            </a>
+
+        </div>
+
+    </div>
+</div>
+```
+
+</div>
+
+<!-- ===================================================== -->
+
+<!-- INFORMATIONS PRINCIPALES -->
+
+<!-- ===================================================== -->
+
+<div class="row">
+
+```
+<!-- Colonne principale -->
+<div class="col-xl-8">
+
+    <!-- Identification -->
+    <div class="card">
+
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0">
+                <i class="ri-file-text-line align-middle me-1 text-primary"></i>
+                Informations du contrat
+            </h5>
+
+            <div>
+
+                {% if contract.status == "ACTIVE" %}
+                    <span class="badge bg-success-subtle text-success">
+                        <i class="ri-checkbox-circle-line me-1"></i>
+                        Actif
+                    </span>
+
+                {% elif contract.status == "EXPIRING_SOON" %}
+                    <span class="badge bg-warning-subtle text-warning">
+                        <i class="ri-time-line me-1"></i>
+                        Expire bientôt
+                    </span>
+
+                {% elif contract.status == "EXPIRED" %}
+                    <span class="badge bg-danger-subtle text-danger">
+                        <i class="ri-close-circle-line me-1"></i>
+                        Expiré
+                    </span>
+
+                {% elif contract.status == "SUSPENDED" %}
+                    <span class="badge bg-warning-subtle text-warning">
+                        <i class="ri-pause-circle-line me-1"></i>
+                        Suspendu
+                    </span>
+
+                {% elif contract.status == "CANCELLED" %}
+                    <span class="badge bg-danger-subtle text-danger">
+                        <i class="ri-forbid-2-line me-1"></i>
+                        Annulé
+                    </span>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <!-- Numéro -->
+                <div class="col-md-6">
+                    <div>
+                        <label class="text-muted mb-1">
+                            Numéro du contrat
+                        </label>
+
+                        <div class="fw-semibold fs-16">
+                            {{ contract.contract_number }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Société -->
+                <div class="col-md-6">
+                    <div>
+                        <label class="text-muted mb-1">
+                            Société cliente
+                        </label>
+
+                        <div class="fw-semibold">
+                            {{ contract.societe }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Licence -->
+                <div class="col-md-6">
+                    <div>
+                        <label class="text-muted mb-1">
+                            Licence associée
+                        </label>
+
+                        <div>
+                            <a href="{% url 'abonnement:detail' contract.license.pk %}"
+                               class="fw-semibold text-primary">
+
+                                {{ contract.license.license_key }}
+
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan -->
+                <div class="col-md-6">
+                    <div>
+                        <label class="text-muted mb-1">
+                            Formule
+                        </label>
+
+                        <div class="fw-semibold">
+                            {{ contract.license.plan.name }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- PÉRIODE -->
+    <!-- ================================================= -->
+
+    <div class="card">
+
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-calendar-line align-middle me-1 text-primary"></i>
+                Période du contrat
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+
+                    <label class="text-muted mb-1">
+                        Date de début
+                    </label>
+
+                    <div class="fw-semibold">
+                        {{ contract.start_date|date:"d/m/Y" }}
+                    </div>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="text-muted mb-1">
+                        Date d'expiration
+                    </label>
+
+                    <div class="fw-semibold">
+                        {{ contract.end_date|date:"d/m/Y" }}
+                    </div>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="text-muted mb-1">
+                        Jours restants
+                    </label>
+
+                    <div>
+
+                        {% if contract.status == "EXPIRED" or contract.status == "CANCELLED" %}
+
+                            <span class="badge bg-danger-subtle text-danger">
+                                Expiré
+                            </span>
+
+                        {% elif contract.status == "SUSPENDED" %}
+
+                            <span class="badge bg-warning-subtle text-warning">
+                                Suspendu
+                            </span>
+
+                        {% else %}
+
+                            <span class="fw-semibold">
+                                {{ contract.days_remaining }} jour{{ contract.days_remaining|pluralize }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- DESCRIPTION -->
+    <!-- ================================================= -->
+
+    <div class="card">
+
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-file-info-line align-middle me-1 text-primary"></i>
+                Description
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if contract.description %}
+
+                <p class="text-muted mb-0">
+                    {{ contract.description|linebreaksbr }}
+                </p>
+
+            {% else %}
+
+                <span class="text-muted">
+                    Aucune description renseignée.
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- NOTES -->
+    <!-- ================================================= -->
+
+    <div class="card">
+
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-sticky-note-line align-middle me-1 text-primary"></i>
+                Notes
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if contract.notes %}
+
+                <p class="text-muted mb-0">
+                    {{ contract.notes|linebreaksbr }}
+                </p>
+
+            {% else %}
+
+                <span class="text-muted">
+                    Aucune note renseignée.
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- COLONNE DROITE -->
+<!-- ===================================================== -->
+
+<div class="col-xl-4">
+
+    <!-- Montant -->
+    <div class="card">
+
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-money-dollar-circle-line align-middle me-1 text-primary"></i>
+                Tarification
+            </h5>
+        </div>
+
+        <div class="card-body text-center">
+
+            <h3 class="mb-1">
+                {{ contract.amount|floatformat:0 }}
+                <small class="text-muted fs-14">
+                    {{ contract.currency }}
+                </small>
+            </h3>
+
+            <p class="text-muted mb-0">
+                Montant du contrat
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Actions -->
+    <div class="card">
+
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-settings-3-line align-middle me-1 text-primary"></i>
+                Actions
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="d-grid gap-2">
+
+                <!-- Modifier -->
+                <a href="{% url 'abonnement:contract_edit' contract.pk %}"
+                   class="btn btn-primary">
+
+                    <i class="ri-edit-line align-bottom me-1"></i>
+                    Modifier le contrat
+
+                </a>
+
+
+                <!-- Suspendre -->
+                {% if contract.status == "ACTIVE" or contract.status == "EXPIRING_SOON" %}
+
+                    <a href="{% url 'abonnement:contract_suspend' contract.pk %}"
+                       class="btn btn-warning">
+
+                        <i class="ri-pause-circle-line align-bottom me-1"></i>
+                        Suspendre
+
+                    </a>
+
+                {% endif %}
+
+
+                <!-- Réactiver -->
+                {% if contract.status == "SUSPENDED" %}
+
+                    <a href="{% url 'abonnement:contract_activate' contract.pk %}"
+                       class="btn btn-success">
+
+                        <i class="ri-play-circle-line align-bottom me-1"></i>
+                        Réactiver
+
+                    </a>
+
+                {% endif %}
+
+
+                <!-- Annuler -->
+                {% if contract.status != "CANCELLED" %}
+
+                    <a href="{% url 'abonnement:contract_cancel' contract.pk %}"
+                       class="btn btn-outline-danger">
+
+                        <i class="ri-close-circle-line align-bottom me-1"></i>
+                        Annuler le contrat
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- AUDIT -->
+    <!-- ================================================= -->
+
+    <div class="card">
+
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-history-line align-middle me-1 text-primary"></i>
+                Informations d'audit
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-3">
+
+                <div class="text-muted mb-1">
+                    Créé par
+                </div>
+
+                <div class="fw-semibold">
+                    {% if contract.created_by %}
+                        {{ contract.created_by }}
+                    {% else %}
+                        <span class="text-muted">
+                            Non renseigné
+                        </span>
+                    {% endif %}
+                </div>
+
+            </div>
+
+
+            <div class="mb-3">
+
+                <div class="text-muted mb-1">
+                    Date de création
+                </div>
+
+                <div class="fw-semibold">
+                    {{ contract.created_at|date:"d/m/Y à H:i" }}
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="text-muted mb-1">
+                    Dernière modification
+                </div>
+
+                <div class="fw-semibold">
+                    {{ contract.updated_at|date:"d/m/Y à H:i" }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+{% endblock %}

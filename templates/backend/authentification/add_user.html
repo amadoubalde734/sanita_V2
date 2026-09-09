@@ -1,0 +1,242 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+{% include 'backend/includes/message.html' %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">
+                <i class="ri-user-settings-line align-middle me-1 text-primary"></i>
+                {% if user_instance %}Modifier{% else %}Ajouter{% endif %} un utilisateur
+            </h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Administration</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:list_users' %}">Utilisateurs</a></li>
+                    <li class="breadcrumb-item active">{% if user_instance %}Modifier{% else %}Ajouter{% endif %}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data"
+      action="{% if user_instance %}{% url 'accounts:edit_user' user_instance.pk %}{% else %}{% url 'accounts:add_user' %}{% endif %}">
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-lg-12">
+
+            <!-- ================= Identité ================= -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white d-flex align-items-center">
+                    <i class="ri-user-3-line fs-18 me-2"></i>
+                    <h5 class="card-title mb-0 text-white">Identité</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Nom complet</label>
+                            <input type="text" name="nom" class="form-control"
+                                   value="{% if user_instance %}{{ user_instance.first_name }} {{ user_instance.last_name }}{% endif %}"
+                                   placeholder="Ex : Amadou Bailo Baldé" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Login</label>
+                            <input type="text" id="id_login" name="login" class="form-control"
+                                   value="{% if user_instance %}{{ user_instance.username }}{% endif %}"
+                                   autocomplete="off" required>
+                            <div id="login-feedback" class="small mt-1"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="id_email" name="email" class="form-control"
+                                   value="{% if user_instance %}{{ user_instance.email }}{% endif %}"
+                                   autocomplete="off">
+                            <div id="email-feedback" class="small mt-1"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Contact / Téléphone</label>
+                            <input type="text" name="contact" class="form-control"
+                                   value="{% if user_instance %}{{ user_instance.contact }}{% endif %}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mot de passe {% if user_instance %}<span class="text-muted small">(laisser vide pour ne pas changer)</span>{% endif %}</label>
+                            <input type="password" name="password" class="form-control" autocomplete="new-password"
+                                   {% if not user_instance %}required{% endif %}>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Rôle</label>
+                            <select name="role" class="form-select" required>
+                                <option value="">-- Sélectionner --</option>
+                                {% for r in roles %}
+                                    <option value="{{ r.pk }}"
+                                        {% if user_instance and user_instance.role_id == r.pk %}selected{% endif %}>
+                                        {{ r.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= Rattachement ================= -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white d-flex align-items-center">
+                    <i class="ri-building-line fs-18 me-2"></i>
+                    <h5 class="card-title mb-0 text-white">Rattachement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <label class="form-label">Société</label>
+                            <select name="societe" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                {% for s in societes %}
+                                    <option value="{{ s.pk }}"
+                                        {% if user_instance and user_instance.id_societe_id == s.pk %}selected{% endif %}>
+                                        {{ s.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Site</label>
+                            <select name="site" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                {% for s in sites %}
+                                    <option value="{{ s.pk }}"
+                                        {% if user_instance and user_instance.site_id == s.pk %}selected{% endif %}>
+                                        {{ s.nom_site }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Ville</label>
+                            <select name="ville" class="form-select">
+                                <option value="">-- Sélectionner --</option>
+                                {% for v in villes %}
+                                    <option value="{{ v.pk }}"
+                                        {% if user_instance and user_instance.ville_id == v.pk %}selected{% endif %}>
+                                        {{ v.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= Photo ================= -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white d-flex align-items-center">
+                    <i class="ri-image-line fs-18 me-2"></i>
+                    <h5 class="card-title mb-0 text-white">Photo de profil</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_instance and user_instance.avatar %}
+                        <div class="mb-3">
+                            <img src="{{ user_instance.avatar.url }}" alt="Avatar actuel"
+                                 class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                        </div>
+                    {% endif %}
+                    <input type="file" name="image" class="form-control" accept="image/*">
+                </div>
+            </div>
+
+            <!-- ================= Boutons ================= -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="ri-save-line align-bottom me-1"></i> Enregistrer
+                    </button>
+                    <a href="{% url 'accounts:list_users' %}" class="btn btn-outline-secondary px-4">Annuler</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // CORRIGÉ : on envoie désormais l'id de l'utilisateur en cours d'édition
+    // (null en création) pour que EmailValidationView / UsernameValidationView
+    // puissent s'auto-exclure de la vérification d'unicité. Sans ça, modifier
+    // un utilisateur sans changer son login/email déclenchait toujours
+    // "déjà utilisé" puisqu'il se trouvait lui-même dans la recherche.
+    const currentUserId = {% if user_instance %}{{ user_instance.pk }}{% else %}null{% endif %};
+
+    const loginInput = document.getElementById('id_login');
+    const loginFeedback = document.getElementById('login-feedback');
+    if (loginInput) {
+        loginInput.addEventListener('blur', function () {
+            const value = this.value.trim();
+            if (!value) return;
+            fetch("{% url 'accounts:validate-username' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                body: JSON.stringify({ username: value, user_id: currentUserId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.username_error) {
+                    loginFeedback.textContent = data.username_error;
+                    loginFeedback.className = 'small mt-1 text-danger';
+                } else {
+                    loginFeedback.textContent = '';
+                }
+            })
+            .catch(() => {});
+        });
+    }
+
+    const emailInput = document.getElementById('id_email');
+    const emailFeedback = document.getElementById('email-feedback');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function () {
+            const value = this.value.trim();
+            if (!value) return;
+            fetch("{% url 'accounts:validate-email' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                body: JSON.stringify({ email: value, user_id: currentUserId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.email_error) {
+                    emailFeedback.textContent = data.email_error;
+                    emailFeedback.className = 'small mt-1 text-danger';
+                } else {
+                    emailFeedback.textContent = '';
+                }
+            })
+            .catch(() => {});
+        });
+    }
+});
+</script>
+
+{% endblock %}

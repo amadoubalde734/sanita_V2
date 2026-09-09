@@ -1,9 +1,5 @@
 {% extends 'base_auth.html' %}
 {% load static %}
-{% load i18n %}
-{% load crispy_forms_tags %}
-{% load humanize %}
-{% load widget_tweaks %}
 {% block content %}
 
 <style>
@@ -252,10 +248,10 @@
 
                 <div class="sanita-row-between">
                     <label class="sanita-remember">
-                        <input type="checkbox" id="auth-remember-check">
+                        <input type="checkbox" id="auth-remember-check" name="remember">
                         Se souvenir de moi
                     </label>
-                    <a href="{% url 'accounts:reset_code' %}" class="sanita-forgot">Mot de passe oublié ?</a>
+                    <a href="{% url 'accounts:request_reset_code' %}" class="sanita-forgot">Mot de passe oublié ?</a>
                 </div>
 
                 <button class="sanita-submit-btn" type="submit">Se connecter</button>

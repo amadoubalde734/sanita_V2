@@ -1,0 +1,459 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<!-- ========================= TITRE ========================= -->
+<div class="row">
+    <div class="col-12">
+
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+            <div>
+                <h4 class="mb-sm-0">
+                    {% if group_instance %}
+                        Modifier le groupe
+                    {% else %}
+                        Nouveau groupe
+                    {% endif %}
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Gestion des utilisateurs du groupe
+                </p>
+            </div>
+
+            <div class="page-title-right">
+
+                <ol class="breadcrumb m-0">
+
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'dashboard:index' %}">
+                            Tableau de bord
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'accounts:list_groups' %}">
+                            Groupes
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item active">
+                        {% if group_instance %}
+                            Modifier
+                        {% else %}
+                            Ajouter
+                        {% endif %}
+                    </li>
+
+                </ol>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ========================= FORMULAIRE ========================= -->
+<div class="row">
+
+    <div class="col-xl-8 mx-auto">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="avatar-sm flex-shrink-0">
+
+                        <span class="avatar-title bg-primary-subtle text-primary rounded">
+                            <i class="las la-users fs-20"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="ms-2">
+
+                        <h5 class="card-title mb-0">
+
+                            {% if group_instance %}
+                                Informations du groupe
+                            {% else %}
+                                Création d'un groupe
+                            {% endif %}
+
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Définissez le groupe et ses utilisateurs.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <form
+                method="post"
+                action=""
+            >
+
+                {% csrf_token %}
+
+
+                <div class="card-body">
+
+                    <!-- ================= NOM ================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="groupName"
+                            class="form-label"
+                        >
+                            Nom du groupe
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="groupName"
+                            name="name"
+                            value="{% if group_instance %}{{ group_instance.name }}{% endif %}"
+                            placeholder="Ex : Direction, RH, HSE, Exploitation..."
+                            required
+                            maxlength="150"
+                        >
+
+                        <div class="form-text">
+                            Le nom doit être unique.
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================= UTILISATEURS ================= -->
+
+                    <div class="mb-3">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+
+                            <div>
+
+                                <label class="form-label mb-0">
+                                    Utilisateurs du groupe
+                                </label>
+
+                                <p class="text-muted mb-0 fs-13">
+                                    Sélectionnez les utilisateurs appartenant à ce groupe.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-soft-primary"
+                                    id="selectAllUsers"
+                                >
+                                    Tout sélectionner
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-soft-secondary"
+                                    id="unselectAllUsers"
+                                >
+                                    Tout désélectionner
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Recherche utilisateurs -->
+
+                        <div class="position-relative mb-3">
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="userSearch"
+                                placeholder="Rechercher un utilisateur..."
+                            >
+
+                            <i
+                                class="las la-search position-absolute"
+                                style="
+                                    right: 12px;
+                                    top: 50%;
+                                    transform: translateY(-50%);
+                                    opacity: .5;
+                                "
+                            ></i>
+
+                        </div>
+
+
+                        <!-- Liste utilisateurs -->
+
+                        <div
+                            class="border rounded"
+                            style="max-height: 400px; overflow-y: auto;"
+                            id="usersContainer"
+                        >
+
+                            {% if users %}
+
+                                {% for user in users %}
+
+                                <div
+                                    class="user-item border-bottom p-3"
+                                    data-search="
+                                        {{ user.username|lower }}
+                                        {{ user.first_name|lower }}
+                                        {{ user.last_name|lower }}
+                                        {{ user.email|lower }}
+                                    "
+                                >
+
+                                    <div class="form-check">
+
+                                        <input
+                                            class="form-check-input user-checkbox"
+                                            type="checkbox"
+                                            name="users"
+                                            value="{{ user.id }}"
+                                            id="user{{ user.id }}"
+                                            {% if user.id in selected_user_ids %}
+                                                checked
+                                            {% endif %}
+                                        >
+
+                                        <label
+                                            class="form-check-label w-100"
+                                            for="user{{ user.id }}"
+                                        >
+
+                                            <div class="d-flex align-items-center">
+
+                                                <!-- Avatar -->
+
+                                                <div class="avatar-xs flex-shrink-0">
+
+                                                    {% if user.avatar %}
+
+                                                        <img
+                                                            src="{{ user.avatar.url }}"
+                                                            alt="{{ user.username }}"
+                                                            class="rounded-circle img-fluid"
+                                                        >
+
+                                                    {% else %}
+
+                                                        <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                                            <i class="las la-user"></i>
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </div>
+
+
+                                                <!-- Informations -->
+
+                                                <div class="ms-2">
+
+                                                    <h6 class="mb-0">
+
+                                                        {% if user.get_full_name %}
+                                                            {{ user.get_full_name }}
+                                                        {% else %}
+                                                            {{ user.username }}
+                                                        {% endif %}
+
+                                                    </h6>
+
+                                                    <small class="text-muted">
+
+                                                        @{{ user.username }}
+
+                                                        {% if user.role %}
+                                                            · {{ user.role.name }}
+                                                        {% endif %}
+
+                                                    </small>
+
+                                                </div>
+
+                                            </div>
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                {% endfor %}
+
+                            {% else %}
+
+                                <div class="text-center py-5">
+
+                                    <i class="las la-user-slash fs-1 text-muted"></i>
+
+                                    <p class="text-muted mt-2 mb-0">
+                                        Aucun utilisateur actif disponible.
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= FOOTER ================= -->
+
+                <div class="card-footer d-flex justify-content-between">
+
+                    
+                        href="{% url 'accounts:list_groups' %}"
+                        class="btn btn-light"
+                    >
+                        <i class="las la-arrow-left me-1"></i>
+                        Annuler
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+
+                        <i class="las la-save me-1"></i>
+
+                        {% if group_instance %}
+                            Enregistrer les modifications
+                        {% else %}
+                            Créer le groupe
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= JAVASCRIPT ========================= -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput = document.getElementById("userSearch");
+    const userItems = document.querySelectorAll(".user-item");
+
+    const selectAllBtn = document.getElementById("selectAllUsers");
+    const unselectAllBtn = document.getElementById("unselectAllUsers");
+
+
+    // =====================================================
+    // RECHERCHE UTILISATEUR
+    // =====================================================
+
+    if (searchInput) {
+
+        searchInput.addEventListener("input", function () {
+
+            const term = this.value.trim().toLowerCase();
+
+            userItems.forEach(function (item) {
+
+                const searchText = item
+                    .getAttribute("data-search")
+                    .toLowerCase();
+
+                if (searchText.includes(term)) {
+
+                    item.style.display = "";
+
+                } else {
+
+                    item.style.display = "none";
+
+                }
+
+            });
+
+        });
+
+    }
+
+
+    // =====================================================
+    // TOUT SÉLECTIONNER
+    // =====================================================
+
+    if (selectAllBtn) {
+
+        selectAllBtn.addEventListener("click", function () {
+
+            document
+                .querySelectorAll(".user-checkbox")
+                .forEach(function (checkbox) {
+
+                    checkbox.checked = true;
+
+                });
+
+        });
+
+    }
+
+
+    // =====================================================
+    // TOUT DÉSÉLECTIONNER
+    // =====================================================
+
+    if (unselectAllBtn) {
+
+        unselectAllBtn.addEventListener("click", function () {
+
+            document
+                .querySelectorAll(".user-checkbox")
+                .forEach(function (checkbox) {
+
+                    checkbox.checked = false;
+
+                });
+
+        });
+
+    }
+
+});
+</script>
+
+{% endblock %}

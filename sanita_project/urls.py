@@ -28,6 +28,7 @@ urlpatterns = [
     path('parametrage/', include(('parametrage_general.urls', 'parametrage_general'), namespace='parametrage_general')),
 
     path('administration/', include(('administration.urls', 'administration'), namespace='administration')),
+    path('abonnement/', include(('abonnement.urls', 'abonnement'), namespace='abonnement')),
     path('audit/', include(('audit.urls', 'audit'), namespace='audit')),
     path('api/', include(('api.urls', 'api'), namespace='api')),
     path('cliniques/', include(('cliniques_partenaires.urls', 'cliniques_partenaires'), namespace='cliniques_partenaires')),

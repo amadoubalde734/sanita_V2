@@ -5,7 +5,6 @@
 <head>
 
     <meta charset="utf-8" />
-    <base href="{% static 'backend/' %}">
     <title>SANITA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
@@ -19,8 +18,6 @@
     <!--Swiper slider css-->
     <link href="{% static 'backend/assets/libs/swiper/swiper-bundle.min.css' %}" rel="stylesheet" type="text/css" />
 
-    <!-- Layout config Js -->
-    <script src="{% static 'backend/assets/js/layout.js' %}"></script>
     <!-- Bootstrap Css -->
     <link href="{% static 'backend/assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
@@ -30,7 +27,9 @@
     <!-- custom Css-->
     <link href="{% static 'backend/assets/css/custom.min.css' %}" rel="stylesheet" type="text/css" />
 
-    
+    <!-- Layout config Js -->
+    <script src="{% static 'backend/assets/js/layout.js' %}"></script>
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
     <!--datatable responsive css-->
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
@@ -60,6 +59,10 @@
         .app-menu .nav-link:hover {
             color: #ffffff !important;
         }
+
+        #page-topbar {
+            z-index: 1001;
+        }
     </style>
 
 </head>
@@ -73,9 +76,7 @@
         {% include 'backend/includes/removenotif_modal.html' %}
 
         {% block sidebar %}
-            <div class="app-menu navbar-menu">
-                {% include 'backend/includes/sidebar.html' %}
-            </div>
+            {% include 'backend/includes/sidebar.html' %}
         {% endblock %}
 
         <div class="main-content">

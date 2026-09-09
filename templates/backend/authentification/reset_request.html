@@ -1,0 +1,100 @@
+{% extends 'base_auth.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  .fm-auth {
+    --fm-graphite: #14171a; --fm-amber: #f2a73b; --fm-amber-dim: #c9862b;
+    --fm-bone: #ece8e0; --fm-bone-dim: #b7b2a6; --fm-olive: #7c9070; --fm-line: rgba(236, 232, 224, 0.10);
+    font-family: 'Inter', sans-serif; min-height: 100vh; background: var(--fm-graphite);
+    display: flex; align-items: stretch; color: var(--fm-bone);
+  }
+  .fm-auth * { box-sizing: border-box; }
+  .fm-grid { display: grid; grid-template-columns: 1.05fr 1fr; width: 100%; min-height: 100vh; }
+  @media (max-width: 991px) { .fm-grid { grid-template-columns: 1fr; } .fm-panel-left { display: none; } }
+  .fm-panel-left {
+    position: relative; overflow: hidden; padding: 48px 56px; display: flex; flex-direction: column; justify-content: space-between;
+    background: radial-gradient(circle at 18% 15%, rgba(242,167,59,0.10), transparent 45%), linear-gradient(180deg, var(--fm-graphite) 0%, #0f1113 100%);
+    border-right: 1px solid var(--fm-line);
+  }
+  .fm-topbar { display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fm-bone-dim); }
+  .fm-topbar .fm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fm-amber); box-shadow: 0 0 0 3px rgba(242,167,59,0.18); }
+  .fm-brand { margin-top: 40px; }
+  .fm-brand img { height: 46px; margin-bottom: 22px; filter: brightness(0) invert(1); opacity: 0.92; }
+  .fm-brand h1 { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(30px, 3vw, 42px); line-height: 1.02; margin: 0 0 16px; color: var(--fm-bone); }
+  .fm-brand h1 span { color: var(--fm-amber); }
+  .fm-brand p { color: var(--fm-bone-dim); font-size: 15px; line-height: 1.6; max-width: 380px; margin: 0; }
+  .fm-foot-note { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; color: rgba(236,232,224,0.35); text-transform: uppercase; }
+  .fm-panel-right { background: var(--fm-bone); color: #23262a; display: flex; align-items: center; justify-content: center; padding: 40px 32px; }
+  .fm-card { width: 100%; max-width: 400px; }
+  .fm-card-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fm-amber-dim); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .fm-card-eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--fm-amber-dim); display: inline-block; }
+  .fm-card h2 { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; text-transform: uppercase; font-size: 32px; margin: 0 0 6px; color: #191c1f; }
+  .fm-card > p.fm-sub { color: #6b6c66; font-size: 14.5px; margin: 0 0 30px; }
+  .fm-field { margin-bottom: 20px; }
+  .fm-field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4a4c47; margin-bottom: 8px; }
+  .fm-field input { width: 100%; border: 1.5px solid #d8d4c9; background: #fff; border-radius: 3px; padding: 12px 14px; font-size: 14.5px; font-family: 'Inter', sans-serif; color: #1c1e1b; }
+  .fm-field input:focus { outline: none; border-color: var(--fm-amber-dim); box-shadow: 0 0 0 3px rgba(242,167,59,0.18); }
+  .fm-submit { width: 100%; background: #191c1f; color: var(--fm-bone); border: none; border-radius: 3px; padding: 14px 18px; font-size: 14px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .fm-submit:hover { background: #000; }
+  .fm-divider { display: flex; align-items: center; gap: 12px; margin: 28px 0 22px; color: #a6a297; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .fm-divider::before, .fm-divider::after { content: ''; flex: 1; height: 1px; background: #e2ddd0; }
+  .fm-footer-links { text-align: center; }
+  .fm-footer-links p { font-size: 12.5px; color: #8b8a80; margin: 0 0 4px; }
+  .fm-footer-links a { color: #4a4c47; text-decoration: underline; }
+</style>
+
+<div class="fm-auth">
+  <div class="fm-grid">
+
+    <div class="fm-panel-left">
+      <div class="fm-topbar">
+        <span class="fm-dot" aria-hidden="true"></span>
+        RÉCUPÉRATION D'ACCÈS &nbsp;·&nbsp; CODE À USAGE UNIQUE
+      </div>
+      <div class="fm-brand">
+        <img src="{% static 'backend/assets/images/logo_fleet/logo-light.png' %}" alt="Fleet Mining Service">
+        <h1>Mot de passe<br><span>oublié</span> ?</h1>
+        <p>Entrez votre email : nous vous enverrons un code de réinitialisation valable 15 minutes.</p>
+      </div>
+      <div class="fm-foot-note">Fleet Mining Service — Console d'exploitation</div>
+    </div>
+
+    <div class="fm-panel-right">
+      <div class="fm-card">
+        <div class="fm-card-eyebrow">Récupération de compte</div>
+        <h2>Code de réinitialisation</h2>
+        <p class="fm-sub">Un code à 6 chiffres vous sera envoyé par email.</p>
+
+        {% include "backend/includes/message.html" %}
+
+        <form method="POST" novalidate>
+          {% csrf_token %}
+
+          <div class="fm-field">
+            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <small class="text-danger d-block mt-1">{{ error }}</small>
+            {% endfor %}
+          </div>
+
+          <button class="fm-submit" type="submit">
+            Envoyer le code
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </form>
+
+        <div class="fm-divider">Assistance</div>
+
+        <div class="fm-footer-links">
+          <p><a href="{% url 'accounts:admin_login' %}">Retour à la connexion</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

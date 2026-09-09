@@ -1,5 +1,8 @@
-# Create your models here.
-# parametrage/models.py
+# parametrage_general/models.py
+# (le commentaire d'en-tête d'origine disait à tort "parametrage/models.py" ;
+# seule l'app 'parametrage_general' existe réellement dans le projet, confirmé via
+# `python manage.py shell -c "import parametrage_general; print(parametrage_general.__file__)"`)
+
 from django.db import models
 from django.utils.text import slugify
 import uuid
@@ -146,6 +149,7 @@ class Service(TimeStampedModel, StatusModel, SlugModel):
         verbose_name = 'Service'
         verbose_name_plural = 'Services'
 
+
 # ===============================
 # FONCTION
 # ===============================
@@ -167,6 +171,7 @@ class Fonction(TimeStampedModel, StatusModel, SlugModel):
         verbose_name = 'Fonction'
         verbose_name_plural = 'Fonctions'
 
+
 # EmailSettings model for storing email configuration
 class EmailSettings(models.Model):
     email_backend = models.CharField(max_length=255, default='django.core.mail.backends.smtp.EmailBackend')
@@ -179,6 +184,7 @@ class EmailSettings(models.Model):
 
     def __str__(self):
         return f"Email Settings ({self.email_host})"
+
 
 class ConfigurationEtablissement(models.Model):
     TYPE_ETABLISSEMENT_CHOICES = [

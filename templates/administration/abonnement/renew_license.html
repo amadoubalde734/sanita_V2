@@ -1,0 +1,149 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<!-- ====================================================== -->
+<!-- ==================== TITRE DE PAGE =================== -->
+<!-- ====================================================== -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+      <h4 class="mb-sm-0">
+        <i class="ri-refresh-line align-middle me-1 text-success"></i>
+        Renouveler la licence
+      </h4>
+
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'abonnement:list' %}">Abonnements</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'abonnement:detail' license.pk %}">Licence</a>
+          </li>
+          <li class="breadcrumb-item active">Renouvellement</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- ======================= CONTENU ====================== -->
+<!-- ====================================================== -->
+<div class="row justify-content-center">
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Confirmation du renouvellement</h5>
+      </div>
+
+      <div class="card-body">
+
+        <!-- Licence -->
+        <div class="p-4 bg-light rounded mb-4">
+          <div class="d-flex align-items-center">
+            <div class="avatar-md me-3">
+              <span class="avatar-title bg-success text-white rounded fs-3">
+                <i class="ri-key-2-line"></i>
+              </span>
+            </div>
+            <div>
+              <p class="text-muted mb-1">Clé de licence</p>
+              <h4 class="mb-0">{{ license.license_key }}</h4>
+            </div>
+          </div>
+        </div>
+
+        <!-- Société -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <p class="text-muted mb-1">Société</p>
+            <h6 class="mb-0">{{ license.societe }}</h6>
+          </div>
+
+          <div class="col-md-6">
+            <p class="text-muted mb-1">Formule</p>
+            <h6 class="mb-0">{{ license.plan.name }}</h6>
+          </div>
+        </div>
+
+        <!-- Ancienne période -->
+        <div class="border rounded p-4 mb-4">
+          <h6 class="mb-3">
+            <i class="ri-calendar-line me-1 text-muted"></i>
+            Période actuelle
+          </h6>
+
+          <div class="row">
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Début</p>
+              <h6>{{ license.start_date|date:"d/m/Y" }}</h6>
+            </div>
+
+            <div class="col-md-6">
+              <p class="text-muted mb-1">Expiration</p>
+              <h6 class="text-danger">{{ license.end_date|date:"d/m/Y" }}</h6>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nouvelle période -->
+        <div class="border border-success rounded p-4 mb-4">
+          <h6 class="mb-3 text-success">
+            <i class="ri-calendar-check-line me-1"></i>
+            Après renouvellement
+          </h6>
+
+          <p class="text-muted mb-0">
+            La licence sera renouvelée selon la durée actuellement configurée :
+            <strong>{{ license.get_duration_years_display }}</strong>.
+          </p>
+
+          <p class="text-muted mt-2 mb-0">
+            La nouvelle période commencera automatiquement le lendemain de la date d'expiration actuelle.
+          </p>
+        </div>
+
+        <!-- Avertissement -->
+        <div class="alert alert-warning">
+          <div class="d-flex">
+            <i class="ri-alert-line fs-4 me-2"></i>
+            <div>
+              <strong>Attention</strong>
+              <p class="mb-0 mt-1">
+                Le renouvellement modifiera la période de validité de cette licence.
+                La clé de licence restera identique.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'abonnement:detail' license.pk %}" class="btn btn-light">
+              <i class="ri-close-line me-1"></i>
+              Annuler
+            </a>
+
+            <button type="submit" class="btn btn-success">
+              <i class="ri-refresh-line me-1"></i>
+              Confirmer le renouvellement
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
