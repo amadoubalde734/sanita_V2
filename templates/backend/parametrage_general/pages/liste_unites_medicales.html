@@ -1,0 +1,685 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .unites-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .unites-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .unites-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+
+    .unites-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .unites-header .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+
+    .unites-header .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .unites-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .unites-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+    }
+
+    .unites-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .unites-table thead th {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+        padding: 0.85rem 1rem;
+    }
+
+    .unites-table tbody td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .unites-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .unites-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .unite-icon-cell {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .unite-type-badge {
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35rem 0.6rem;
+        border-radius: 8px;
+    }
+
+    .specialite-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: #f3f6f5;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        margin: 0.15rem;
+    }
+
+    .modal-header-teal {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .modal-header-teal .btn-close {
+        filter: invert(1) brightness(2);
+    }
+
+    .unites-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+
+    .unites-page .form-control,
+    .unites-page .form-select {
+        border-color: var(--line);
+        border-radius: 10px;
+    }
+
+    .unites-page .form-control:focus,
+    .unites-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    .unites-page .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+
+    .unites-page .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .unites-page .specialites-select {
+        min-height: 140px;
+    }
+
+    .unite-hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.35rem;
+    }
+
+    .unite-empty {
+        padding: 3rem 1rem;
+        text-align: center;
+    }
+
+    .unite-empty-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 2rem;
+    }
+</style>
+
+<div class="unites-page">
+
+    <div class="unites-header">
+        <div>
+            <h4>
+                <i class="ri-hospital-line align-middle me-1"></i>
+                Unités médicales
+            </h4>
+            <p>
+                Gestion des unités médicales et des services disponibles au sein de l'établissement.
+            </p>
+        </div>
+
+        <a
+            href="#"
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#uniteMedicaleModal"
+            onclick="prepareAddUniteMedicale()"
+        >
+            <i class="ri-add-line align-bottom me-1"></i>
+            Ajouter une unité
+        </a>
+    </div>
+
+    <div class="unites-card">
+
+        <div class="unites-card-header">
+            <h5>Liste des unités médicales</h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            {% if unites_medicales %}
+
+            <div class="table-responsive">
+                <table class="table unites-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">#</th>
+                            <th>Unité médicale</th>
+                            <th>Type</th>
+                            <th>Site</th>
+                            <th>Spécialités</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center" style="width: 160px;">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for unite in unites_medicales %}
+                        <tr>
+
+                            <td class="text-muted">
+                                {{ forloop.counter }}
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="unite-icon-cell">
+                                        {% if unite.type_unite == 'infirmerie' %}
+                                            <i class="ri-first-aid-kit-line"></i>
+                                        {% elif unite.type_unite == 'laboratoire' %}
+                                            <i class="ri-test-tube-line"></i>
+                                        {% elif unite.type_unite == 'pharmacie' %}
+                                            <i class="ri-capsule-line"></i>
+                                        {% elif unite.type_unite == 'imagerie' %}
+                                            <i class="ri-scan-2-line"></i>
+                                        {% elif unite.type_unite == 'consultation' %}
+                                            <i class="ri-stethoscope-line"></i>
+                                        {% elif unite.type_unite == 'urgences' %}
+                                            <i class="ri-alarm-warning-line"></i>
+                                        {% elif unite.type_unite == 'hospitalisation' %}
+                                            <i class="ri-hotel-bed-line"></i>
+                                        {% else %}
+                                            <i class="ri-hospital-line"></i>
+                                        {% endif %}
+                                    </div>
+
+                                    <div>
+                                        <h6 class="mb-0">
+                                            {{ unite.nom }}
+                                        </h6>
+
+                                        {% if unite.description %}
+                                            <small class="text-muted">
+                                                {{ unite.description|truncatechars:60 }}
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="unite-type-badge">
+                                    {{ unite.get_type_unite_display }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if unite.site %}
+                                    <span>
+                                        <i class="ri-map-pin-line text-muted me-1"></i>
+                                        {{ unite.site.nom_site }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">
+                                        Tous les sites
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% for specialite in unite.specialites.all %}
+                                    <span class="specialite-badge">
+                                        {{ specialite.nom }}
+                                    </span>
+                                {% empty %}
+                                    <span class="text-muted">
+                                        Aucune spécialité
+                                    </span>
+                                {% endfor %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if unite.actif %}
+                                    <span class="badge bg-success-subtle text-success">
+                                        <i class="ri-checkbox-circle-line me-1"></i>
+                                        Actif
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger">
+                                        <i class="ri-close-circle-line me-1"></i>
+                                        Inactif
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-inline-flex gap-1">
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-soft-primary"
+                                        title="Modifier"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#uniteMedicaleModal"
+                                        onclick="prepareEditUniteMedicale(
+                                            '{{ unite.pk }}',
+                                            '{{ unite.nom|escapejs }}',
+                                            '{{ unite.type_unite|escapejs }}',
+                                            '{{ unite.site.pk|default:'' }}',
+                                            [{% for specialite in unite.specialites.all %}'{{ specialite.pk }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+                                            '{{ unite.description|default:''|escapejs }}',
+                                            {{ unite.actif|yesno:'true,false' }}
+                                        )"
+                                    >
+                                        <i class="ri-pencil-line"></i>
+                                    </button>
+
+                                    <a
+                                        href="{% url 'parametrage_general:toggle_unite_medicale' unite.pk %}"
+                                        class="btn btn-sm btn-soft-{% if unite.actif %}warning{% else %}success{% endif %}"
+                                        title="{% if unite.actif %}Désactiver{% else %}Activer{% endif %}"
+                                    >
+                                        <i class="ri-{% if unite.actif %}pause{% else %}play{% endif %}-circle-line"></i>
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-soft-danger"
+                                        title="Supprimer"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteUniteMedicaleModal{{ unite.pk }}"
+                                    >
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+
+                                </div>
+                            </td>
+
+                        </tr>
+
+                        <div
+                            class="modal fade"
+                            id="deleteUniteMedicaleModal{{ unite.pk }}"
+                            tabindex="-1"
+                            aria-hidden="true"
+                        >
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+
+                                    <div class="modal-body text-center p-4">
+
+                                        <div class="avatar-lg mx-auto mb-3">
+                                            <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </span>
+                                        </div>
+
+                                        <h5 class="mb-3">
+                                            Supprimer l'unité médicale ?
+                                        </h5>
+
+                                        <p class="text-muted mb-4">
+                                            Êtes-vous sûr de vouloir supprimer
+                                            <strong>« {{ unite.nom }} »</strong> ?
+                                            <br>
+                                            Cette action est irréversible.
+                                        </p>
+
+                                        <form
+                                            method="post"
+                                            action="{% url 'parametrage_general:supprimer_unite_medicale' unite.pk %}"
+                                        >
+                                            {% csrf_token %}
+
+                                            <div class="d-flex justify-content-center gap-2">
+
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-light"
+                                                    data-bs-dismiss="modal"
+                                                >
+                                                    <i class="ri-close-line me-1"></i>
+                                                    Annuler
+                                                </button>
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger"
+                                                >
+                                                    <i class="ri-delete-bin-line me-1"></i>
+                                                    Supprimer
+                                                </button>
+
+                                            </div>
+                                        </form>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="unite-empty">
+
+                <div class="unite-empty-icon">
+                    <i class="ri-hospital-line"></i>
+                </div>
+
+                <h5 class="mb-2">
+                    Aucune unité médicale trouvée
+                </h5>
+
+                <p class="text-muted mb-3">
+                    Aucune unité médicale n'a encore été enregistrée.
+                </p>
+
+                <a
+                    href="#"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#uniteMedicaleModal"
+                    onclick="prepareAddUniteMedicale()"
+                >
+                    <i class="ri-add-line me-1"></i>
+                    Créer la première unité
+                </a>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="uniteMedicaleModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header modal-header-teal">
+
+                <h5
+                    class="modal-title"
+                    id="uniteMedicaleModalTitle"
+                >
+                    Ajouter une unité médicale
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+            <form
+                method="post"
+                id="uniteMedicaleForm"
+                action="{% url 'parametrage_general:ajouter_unite_medicale' %}"
+            >
+
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-8 mb-3">
+                            <label
+                                for="{{ form.nom.id_for_label }}"
+                                class="form-label"
+                            >
+                                Nom de l'unité
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.nom }}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label
+                                for="{{ form.type_unite.id_for_label }}"
+                                class="form-label"
+                            >
+                                Type d'unité
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.type_unite }}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label
+                                for="{{ form.site.id_for_label }}"
+                                class="form-label"
+                            >
+                                Site
+                            </label>
+
+                            {{ form.site }}
+
+                            <div class="unite-hint">
+                                Laisser vide si l'unité n'est pas rattachée à un site précis.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label
+                                for="{{ form.specialites.id_for_label }}"
+                                class="form-label"
+                            >
+                                Spécialités médicales
+                            </label>
+
+                            {{ form.specialites }}
+
+                            <div class="unite-hint">
+                                Maintenez Ctrl pour sélectionner plusieurs spécialités.
+                            </div>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label
+                                for="{{ form.description.id_for_label }}"
+                                class="form-label"
+                            >
+                                Description
+                            </label>
+
+                            {{ form.description }}
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                {{ form.actif }}
+
+                                <label
+                                    class="form-check-label"
+                                    for="{{ form.actif.id_for_label }}"
+                                >
+                                    Unité médicale active
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="ri-save-line me-1"></i>
+                        <span id="uniteMedicaleSubmitLabel">
+                            Enregistrer
+                        </span>
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function prepareAddUniteMedicale() {
+        document.getElementById('uniteMedicaleModalTitle').textContent = 'Ajouter une unité médicale';
+        document.getElementById('uniteMedicaleSubmitLabel').textContent = 'Enregistrer';
+        document.getElementById('uniteMedicaleForm').action = "{% url 'parametrage_general:ajouter_unite_medicale' %}";
+
+        document.getElementById('id_nom').value = '';
+        document.getElementById('id_type_unite').selectedIndex = 0;
+        document.getElementById('id_site').value = '';
+        document.getElementById('id_description').value = '';
+        document.getElementById('id_actif').checked = true;
+
+        const specialites = document.getElementById('id_specialites');
+
+        if (specialites) {
+            Array.from(specialites.options).forEach(function (option) {
+                option.selected = false;
+            });
+        }
+    }
+
+    function prepareEditUniteMedicale(
+        pk,
+        nom,
+        typeUnite,
+        site,
+        specialites,
+        description,
+        actif
+    ) {
+        document.getElementById('uniteMedicaleModalTitle').textContent = 'Modifier l'unité médicale';
+        document.getElementById('uniteMedicaleSubmitLabel').textContent = 'Enregistrer les modifications';
+
+        document.getElementById('uniteMedicaleForm').action =
+            '/parametrage/unites-medicales/modifier/' + pk + '/';
+
+        document.getElementById('id_nom').value = nom;
+        document.getElementById('id_type_unite').value = typeUnite;
+        document.getElementById('id_site').value = site;
+        document.getElementById('id_description').value = description;
+        document.getElementById('id_actif').checked = actif;
+
+        const specialitesSelect = document.getElementById('id_specialites');
+
+        if (specialitesSelect) {
+            Array.from(specialitesSelect.options).forEach(function (option) {
+                option.selected = specialites.includes(option.value);
+            });
+        }
+    }
+</script>
+
+{% endblock %}

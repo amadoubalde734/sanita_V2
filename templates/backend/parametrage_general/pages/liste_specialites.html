@@ -1,0 +1,389 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .specialites-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .specialites-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .specialites-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+    .specialites-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+    .specialites-header .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .specialites-header .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .specialites-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .specialites-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+    }
+    .specialites-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .specialites-table thead th {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--muted); border-bottom: 1px solid var(--line); background: #fafcfb; padding: 0.85rem 1rem;
+    }
+    .specialites-table tbody td { padding: 0.85rem 1rem; vertical-align: middle; border-bottom: 1px solid var(--line); }
+    .specialites-table tbody tr:last-child td { border-bottom: none; }
+    .specialites-table tbody tr:hover { background: #fafcfb; }
+
+    .specialite-icon-cell {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--teal-100); color: var(--teal-700); font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    /* Modal */
+    .modal-header-teal {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        border-bottom: none;
+    }
+    .modal-header-teal .btn-close { filter: invert(1) brightness(2); }
+    .specialites-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+    .specialites-page .form-control {
+        border-color: var(--line);
+        border-radius: 10px;
+    }
+    .specialites-page .form-control:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+    .icon-hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.35rem;
+    }
+    .icon-preview {
+        width: 42px; height: 42px; border-radius: 10px;
+        background: var(--teal-100); color: var(--teal-700);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0;
+    }
+    .specialites-page .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .specialites-page .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+</style>
+
+<div class="specialites-page">
+
+    <div class="specialites-header">
+        <div>
+            <h4><i class="ri-hospital-line align-middle me-1"></i> Spécialités médicales</h4>
+            <p>Référentiel des spécialités pratiquées, utilisé pour personnaliser les modules visibles selon l'établissement.</p>
+        </div>
+
+        <a href="{% url 'parametrage_general:liste_specialites' %}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#specialiteModal" onclick="prepareAddSpecialite()">
+            <i class="ri-add-line align-bottom me-1"></i>
+            Ajouter une spécialité
+        </a>
+    </div>
+
+    <div class="specialites-card">
+
+        <div class="specialites-card-header">
+            <h5>Liste des spécialités</h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            {% if specialites %}
+
+            <div class="table-responsive">
+                <table class="table specialites-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">#</th>
+                            <th>Spécialité</th>
+                            <th>Description</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center" style="width: 160px;">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for specialite in specialites %}
+                        <tr>
+
+                            <td class="text-muted">{{ forloop.counter }}</td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="specialite-icon-cell">
+                                        <i class="{{ specialite.icone|default:'ri-stethoscope-line' }}"></i>
+                                    </div>
+                                    <h6 class="mb-0">{{ specialite.nom }}</h6>
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if specialite.description %}
+                                    <span class="text-muted">{{ specialite.description|truncatechars:70 }}</span>
+                                {% else %}
+                                    <span class="text-muted">Aucune description</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if specialite.actif %}
+                                    <span class="badge bg-success-subtle text-success">
+                                        <i class="ri-checkbox-circle-line me-1"></i> Actif
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger">
+                                        <i class="ri-close-circle-line me-1"></i> Inactif
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-inline-flex gap-1">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-soft-primary"
+                                        title="Modifier"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#specialiteModal"
+                                        onclick="prepareEditSpecialite(
+                                            '{{ specialite.pk }}',
+                                            '{{ specialite.nom|escapejs }}',
+                                            '{{ specialite.description|default:''|escapejs }}',
+                                            '{{ specialite.icone|default:''|escapejs }}',
+                                            {{ specialite.actif|yesno:'true,false' }}
+                                        )"
+                                    >
+                                        <i class="ri-pencil-line"></i>
+                                    </button>
+
+                                    
+                                        href="{% url 'parametrage_general:toggle_specialite' specialite.pk %}"
+                                        class="btn btn-sm btn-soft-{% if specialite.actif %}warning{% else %}success{% endif %}"
+                                        title="{% if specialite.actif %}Désactiver{% else %}Activer{% endif %}"
+                                    >
+                                        <i class="ri-{% if specialite.actif %}pause{% else %}play{% endif %}-circle-line"></i>
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-soft-danger"
+                                        title="Supprimer"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteSpecialiteModal{{ specialite.pk }}"
+                                    >
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </div>
+                            </td>
+
+                        </tr>
+
+                        <!-- Modal suppression -->
+                        <div class="modal fade" id="deleteSpecialiteModal{{ specialite.pk }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body text-center p-4">
+                                        <div class="avatar-lg mx-auto mb-3">
+                                            <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </span>
+                                        </div>
+                                        <h5 class="mb-3">Supprimer la spécialité ?</h5>
+                                        <p class="text-muted mb-4">
+                                            Êtes-vous sûr de vouloir supprimer <strong>« {{ specialite.nom }} »</strong> ?
+                                            <br>Cette action est irréversible.
+                                        </p>
+                                        <form method="post" action="{% url 'parametrage_general:supprimer_specialite' specialite.pk %}">
+                                            {% csrf_token %}
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                                    <i class="ri-close-line me-1"></i> Annuler
+                                                </button>
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="ri-delete-bin-line me-1"></i> Supprimer
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="text-center py-5">
+                <div class="avatar-lg mx-auto mb-4">
+                    <span class="avatar-title rounded-circle fs-1" style="background: var(--teal-100); color: var(--teal-700);">
+                        <i class="ri-hospital-line"></i>
+                    </span>
+                </div>
+                <h5 class="mb-2">Aucune spécialité trouvée</h5>
+                <p class="text-muted mb-3">Aucune spécialité médicale n'a encore été enregistrée.</p>
+                <a href="{% url 'parametrage_general:liste_specialites' %}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#specialiteModal" onclick="prepareAddSpecialite()">
+                    <i class="ri-add-line me-1"></i>
+                    Créer la première spécialité
+                </a>
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= MODAL AJOUT / MODIFICATION ================= -->
+<div class="modal fade" id="specialiteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header modal-header-teal">
+                <h5 class="modal-title" id="specialiteModalTitle">Ajouter une spécialité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <form method="post" id="specialiteForm" action="{% url 'parametrage_general:ajouter_specialite' %}">
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="{{ form.nom.id_for_label }}" class="form-label">
+                            Nom <span class="text-danger">*</span>
+                        </label>
+                        {{ form.nom }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.icone.id_for_label }}" class="form-label">Icône</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="icon-preview" id="iconPreview"><i class="ri-stethoscope-line" id="iconPreviewIcon"></i></div>
+                            {{ form.icone }}
+                        </div>
+                        <div class="icon-hint">
+                            Classe icône <a href="https://remixicon.com/" target="_blank" rel="noopener">Remix Icon</a> (ex : ri-tooth-line pour Dentaire, ri-eye-line pour Ophtalmologie).
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        {{ form.actif }}
+                        <label class="form-check-label" for="{{ form.actif.id_for_label }}">
+                            Spécialité active
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line me-1"></i>
+                        <span id="specialiteSubmitLabel">Enregistrer</span>
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function prepareAddSpecialite() {
+        document.getElementById('specialiteModalTitle').textContent = 'Ajouter une spécialité';
+        document.getElementById('specialiteSubmitLabel').textContent = 'Enregistrer';
+        document.getElementById('specialiteForm').action = "{% url 'parametrage_general:ajouter_specialite' %}";
+        document.getElementById('id_nom').value = '';
+        document.getElementById('id_description').value = '';
+        document.getElementById('id_icone').value = '';
+        document.getElementById('id_actif').checked = true;
+        updateIconPreview();
+    }
+
+    function prepareEditSpecialite(pk, nom, description, icone, actif) {
+        document.getElementById('specialiteModalTitle').textContent = 'Modifier la spécialité';
+        document.getElementById('specialiteSubmitLabel').textContent = 'Enregistrer les modifications';
+        document.getElementById('specialiteForm').action = '/parametrage/specialites/modifier/' + pk + '/';
+        document.getElementById('id_nom').value = nom;
+        document.getElementById('id_description').value = description;
+        document.getElementById('id_icone').value = icone;
+        document.getElementById('id_actif').checked = actif;
+        updateIconPreview();
+    }
+
+    function updateIconPreview() {
+        const iconInput = document.getElementById('id_icone');
+        const iconPreviewIcon = document.getElementById('iconPreviewIcon');
+        if (!iconInput || !iconPreviewIcon) return;
+        iconPreviewIcon.className = iconInput.value.trim() || 'ri-stethoscope-line';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const iconInput = document.getElementById('id_icone');
+        if (iconInput) {
+            iconInput.addEventListener('input', updateIconPreview);
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,321 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .contract-form-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #e7edeb;
+    }
+
+    .contract-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .contract-form-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+    .contract-form-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .contract-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .contract-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.25rem 1.5rem;
+    }
+    .contract-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .contract-card-body { padding: 1.75rem; }
+
+    .contract-form-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+    .contract-form-page .form-control,
+    .contract-form-page .form-select {
+        border-color: var(--line);
+        border-radius: 10px;
+        padding: 0.55rem 0.85rem;
+        font-size: 0.9rem;
+    }
+    .contract-form-page .form-control:focus,
+    .contract-form-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    .side-panel {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+    .side-panel .panel-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+    }
+    .side-panel .panel-header h5 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--ink);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .side-panel .panel-body { padding: 1.25rem; }
+
+    .field-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-bottom: 0.25rem;
+    }
+    .field-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+    .info-note {
+        background: var(--teal-100);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+    }
+    .info-note i { color: var(--teal-700); }
+
+    .contract-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+        border-top: 1px solid var(--line);
+    }
+    .contract-form-actions .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .contract-form-actions .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+</style>
+
+<div class="contract-form-page">
+
+    <div class="contract-form-header">
+        <div>
+            <h4><i class="ri-file-edit-line align-middle me-1"></i> Modifier le contrat de maintenance</h4>
+            <p>Modification du contrat {{ contract.contract_number }}.</p>
+        </div>
+
+        <a href="{% url 'abonnement:contract_detail' contract.pk %}" class="btn btn-outline-secondary btn-sm">
+            <i class="ri-arrow-left-line align-bottom me-1"></i>
+            Retour au contrat
+        </a>
+    </div>
+
+    <div class="row">
+
+        <div class="col-xl-8">
+
+            <div class="contract-card">
+                <div class="contract-card-header">
+                    <h5><i class="ri-file-edit-line"></i> Informations du contrat</h5>
+                </div>
+
+                <div class="contract-card-body">
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <i class="ri-error-warning-line me-1"></i>
+                                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.license.id_for_label }}" class="form-label">
+                                Licence <span class="text-danger">*</span>
+                            </label>
+                            {{ form.license }}
+                            {% if form.license.errors %}
+                                <div class="text-danger fs-13 mt-1">{% for error in form.license.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                    Date de début <span class="text-danger">*</span>
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger fs-13 mt-1">{% for error in form.start_date.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                                    Date d'expiration <span class="text-danger">*</span>
+                                </label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger fs-13 mt-1">{% for error in form.end_date.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.amount.id_for_label }}" class="form-label">
+                                    Montant <span class="text-danger">*</span>
+                                </label>
+                                {{ form.amount }}
+                                {% if form.amount.errors %}
+                                    <div class="text-danger fs-13 mt-1">{% for error in form.amount.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.currency.id_for_label }}" class="form-label">Devise</label>
+                                {{ form.currency }}
+                                {% if form.currency.errors %}
+                                    <div class="text-danger fs-13 mt-1">{% for error in form.currency.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">Statut</label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="text-danger fs-13 mt-1">{% for error in form.status.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger fs-13 mt-1">{% for error in form.description.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger fs-13 mt-1">{% for error in form.notes.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="contract-form-actions">
+                            <a href="{% url 'abonnement:contract_detail' contract.pk %}" class="btn btn-outline-secondary">
+                                <i class="ri-close-line align-bottom me-1"></i>
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-save-line align-bottom me-1"></i>
+                                Enregistrer les modifications
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xl-4">
+
+            <div class="side-panel">
+                <div class="panel-header"><h5><i class="ri-file-shield-2-line"></i> Contrat</h5></div>
+                <div class="panel-body">
+                    <div class="mb-3">
+                        <div class="field-label">Numéro</div>
+                        <div class="field-value">{{ contract.contract_number }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="field-label">Établissement</div>
+                        <div class="field-value">{{ contract.etablissement.nom_etablissement }}</div>
+                    </div>
+                    <div>
+                        <div class="field-label">Licence</div>
+                        <div class="field-value" style="color: var(--teal-700);">{{ contract.license.license_key }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-header"><h5><i class="ri-information-line"></i> Statut actuel</h5></div>
+                <div class="panel-body text-center">
+                    {% if contract.status == "ACTIVE" %}
+                        <span class="badge bg-success-subtle text-success fs-13 px-3 py-2"><i class="ri-checkbox-circle-line me-1"></i> Actif</span>
+                    {% elif contract.status == "EXPIRING_SOON" %}
+                        <span class="badge bg-warning-subtle text-warning fs-13 px-3 py-2"><i class="ri-time-line me-1"></i> Expire bientôt</span>
+                    {% elif contract.status == "EXPIRED" %}
+                        <span class="badge bg-danger-subtle text-danger fs-13 px-3 py-2"><i class="ri-close-circle-line me-1"></i> Expiré</span>
+                    {% elif contract.status == "SUSPENDED" %}
+                        <span class="badge bg-warning-subtle text-warning fs-13 px-3 py-2"><i class="ri-pause-circle-line me-1"></i> Suspendu</span>
+                    {% elif contract.status == "CANCELLED" %}
+                        <span class="badge bg-danger-subtle text-danger fs-13 px-3 py-2"><i class="ri-forbid-2-line me-1"></i> Annulé</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="info-note d-flex align-items-start">
+                <i class="ri-information-line fs-18 me-2 mt-1"></i>
+                <div>
+                    <strong style="color: var(--teal-900);">Information</strong>
+                    <p class="mb-0 mt-1 text-muted fs-13">
+                        Le numéro du contrat est généré automatiquement et ne peut pas être modifié.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

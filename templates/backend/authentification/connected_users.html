@@ -4,54 +4,155 @@
 {% block inner_content %}
 {% include 'backend/includes/message.html' %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">
-                <i class="ri-wifi-line align-middle me-1 text-primary"></i>
-                Utilisateurs connectés
-            </h4>
-            <div class="d-flex gap-2">
-                <a href="{% url 'accounts:list_users' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="ri-arrow-left-line"></i> Retour à la liste
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+<style>
+    .connected-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
 
-<div class="row mb-4">
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate shadow-sm border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-uppercase fw-medium text-muted mb-1" style="letter-spacing:.5px;">En ligne maintenant</p>
-                        <h4 class="fs-22 fw-semibold mb-0 text-info">
-                            <span class="counter-value" data-target="{{ users|length }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-info-subtle rounded-circle fs-3">
-                            <i class="bx bx-wifi text-info"></i>
-                        </span>
-                    </div>
+    .connected-breadcrumb {
+        font-size: 0.78rem;
+        margin-bottom: 0.5rem;
+    }
+    .connected-breadcrumb a {
+        color: var(--teal-700);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .connected-breadcrumb a:hover { text-decoration: underline; }
+    .connected-breadcrumb .sep { color: var(--muted); margin: 0 0.4rem; }
+    .connected-breadcrumb .current { color: var(--muted); }
+
+    .connected-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .connected-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .connected-stat {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        max-width: 320px;
+    }
+    .connected-stat .stat-icon {
+        width: 42px; height: 42px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+        background: #e6f4fb; color: #0891b2;
+    }
+    .connected-stat .stat-label {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.04em; color: var(--muted); margin-bottom: 0.15rem;
+    }
+    .connected-stat .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0; }
+
+    .connected-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .connected-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .connected-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .connected-table thead th {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--muted); border-bottom: 1px solid var(--line); background: #fafcfb; padding: 0.85rem 1rem;
+    }
+    .connected-table tbody td { padding: 0.75rem 1rem; vertical-align: middle; border-bottom: 1px solid var(--line); }
+    .connected-table tbody tr:last-child td { border-bottom: none; }
+    .connected-table tbody tr:hover { background: #fafcfb; }
+
+    .avatar-online {
+        width: 36px; height: 36px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600; font-size: 0.85rem;
+        background: #e6f4fb; color: #0891b2;
+        object-fit: cover;
+    }
+
+    .online-pulse {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #16a34a;
+        margin-right: 0.3rem;
+        animation: pulse-dot 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+</style>
+
+<div class="connected-page">
+
+    <nav class="connected-breadcrumb">
+        <a href="{% url 'administration:index' %}">Administration</a>
+        <span class="sep">/</span>
+        <a href="{% url 'accounts:list_users' %}">Utilisateurs</a>
+        <span class="sep">/</span>
+        <span class="current">Connectés</span>
+    </nav>
+
+    <div class="connected-header">
+        <h4><i class="ri-wifi-line align-middle me-1"></i> Utilisateurs connectés</h4>
+
+        <a href="{% url 'accounts:list_users' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="ri-arrow-left-line"></i> Retour à la liste
+        </a>
+    </div>
+
+    <!-- ============== STATISTIQUE ============== -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="connected-stat"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon"><i class="bx bx-wifi"></i></div>
+                <div>
+                    <p class="stat-label">En ligne maintenant</p>
+                    <p class="stat-value">{{ users|length }}</p>
                 </div>
-            </div>
+            </div></div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-dark text-white d-flex align-items-center">
-                <i class="ri-file-list-3-line fs-18 me-2"></i>
-                <h5 class="card-title mb-0 text-white">Sessions actives</h5>
-            </div>
-            <div class="card-body table-responsive">
-                <table class="table table-bordered table-hover align-middle" style="width:100%">
-                    <thead class="table-light">
+    <!-- ============== SESSIONS ============== -->
+    <div class="connected-card">
+
+        <div class="connected-card-header">
+            <i class="ri-file-list-3-line fs-18"></i>
+            <h5>Sessions actives</h5>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table connected-table align-middle mb-0" style="width:100%">
+                    <thead>
                         <tr>
                             <th></th>
                             <th>Utilisateur</th>
@@ -66,19 +167,16 @@
                         <tr>
                             <td style="width: 48px;">
                                 {% if u.avatar %}
-                                    <img src="{{ u.avatar.url }}" alt="{{ u.username }}"
-                                         class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                    <img src="{{ u.avatar.url }}" alt="{{ u.username }}" class="avatar-online">
                                 {% else %}
-                                    <span class="avatar-title bg-info-subtle text-info rounded-circle"
-                                          style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
-                                        {{ u.username|slice:":1"|upper }}
-                                    </span>
+                                    <span class="avatar-online">{{ u.username|slice:":1"|upper }}</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <div class="fw-medium">{{ u.get_full_name|default:u.username }}
+                                <div class="fw-medium">
+                                    {{ u.get_full_name|default:u.username }}
                                     <span class="badge bg-success-subtle text-success ms-1">
-                                        <i class="ri-circle-fill" style="font-size:.55rem;"></i> En ligne
+                                        <span class="online-pulse"></span> En ligne
                                     </span>
                                 </div>
                                 <div class="text-muted small">@{{ u.username }}</div>
@@ -100,7 +198,11 @@
                         {% empty %}
                         <tr>
                             <td colspan="6" class="text-center py-5">
-                                <i class="ri-inbox-line fs-1 text-muted d-block mb-2"></i>
+                                <div class="avatar-lg mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle fs-1" style="background: var(--teal-100); color: var(--teal-700);">
+                                        <i class="ri-inbox-line"></i>
+                                    </span>
+                                </div>
                                 <span class="text-muted">Aucun utilisateur actuellement connecté</span>
                             </td>
                         </tr>
@@ -109,7 +211,9 @@
                 </table>
             </div>
         </div>
+
     </div>
+
 </div>
 
 {% endblock %}

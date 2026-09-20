@@ -1,0 +1,58 @@
+{% extends 'backend/personnels/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+<div class="row">
+    <div class="col-12">
+        <h4 class="fs-16 mb-3">Module Personnels</h4>
+        <p class="text-muted">Suivi du personnel, des employés, des ayants droit et de l’historique RH.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Liste des employés</h5>
+                <p class="text-muted">Consulter tous les employés et leurs détails.</p>
+                <a href="{% url 'personnels:employe_list' %}" class="btn btn-soft-primary btn-sm mt-2">Voir les employés</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Ajouter un employé</h5>
+                <p class="text-muted">Créer un nouveau dossier employé rapidement.</p>
+                <a href="{% url 'personnels:employe_create' %}" class="btn btn-soft-success btn-sm mt-2">Ajouter un employé</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Ayants droit</h5>
+                <p class="text-muted">Ajouter ou consulter les enfants, conjoints et autres ayants droit.</p>
+                <a href="{% url 'personnels:ayant_droit_list' %}" class="btn btn-soft-primary btn-sm mt-2">Voir les ayants droit</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Gestion RH</h5>
+                <p class="text-muted">Analyse de la structure du personnel et préparation de l’intégration future.</p>
+                <a href="{% url 'dashboard:index' %}" class="btn btn-soft-warning btn-sm mt-2">Retour au dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            Nous analysons la structure du module RH avec la version PHP de Sanita. Les tables spécifiques des ayants droit seront validées ensemble.
+        </div>
+    </div>
+</div>
+{% endblock %}

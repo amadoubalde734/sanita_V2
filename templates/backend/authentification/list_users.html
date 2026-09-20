@@ -4,272 +4,329 @@
 {% block inner_content %}
 {% include 'backend/includes/message.html' %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">
-                <i class="ri-user-settings-line align-middle me-1 text-primary"></i>
-                Utilisateurs
-            </h4>
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="javascript:void(0);">Administration</a></li>
-                    <li class="breadcrumb-item active">Utilisateurs</li>
-                </ol>
-            </div>
+<style>
+    .users-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .users-breadcrumb {
+        font-size: 0.78rem;
+        margin-bottom: 0.5rem;
+    }
+    .users-breadcrumb a {
+        color: var(--teal-700);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .users-breadcrumb a:hover { text-decoration: underline; }
+    .users-breadcrumb .sep { color: var(--muted); margin: 0 0.4rem; }
+    .users-breadcrumb .current { color: var(--muted); }
+
+    .users-header {
+        margin-bottom: 1.5rem;
+    }
+    .users-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .stat-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        height: 100%;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .stat-card:hover {
+        box-shadow: 0 12px 26px -16px rgba(11, 61, 58, 0.2);
+        transform: translateY(-2px);
+    }
+    .stat-icon {
+        width: 42px; height: 42px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+    }
+    .stat-label {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.04em; color: var(--muted); margin-bottom: 0.15rem;
+    }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0; }
+
+    .users-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .users-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .users-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+    .users-card-header .btn-success {
+        background: rgba(255,255,255,0.16);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+    }
+    .users-card-header .btn-success:hover {
+        background: rgba(255,255,255,0.26);
+        color: #fff;
+    }
+
+    .users-search {
+        padding: 1.1rem 1.5rem;
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+    }
+    .users-search .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .users-search .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .users-table thead th {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--muted); border-bottom: 1px solid var(--line); background: #fafcfb; padding: 0.85rem 1rem;
+    }
+    .users-table tbody td { padding: 0.75rem 1rem; vertical-align: middle; border-bottom: 1px solid var(--line); }
+    .users-table tbody tr:last-child td { border-bottom: none; }
+    .users-table tbody tr:hover { background: #fafcfb; }
+
+    .avatar-initials {
+        width: 36px; height: 36px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600; font-size: 0.85rem;
+        background: var(--teal-100); color: var(--teal-700);
+        object-fit: cover;
+    }
+</style>
+
+<div class="users-page">
+
+    <nav class="users-breadcrumb">
+        <a href="{% url 'administration:index' %}">Administration</a>
+        <span class="sep">/</span>
+        <span class="current">Utilisateurs</span>
+    </nav>
+
+    <div class="users-header">
+        <h4><i class="ri-user-settings-line align-middle me-1"></i> Utilisateurs</h4>
+    </div>
+
+    <!-- ============== STATISTIQUES ============== -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: var(--teal-100); color: var(--teal-700);"><i class="bx bx-group"></i></div>
+                <div><p class="stat-label">Total utilisateurs</p><p class="stat-value">{{ total_users|default:0 }}</p></div>
+            </div></div>
         </div>
-    </div>
-</div>
 
-<div class="row mb-4">
-
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate shadow-sm border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-uppercase fw-medium text-muted mb-1" style="letter-spacing:.5px;">Total Utilisateurs</p>
-                        <h4 class="fs-22 fw-semibold mb-0">
-                            <span class="counter-value" data-target="{{ total_users|default:0 }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-primary-subtle rounded-circle fs-3">
-                            <i class="bx bx-group text-primary"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #e7f7ef; color: #16a34a;"><i class="bx bx-check-circle"></i></div>
+                <div><p class="stat-label">Actifs</p><p class="stat-value">{{ active_users|default:0 }}</p></div>
+            </div></div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate shadow-sm border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-uppercase fw-medium text-muted mb-1" style="letter-spacing:.5px;">Actifs</p>
-                        <h4 class="fs-22 fw-semibold mb-0 text-success">
-                            <span class="counter-value" data-target="{{ active_users|default:0 }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-success-subtle rounded-circle fs-3">
-                            <i class="bx bx-check-circle text-success"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #fdecec; color: #b91c1c;"><i class="bx bx-user-x"></i></div>
+                <div><p class="stat-label">Inactifs</p><p class="stat-value">{{ inactive_users|default:0 }}</p></div>
+            </div></div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate shadow-sm border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-uppercase fw-medium text-muted mb-1" style="letter-spacing:.5px;">Inactifs</p>
-                        <h4 class="fs-22 fw-semibold mb-0 text-danger">
-                            <span class="counter-value" data-target="{{ inactive_users|default:0 }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-danger-subtle rounded-circle fs-3">
-                            <i class="bx bx-user-x text-danger"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
+        <div class="col-xl-3 col-md-6">
+            <a href="{% url 'accounts:connected_users' %}" class="text-decoration-none">
+                <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: #e6f4fb; color: #0891b2;"><i class="bx bx-wifi"></i></div>
+                    <div><p class="stat-label">Connectés</p><p class="stat-value">{{ connected_users_count|default:0 }}</p></div>
+                </div></div>
+            </a>
         </div>
+
     </div>
 
-    <div class="col-xl-3 col-md-6">
-        <a href="{% url 'accounts:connected_users' %}" class="text-decoration-none">
-            <div class="card card-animate shadow-sm border-0">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <p class="text-uppercase fw-medium text-muted mb-1" style="letter-spacing:.5px;">Connectés</p>
-                            <h4 class="fs-22 fw-semibold mb-0 text-info">
-                                <span class="counter-value" data-target="{{ connected_users_count|default:0 }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-info-subtle rounded-circle fs-3">
-                                <i class="bx bx-wifi text-info"></i>
-                            </span>
-                        </div>
-                    </div>
+    <!-- ============== LISTE ============== -->
+    <div class="users-card">
+
+        <div class="users-card-header">
+            <h5>Liste des utilisateurs</h5>
+            <a href="{% url 'accounts:add_user' %}" class="btn btn-success btn-sm px-3">
+                <i class="ri-user-add-line align-bottom me-1"></i> Ajouter un utilisateur
+            </a>
+        </div>
+
+        <div class="users-search">
+            <form method="GET" class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" name="q" class="form-control"
+                           placeholder="Rechercher (nom, email, login, contact)..."
+                           value="{{ search_query }}">
                 </div>
-            </div>
-        </a>
-    </div>
-
-</div>
-
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card shadow-sm border-0">
-
-            <div class="card-header bg-dark text-white d-flex flex-wrap gap-2 justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <i class="ri-file-list-3-line fs-18 me-2"></i>
-                    <h5 class="card-title mb-0 text-white">Liste des utilisateurs</h5>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ri-search-line align-bottom me-1"></i> Rechercher
+                    </button>
                 </div>
-                <a href="{% url 'accounts:add_user' %}" class="btn btn-success btn-sm px-3">
-                    <i class="ri-user-add-line align-bottom me-1"></i> Ajouter un utilisateur
-                </a>
-            </div>
-
-            <div class="card-body">
-
-                <form method="GET" class="row g-2 mb-3">
-                    <div class="col-md-4">
-                        <input type="text" name="q" class="form-control"
-                               placeholder="Rechercher (nom, email, login, contact)..."
-                               value="{{ search_query }}">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="ri-search-line align-bottom me-1"></i> Rechercher
-                        </button>
-                    </div>
-                    {% if search_query %}
-                    <div class="col-md-2">
-                        <a href="{% url 'accounts:list_users' %}" class="btn btn-outline-secondary w-100">Réinitialiser</a>
-                    </div>
-                    {% endif %}
-                </form>
-
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle" style="width:100%">
-                        <thead class="table-light">
-                            <tr>
-                                <th></th>
-                                <th>Utilisateur</th>
-                                <th>Email</th>
-                                <th>Contact</th>
-                                <th>Rôle</th>
-                                <th>Société / Site</th>
-                                <th>Statut</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for u in users %}
-                            <tr>
-                                <td style="width: 48px;">
-                                    {% if u.avatar %}
-                                        <img src="{{ u.avatar.url }}" alt="{{ u.username }}"
-                                             class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
-                                    {% else %}
-                                        <span class="avatar-title bg-primary-subtle text-primary rounded-circle"
-                                              style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
-                                            {{ u.username|slice:":1"|upper }}
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="fw-medium">{{ u.get_full_name|default:u.username }}</div>
-                                    <div class="text-muted small">@{{ u.username }}</div>
-                                </td>
-                                <td>{{ u.email|default:"-" }}</td>
-                                <td>{{ u.contact|default:"-" }}</td>
-                                <td>
-                                    {% if u.role %}
-                                        <span class="badge bg-secondary-subtle text-secondary">{{ u.role.name }}</span>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {{ u.id_societe.libelle|default:"-" }}
-                                    {% if u.site %}<br><span class="text-muted small">{{ u.site.nom_site }}</span>{% endif %}
-                                </td>
-                                <td>
-                                    {% if u.statut_compte %}
-                                        <span class="badge bg-success-subtle text-success">Actif</span>
-                                    {% else %}
-                                        <span class="badge bg-danger-subtle text-danger">Inactif</span>
-                                    {% endif %}
-                                    {% if u.statut_connecte %}
-                                        <span class="badge bg-info-subtle text-info ms-1">
-                                            <i class="ri-wifi-line align-bottom"></i> En ligne
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-soft-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                            <i class="ri-more-fill"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a href="{% url 'accounts:edit_user' u.pk %}" class="dropdown-item">
-                                                    <i class="ri-pencil-fill text-muted me-2"></i> Modifier
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="{% url 'accounts:change_user_password' u.pk %}" class="dropdown-item">
-                                                    <i class="ri-lock-password-line text-muted me-2"></i> Changer le mot de passe
-                                                </a>
-                                            </li>
-                                            {% if u.pk != request.user.pk %}
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form id="delete-form-user-{{ u.pk }}" method="POST" action="{% url 'accounts:delete_user' u.pk %}" style="display:none;">
-                                                    {% csrf_token %}
-                                                </form>
-                                                <button type="button" class="dropdown-item text-danger btn-delete-user" data-id="{{ u.pk }}">
-                                                    <i class="ri-delete-bin-fill me-2"></i> Supprimer
-                                                </button>
-                                            </li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="8" class="text-center py-5">
-                                    <i class="ri-inbox-line fs-1 text-muted d-block mb-2"></i>
-                                    <span class="text-muted">Aucun utilisateur trouvé</span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                {% if page_obj.paginator.num_pages > 1 %}
-                <div class="mt-3">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center">
-                            {% if page_obj.has_previous %}
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Précédent</a></li>
-                            {% else %}
-                                <li class="page-item disabled"><span class="page-link">Précédent</span></li>
-                            {% endif %}
-                            {% for num in page_obj.paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                                {% else %}
-                                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                            {% if page_obj.has_next %}
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Suivant</a></li>
-                            {% else %}
-                                <li class="page-item disabled"><span class="page-link">Suivant</span></li>
-                            {% endif %}
-                        </ul>
-                    </nav>
+                {% if search_query %}
+                <div class="col-md-2">
+                    <a href="{% url 'accounts:list_users' %}" class="btn btn-outline-secondary w-100">Réinitialiser</a>
                 </div>
                 {% endif %}
+            </form>
+        </div>
 
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table users-table align-middle mb-0" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Utilisateur</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Rôle</th>
+                            <th>Société / Site</th>
+                            <th>Statut</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td style="width: 48px;">
+                                {% if u.avatar %}
+                                    <img src="{{ u.avatar.url }}" alt="{{ u.username }}" class="avatar-initials">
+                                {% else %}
+                                    <span class="avatar-initials">{{ u.username|slice:":1"|upper }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-medium">{{ u.get_full_name|default:u.username }}</div>
+                                <div class="text-muted small">@{{ u.username }}</div>
+                            </td>
+                            <td>{{ u.email|default:"-" }}</td>
+                            <td>{{ u.contact|default:"-" }}</td>
+                            <td>
+                                {% if u.role %}
+                                    <span class="badge bg-secondary-subtle text-secondary">{{ u.role.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ u.id_societe.libelle|default:"-" }}
+                                {% if u.site %}<br><span class="text-muted small">{{ u.site.nom_site }}</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if u.statut_compte %}
+                                    <span class="badge bg-success-subtle text-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger">Inactif</span>
+                                {% endif %}
+                                {% if u.statut_connecte %}
+                                    <span class="badge bg-info-subtle text-info ms-1">
+                                        <i class="ri-wifi-line align-bottom"></i> En ligne
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-soft-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <i class="ri-more-fill"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="{% url 'accounts:edit_user' u.pk %}" class="dropdown-item">
+                                                <i class="ri-pencil-fill text-muted me-2"></i> Modifier
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'accounts:change_user_password' u.pk %}" class="dropdown-item">
+                                                <i class="ri-lock-password-line text-muted me-2"></i> Changer le mot de passe
+                                            </a>
+                                        </li>
+                                        {% if u.pk != request.user.pk %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form id="delete-form-user-{{ u.pk }}" method="POST" action="{% url 'accounts:delete_user' u.pk %}" style="display:none;">
+                                                {% csrf_token %}
+                                            </form>
+                                            <button type="button" class="dropdown-item text-danger btn-delete-user" data-id="{{ u.pk }}">
+                                                <i class="ri-delete-bin-fill me-2"></i> Supprimer
+                                            </button>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <div class="avatar-lg mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle fs-1" style="background: var(--teal-100); color: var(--teal-700);">
+                                        <i class="ri-inbox-line"></i>
+                                    </span>
+                                </div>
+                                <span class="text-muted">Aucun utilisateur trouvé</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="px-3 py-3">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Précédent</a></li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">Précédent</span></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Suivant</a></li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">Suivant</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
         </div>
     </div>
+
 </div>
 
 <script>

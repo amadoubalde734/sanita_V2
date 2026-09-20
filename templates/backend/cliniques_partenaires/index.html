@@ -1,0 +1,49 @@
+{% extends 'backend/cliniques_partenaires/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+<div class="row">
+    <div class="col-12">
+        <h4 class="fs-16 mb-3">Module Cliniques Partenaires</h4>
+        <p class="text-muted">Bienvenue dans le module Cliniques Partenaires. Suivez les établissements partenaires et leurs activités.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Cliniques actives</h5>
+                <p class="fs-24 mb-0">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Partenariats en cours</h5>
+                <p class="fs-24 mb-0">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Demandes reçues</h5>
+                <p class="fs-24 mb-0">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Actions rapides</h5>
+                <p class="text-muted mb-0">Utilisez le menu pour accéder aux sections Cliniques ou revenir au tableau de bord principal.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

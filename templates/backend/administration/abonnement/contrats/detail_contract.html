@@ -1,0 +1,276 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .contract-detail-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #e7edeb;
+    }
+
+    .contract-detail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .contract-detail-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+    .contract-detail-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .contract-panel {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+    .contract-panel .panel-header {
+        padding: 1.1rem 1.5rem;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .contract-panel .panel-header h5 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--ink);
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .contract-panel .panel-body {
+        padding: 1.5rem;
+    }
+
+    .field-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-bottom: 0.3rem;
+    }
+    .field-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+    .amount-hero {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        border-radius: 16px;
+        padding: 1.75rem;
+        text-align: center;
+    }
+    .amount-hero .amount-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    .amount-hero .amount-sub {
+        font-size: 0.8rem;
+        opacity: 0.85;
+    }
+</style>
+
+<div class="contract-detail-page">
+
+    <div class="contract-detail-header">
+        <div>
+            <h4><i class="ri-file-shield-2-line align-middle me-1"></i> Détail du contrat de maintenance</h4>
+            <p>Consultez les informations et l'état du contrat.</p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'abonnement:contract_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="ri-arrow-left-line align-bottom me-1"></i>
+                Retour à la liste
+            </a>
+            <a href="{% url 'abonnement:contract_edit' contract.pk %}" class="btn btn-primary btn-sm">
+                <i class="ri-edit-line align-bottom me-1"></i>
+                Modifier
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-xl-8">
+
+            <div class="contract-panel">
+                <div class="panel-header">
+                    <h5><i class="ri-file-text-line"></i> Informations du contrat</h5>
+                    {% if contract.status == "ACTIVE" %}
+                        <span class="badge bg-success-subtle text-success"><i class="ri-checkbox-circle-line me-1"></i> Actif</span>
+                    {% elif contract.status == "EXPIRING_SOON" %}
+                        <span class="badge bg-warning-subtle text-warning"><i class="ri-time-line me-1"></i> Expire bientôt</span>
+                    {% elif contract.status == "EXPIRED" %}
+                        <span class="badge bg-danger-subtle text-danger"><i class="ri-close-circle-line me-1"></i> Expiré</span>
+                    {% elif contract.status == "SUSPENDED" %}
+                        <span class="badge bg-warning-subtle text-warning"><i class="ri-pause-circle-line me-1"></i> Suspendu</span>
+                    {% elif contract.status == "CANCELLED" %}
+                        <span class="badge bg-danger-subtle text-danger"><i class="ri-forbid-2-line me-1"></i> Annulé</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="field-label">Numéro du contrat</div>
+                            <div class="field-value">{{ contract.contract_number }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field-label">Établissement</div>
+                            <div class="field-value">{{ contract.etablissement.nom_etablissement }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field-label">Licence associée</div>
+                            <div class="field-value">
+                                <a href="{% url 'abonnement:detail' contract.license.pk %}" class="text-decoration-none" style="color: var(--teal-700);">
+                                    {{ contract.license.license_key }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field-label">Formule</div>
+                            <div class="field-value">{{ contract.license.plan.name }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contract-panel">
+                <div class="panel-header">
+                    <h5><i class="ri-calendar-line"></i> Période du contrat</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="field-label">Date de début</div>
+                            <div class="field-value">{{ contract.start_date|date:"d/m/Y" }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="field-label">Date d'expiration</div>
+                            <div class="field-value">{{ contract.end_date|date:"d/m/Y" }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="field-label">Jours restants</div>
+                            <div>
+                                {% if contract.status == "EXPIRED" or contract.status == "CANCELLED" %}
+                                    <span class="badge bg-danger-subtle text-danger">Expiré</span>
+                                {% elif contract.status == "SUSPENDED" %}
+                                    <span class="badge bg-warning-subtle text-warning">Suspendu</span>
+                                {% else %}
+                                    <span class="field-value">{{ contract.days_remaining }} jour{{ contract.days_remaining|pluralize }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contract-panel">
+                <div class="panel-header"><h5><i class="ri-file-info-line"></i> Description</h5></div>
+                <div class="panel-body">
+                    {% if contract.description %}
+                        <p class="text-muted mb-0">{{ contract.description|linebreaksbr }}</p>
+                    {% else %}
+                        <span class="text-muted">Aucune description renseignée.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="contract-panel">
+                <div class="panel-header"><h5><i class="ri-sticky-note-line"></i> Notes</h5></div>
+                <div class="panel-body">
+                    {% if contract.notes %}
+                        <p class="text-muted mb-0">{{ contract.notes|linebreaksbr }}</p>
+                    {% else %}
+                        <span class="text-muted">Aucune note renseignée.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xl-4">
+
+            <div class="amount-hero mb-4">
+                <div class="amount-value">{{ contract.amount|floatformat:0 }} <small class="fs-16">{{ contract.currency }}</small></div>
+                <div class="amount-sub">Montant du contrat</div>
+            </div>
+
+            <div class="contract-panel">
+                <div class="panel-header"><h5><i class="ri-settings-3-line"></i> Actions</h5></div>
+                <div class="panel-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'abonnement:contract_edit' contract.pk %}" class="btn btn-primary">
+                            <i class="ri-edit-line align-bottom me-1"></i> Modifier le contrat
+                        </a>
+
+                        {% if contract.status == "ACTIVE" or contract.status == "EXPIRING_SOON" %}
+                            <a href="{% url 'abonnement:contract_suspend' contract.pk %}" class="btn btn-soft-warning">
+                                <i class="ri-pause-circle-line align-bottom me-1"></i> Suspendre
+                            </a>
+                        {% endif %}
+
+                        {% if contract.status == "SUSPENDED" %}
+                            <a href="{% url 'abonnement:contract_activate' contract.pk %}" class="btn btn-soft-success">
+                                <i class="ri-play-circle-line align-bottom me-1"></i> Réactiver
+                            </a>
+                        {% endif %}
+
+                        {% if contract.status != "CANCELLED" %}
+                            <a href="{% url 'abonnement:contract_cancel' contract.pk %}" class="btn btn-outline-danger">
+                                <i class="ri-close-circle-line align-bottom me-1"></i> Annuler le contrat
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="contract-panel">
+                <div class="panel-header"><h5><i class="ri-history-line"></i> Informations d'audit</h5></div>
+                <div class="panel-body">
+                    <div class="mb-3">
+                        <div class="field-label">Créé par</div>
+                        <div class="field-value">{% if contract.created_by %}{{ contract.created_by }}{% else %}<span class="text-muted">Non renseigné</span>{% endif %}</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="field-label">Date de création</div>
+                        <div class="field-value">{{ contract.created_at|date:"d/m/Y à H:i" }}</div>
+                    </div>
+                    <div>
+                        <div class="field-label">Dernière modification</div>
+                        <div class="field-value">{{ contract.updated_at|date:"d/m/Y à H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

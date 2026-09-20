@@ -1,0 +1,365 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .plans-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #e7edeb;
+    }
+
+    .plans-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .plans-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        margin-bottom: 0.25rem;
+    }
+    .plans-header p {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+    .plans-header .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .plans-header .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .stat-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        padding: 1.25rem;
+        height: 100%;
+    }
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-bottom: 0.15rem;
+    }
+    .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .plans-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .plans-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .plans-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+    .plans-card-header .badge {
+        background: rgba(255,255,255,0.18);
+        color: #fff;
+        font-weight: 500;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+    }
+
+    .plans-table thead th {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+        padding: 0.85rem 1rem;
+    }
+    .plans-table tbody td {
+        padding: 0.9rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+    }
+    .plans-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .plans-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .plan-icon-cell {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="plans-page">
+
+    <div class="plans-header">
+        <div>
+            <h4><i class="ri-price-tag-3-line align-middle me-1"></i> Référentiel des plans</h4>
+            <p>Gérez les formules d'abonnement disponibles pour vos clients.</p>
+        </div>
+
+        <a href="{% url 'abonnement:plan_add' %}" class="btn btn-primary">
+            <i class="ri-add-line me-1"></i>
+            Ajouter un plan
+        </a>
+    </div>
+
+    <!-- ============== STATISTIQUES ============== -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: var(--teal-100); color: var(--teal-700);">
+                    <i class="ri-price-tag-3-line"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Total plans</p>
+                    <p class="stat-value">{{ total_plans }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #e7f7ef; color: #16a34a;">
+                    <i class="ri-checkbox-circle-line"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Plans actifs</p>
+                    <p class="stat-value">{{ active_plans }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #e6f4fb; color: #0891b2;">
+                    <i class="ri-group-line"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Utilisateurs illimités</p>
+                    <p class="stat-value">{{ unlimited_user_plans }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #fdecec; color: #dc2626;">
+                    <i class="ri-close-circle-line"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Plans inactifs</p>
+                    <p class="stat-value">{{ inactive_plans }}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============== LISTE ============== -->
+    <div class="plans-card">
+
+        <div class="plans-card-header">
+            <h5>Liste des plans</h5>
+            <span class="badge">{{ plans|length }} plan(s)</span>
+        </div>
+
+        <div class="card-body p-0">
+
+            {% if plans %}
+
+            <div class="table-responsive">
+                <table class="table plans-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Plan</th>
+                            <th>Code</th>
+                            <th>Prix</th>
+                            <th>Utilisateurs</th>
+                            <th>Sites</th>
+                            <th>Licences</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for plan in plans %}
+                        <tr>
+
+                            <td class="text-muted">{{ forloop.counter }}</td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="plan-icon-cell
+                                        {% if plan.code == 'STANDARD' %}
+                                            bg-primary-subtle text-primary
+                                        {% elif plan.code == 'PROFESSIONAL' %}
+                                            bg-success-subtle text-success
+                                        {% else %}
+                                            bg-warning-subtle text-warning
+                                        {% endif %}
+                                    ">
+                                        <i class="ri-price-tag-3-line"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-medium">{{ plan.name }}</h6>
+                                        {% if plan.description %}
+                                            <small class="text-muted">{{ plan.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td><span class="badge bg-light text-dark">{{ plan.code }}</span></td>
+
+                            <td>
+                                <strong>{{ plan.price|floatformat:0 }}</strong>
+                                <small class="text-muted">{{ plan.currency }}</small>
+                            </td>
+
+                            <td>
+                                {% if plan.unlimited_users %}
+                                    <span class="badge bg-info-subtle text-info">
+                                        <i class="ri-infinity-line me-1"></i> Illimité
+                                    </span>
+                                {% else %}
+                                    <span>{{ plan.max_users }}</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if plan.unlimited_sites %}
+                                    <span class="badge bg-info-subtle text-info">
+                                        <i class="ri-infinity-line me-1"></i> Illimité
+                                    </span>
+                                {% else %}
+                                    <span>{{ plan.max_sites }}</span>
+                                {% endif %}
+                            </td>
+
+                            <td><span class="badge bg-secondary-subtle text-secondary">{{ plan.licenses.count }}</span></td>
+
+                            <td>
+                                {% if plan.active %}
+                                    <span class="badge bg-success-subtle text-success">
+                                        <i class="ri-checkbox-circle-line me-1"></i> Actif
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger">
+                                        <i class="ri-close-circle-line me-1"></i> Inactif
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ri-more-fill"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'abonnement:plan_detail' plan.pk %}">
+                                                <i class="ri-eye-line me-2"></i> Voir le détail
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'abonnement:plan_edit' plan.pk %}">
+                                                <i class="ri-edit-line me-2"></i> Modifier
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item {% if plan.active %}text-danger{% else %}text-success{% endif %}"
+                                               href="{% url 'abonnement:plan_toggle' plan.pk %}">
+                                                {% if plan.active %}
+                                                    <i class="ri-close-circle-line me-2"></i> Désactiver
+                                                {% else %}
+                                                    <i class="ri-checkbox-circle-line me-2"></i> Activer
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="text-center py-5">
+                <div class="avatar-lg mx-auto mb-4">
+                    <div class="avatar-title rounded-circle fs-1" style="background: var(--teal-100); color: var(--teal-700);">
+                        <i class="ri-price-tag-3-line"></i>
+                    </div>
+                </div>
+                <h5>Aucun plan disponible</h5>
+                <p class="text-muted mb-4">Aucun plan d'abonnement n'a encore été configuré.</p>
+                <a href="{% url 'abonnement:plan_add' %}" class="btn btn-primary">
+                    <i class="ri-add-line me-1"></i>
+                    Ajouter le premier plan
+                </a>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

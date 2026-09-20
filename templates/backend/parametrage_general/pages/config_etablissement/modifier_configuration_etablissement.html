@@ -1,0 +1,375 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block inner_content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">
+                {% if config %}Modifier{% else %}Créer{% endif %} la configuration de l'établissement
+            </h4>
+            <div class="page-title-right">
+                <a href="{% url 'parametrage_general:configuration_etablissement' %}" class="btn btn-soft-secondary">
+                    <i class="ri-arrow-left-line me-1"></i>
+                    Retour
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row">
+
+        <div class="col-xl-8">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informations générales</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label for="{{ form.nom_etablissement.id_for_label }}" class="form-label">
+                                Nom de l'établissement <span class="text-danger">*</span>
+                            </label>
+                            {{ form.nom_etablissement }}
+                            {% if form.nom_etablissement.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.nom_etablissement.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.code_etablissement.id_for_label }}" class="form-label">
+                                Code établissement <span class="text-danger">*</span>
+                            </label>
+                            {{ form.code_etablissement }}
+                            {% if form.code_etablissement.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.code_etablissement.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.type_etablissement.id_for_label }}" class="form-label">
+                                Type d'établissement <span class="text-danger">*</span>
+                            </label>
+                            {{ form.type_etablissement }}
+                            {% if form.type_etablissement.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.type_etablissement.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.specialites.id_for_label }}" class="form-label">
+                                Spécialités médicales
+                            </label>
+                            {{ form.specialites }}
+                            {% if form.specialites.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.specialites.errors|join:", " }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Sélectionnez les spécialités proposées par l'établissement.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.pays.id_for_label }}" class="form-label">
+                                Pays
+                            </label>
+                            {{ form.pays }}
+                            {% if form.pays.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.pays.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.ville.id_for_label }}" class="form-label">
+                                Ville
+                            </label>
+                            {{ form.ville }}
+                            {% if form.ville.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.ville.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.adresse.id_for_label }}" class="form-label">
+                                Adresse
+                            </label>
+                            {{ form.adresse }}
+                            {% if form.adresse.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.adresse.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.boite_postale.id_for_label }}" class="form-label">
+                                Boîte postale
+                            </label>
+                            {{ form.boite_postale }}
+                            {% if form.boite_postale.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.boite_postale.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.telephone.id_for_label }}" class="form-label">
+                                Téléphone
+                            </label>
+                            {{ form.telephone }}
+                            {% if form.telephone.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.telephone.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.telephone_secondaire.id_for_label }}" class="form-label">
+                                Téléphone secondaire
+                            </label>
+                            {{ form.telephone_secondaire }}
+                            {% if form.telephone_secondaire.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.telephone_secondaire.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                Email
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.email.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.site_web.id_for_label }}" class="form-label">
+                                Site web
+                            </label>
+                            {{ form.site_web }}
+                            {% if form.site_web.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.site_web.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informations administratives</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label for="{{ form.numero_agrement.id_for_label }}" class="form-label">
+                                Numéro d'agrément
+                            </label>
+                            {{ form.numero_agrement }}
+                            {% if form.numero_agrement.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.numero_agrement.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.numero_autorisation.id_for_label }}" class="form-label">
+                                Numéro d'autorisation
+                            </label>
+                            {{ form.numero_autorisation }}
+                            {% if form.numero_autorisation.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.numero_autorisation.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.numero_fiscal.id_for_label }}" class="form-label">
+                                Numéro fiscal
+                            </label>
+                            {{ form.numero_fiscal }}
+                            {% if form.numero_fiscal.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.numero_fiscal.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.registre_commerce.id_for_label }}" class="form-label">
+                                Registre de commerce
+                            </label>
+                            {{ form.registre_commerce }}
+                            {% if form.registre_commerce.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.registre_commerce.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.identifiant_administratif.id_for_label }}" class="form-label">
+                                Identifiant administratif
+                            </label>
+                            {{ form.identifiant_administratif }}
+                            {% if form.identifiant_administratif.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.identifiant_administratif.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Paramètres régionaux</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label for="{{ form.devise.id_for_label }}" class="form-label">
+                                Devise
+                            </label>
+                            {{ form.devise }}
+                            {% if form.devise.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.devise.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.fuseau_horaire.id_for_label }}" class="form-label">
+                                Fuseau horaire
+                            </label>
+                            {{ form.fuseau_horaire }}
+                            {% if form.fuseau_horaire.errors %}
+                                <div class="text-danger fs-12 mt-1">{{ form.fuseau_horaire.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Modules optionnels</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="form-check form-switch mb-3 pb-3 border-bottom">
+                        {{ form.module_prise_en_charge_actif }}
+                        <label class="form-check-label" for="{{ form.module_prise_en_charge_actif.id_for_label }}">
+                            Activer le module Prise en charge entreprise
+                        </label>
+                        <p class="text-muted fs-13 mt-2 mb-0">
+                            Permet de gérer les employés, ayants droit et patients pris en charge par des entreprises clientes.
+                        </p>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        {{ form.module_conventions_actif }}
+                        <label class="form-check-label" for="{{ form.module_conventions_actif.id_for_label }}">
+                            Activer le module Conventions entreprises
+                        </label>
+                        <p class="text-muted fs-13 mt-2 mb-0">
+                            Permet de gérer les conventions avec les entreprises et les patients affiliés ou référés.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xl-4">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Logo de l'établissement</h5>
+                </div>
+                <div class="card-body text-center">
+
+                    {% if config.logo %}
+                        <img
+                            src="{{ config.logo.url }}"
+                            alt="Logo actuel"
+                            class="img-fluid rounded mb-3"
+                            style="max-height: 180px;"
+                        >
+                    {% else %}
+                        <div class="avatar-lg mx-auto mb-3">
+                            <span class="avatar-title bg-light text-secondary rounded-circle fs-32">
+                                <i class="ri-hospital-line"></i>
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    <label for="{{ form.logo.id_for_label }}" class="form-label d-block text-start">
+                        Logo
+                    </label>
+
+                    {{ form.logo }}
+
+                    {% if form.logo.errors %}
+                        <div class="text-danger fs-12 mt-1">
+                            {{ form.logo.errors|join:", " }}
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Statut</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="form-check form-switch">
+                        {{ form.actif }}
+                        <label class="form-check-label" for="{{ form.actif.id_for_label }}">
+                            Établissement actif
+                        </label>
+                    </div>
+
+                    <p class="text-muted fs-13 mt-2 mb-0">
+                        Un établissement inactif ne pourra pas être utilisé normalement dans SANITA.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ri-save-line me-1"></i>
+                        {% if config %}Enregistrer les modifications{% else %}Créer l'établissement{% endif %}
+                    </button>
+
+                    <a
+                        href="{% url 'parametrage_general:configuration_etablissement' %}"
+                        class="btn btn-soft-secondary w-100 mt-2"
+                    >
+                        Annuler
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+{% endblock %}

@@ -5,337 +5,290 @@
 
 {% include 'backend/includes/message.html' %}
 
-<!-- ================= TITRE DE PAGE ================= -->
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">
-                <i class="ri-shield-user-line align-middle me-1 text-primary"></i>
-                Rôles &amp; permissions
-            </h4>
+<style>
+    .roles-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
 
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'dashboard:index' %}">Tableau de bord</a>
-                    </li>
-                    <li class="breadcrumb-item active">Rôles</li>
-                </ol>
-            </div>
-        </div>
+    .roles-breadcrumb {
+        font-size: 0.78rem;
+        margin-bottom: 0.5rem;
+    }
+    .roles-breadcrumb a {
+        color: var(--teal-700);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .roles-breadcrumb a:hover { text-decoration: underline; }
+    .roles-breadcrumb .sep { color: var(--muted); margin: 0 0.4rem; }
+    .roles-breadcrumb .current { color: var(--muted); }
+
+    .roles-header {
+        margin-bottom: 1.5rem;
+    }
+    .roles-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .roles-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .roles-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .roles-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .roles-toolbar {
+        padding: 1.1rem 1.5rem;
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+    .roles-toolbar .search-box input {
+        border-radius: 10px;
+        border-color: var(--line);
+    }
+    .roles-toolbar .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .roles-toolbar .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .roles-table thead th {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--muted); border-bottom: 1px solid var(--line); background: #fafcfb; padding: 0.85rem 1rem;
+    }
+    .roles-table tbody td { padding: 0.85rem 1rem; vertical-align: middle; border-bottom: 1px solid var(--line); }
+    .roles-table tbody tr:last-child td { border-bottom: none; }
+    .roles-table tbody tr:hover { background: #fafcfb; }
+</style>
+
+<div class="roles-page">
+
+    <nav class="roles-breadcrumb">
+        <a href="{% url 'administration:index' %}">Tableau de bord</a>
+        <span class="sep">/</span>
+        <span class="current">Rôles</span>
+    </nav>
+
+    <div class="roles-header">
+        <h4><i class="ri-shield-user-line align-middle me-1"></i> Rôles &amp; permissions</h4>
     </div>
-</div>
 
-<!-- ================= CONTENU ================= -->
-<div class="row">
-    <div class="col-lg-12">
+    <div class="roles-card">
 
-        <div class="card shadow-sm border-0" id="rolesList">
+        <div class="roles-card-header">
+            <h5>Liste des rôles</h5>
+        </div>
 
-            <!-- ================= HEADER ================= -->
-            <div class="card-header border-0">
-                <div class="row align-items-center g-3">
-
-                    <div class="col-md-5">
-                        <h5 class="card-title mb-0">
-                            Liste des rôles
-                        </h5>
-                    </div>
-
-                    <!-- Recherche -->
-                    <div class="col-md-4 ms-auto">
-                        <form method="get">
-                            <div class="search-box">
-                                <input
-                                    type="text"
-                                    name="q"
-                                    class="form-control search"
-                                    placeholder="Rechercher un rôle..."
-                                    value="{{ search_query }}"
-                                >
-                                <i class="ri-search-line search-icon"></i>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Ajouter -->
-                    <div class="col-md-auto">
-                        <a href="{% url 'accounts:add_role' %}"
-                           class="btn btn-primary">
-                            <i class="ri-add-line align-bottom me-1"></i>
-                            Ajouter un rôle
-                        </a>
-                    </div>
-
+        <div class="roles-toolbar">
+            <form method="get" class="d-flex flex-grow-1" style="max-width: 380px;">
+                <div class="search-box w-100">
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control search"
+                        placeholder="Rechercher un rôle..."
+                        value="{{ search_query }}"
+                    >
+                    <i class="ri-search-line search-icon"></i>
                 </div>
-            </div>
+            </form>
 
-            <!-- ================= TABLEAU ================= -->
-            <div class="card-body">
+            <a href="{% url 'accounts:add_role' %}" class="btn btn-primary">
+                <i class="ri-add-line align-bottom me-1"></i>
+                Ajouter un rôle
+            </a>
+        </div>
 
-                <div class="table-responsive table-card">
-                    <table class="table align-middle table-nowrap mb-0">
+        <div class="card-body p-0">
 
-                        <thead class="table-light">
-                            <tr>
-                                <th>Code</th>
-                                <th>Nom</th>
-                                <th>Description</th>
-                                <th>Utilisateurs</th>
-                                <th>Statut</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
+            <div class="table-responsive">
+                <table class="table roles-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Utilisateurs</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
 
-                        <tbody>
+                    <tbody>
+                        {% for role in roles %}
+                        <tr>
 
-                            {% for role in roles %}
+                            <td><span class="badge bg-primary-subtle text-primary">{{ role.code }}</span></td>
 
-                            <tr>
+                            <td><h6 class="mb-0 fw-medium">{{ role.name }}</h6></td>
 
-                                <!-- Code -->
-                                <td>
-                                    <span class="badge bg-primary-subtle text-primary">
-                                        {{ role.code }}
+                            <td><span class="text-muted">{{ role.description|default:"—"|truncatechars:60 }}</span></td>
+
+                            <td><span class="badge bg-info-subtle text-info">{{ role.users.count }}</span></td>
+
+                            <td>
+                                {% if role.active %}
+                                    <span class="badge bg-success-subtle text-success">
+                                        <i class="ri-checkbox-circle-line me-1"></i> Actif
                                     </span>
-                                </td>
-
-                                <!-- Nom -->
-                                <td>
-                                    <h6 class="mb-0 fw-medium">
-                                        {{ role.name }}
-                                    </h6>
-                                </td>
-
-                                <!-- Description -->
-                                <td>
-                                    <span class="text-muted">
-                                        {{ role.description|default:"—"|truncatechars:60 }}
+                                {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary">
+                                        <i class="ri-close-circle-line me-1"></i> Inactif
                                     </span>
-                                </td>
+                                {% endif %}
+                            </td>
 
-                                <!-- Utilisateurs -->
-                                <td>
-                                    <span class="badge bg-info-subtle text-info">
-                                        {{ role.users.count }}
-                                    </span>
-                                </td>
+                            <td class="text-end">
+                                <a href="{% url 'accounts:edit_role' role.id %}" class="btn btn-sm btn-soft-primary" title="Modifier">
+                                    <i class="ri-pencil-line"></i>
+                                </a>
 
-                                <!-- Statut -->
-                                <td>
-                                    {% if role.active %}
-                                        <span class="badge bg-success-subtle text-success">
-                                            <i class="ri-checkbox-circle-line me-1"></i>
-                                            Actif
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-secondary-subtle text-secondary">
-                                            <i class="ri-close-circle-line me-1"></i>
-                                            Inactif
-                                        </span>
-                                    {% endif %}
-                                </td>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-soft-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteRoleModal{{ role.id }}"
+                                    title="Supprimer">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
 
-                                <!-- Actions -->
-                                <td class="text-end">
+                                <div class="modal fade" id="deleteRoleModal{{ role.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-body text-center p-4">
 
-                                    <!-- Modifier -->
-                                    <a href="{% url 'accounts:edit_role' role.id %}"
-                                       class="btn btn-sm btn-soft-primary"
-                                       title="Modifier">
-                                        <i class="ri-pencil-line"></i>
-                                    </a>
-
-                                    <!-- Supprimer -->
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-soft-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteRoleModal{{ role.id }}"
-                                        title="Supprimer">
-                                        <i class="ri-delete-bin-line"></i>
-                                    </button>
-
-                                    <!-- Modal suppression -->
-                                    <div
-                                        class="modal fade"
-                                        id="deleteRoleModal{{ role.id }}"
-                                        tabindex="-1"
-                                        aria-hidden="true">
-
-                                        <div class="modal-dialog modal-dialog-centered">
-
-                                            <div class="modal-content">
-
-                                                <div class="modal-body text-center p-4">
-
-                                                    <div class="avatar-lg mx-auto mb-4">
-                                                        <div class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
-                                                            <i class="ri-delete-bin-line"></i>
-                                                        </div>
+                                                <div class="avatar-lg mx-auto mb-4">
+                                                    <div class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
+                                                        <i class="ri-delete-bin-line"></i>
                                                     </div>
-
-                                                    <h5 class="mb-3">
-                                                        Supprimer le rôle ?
-                                                    </h5>
-
-                                                    <p class="text-muted mb-4">
-                                                        Êtes-vous sûr de vouloir supprimer
-                                                        le rôle
-                                                        <strong>« {{ role.name }} »</strong> ?
-                                                        <br>
-                                                        Cette action est irréversible.
-                                                    </p>
-
-                                                    <form
-                                                        method="post"
-                                                        action="{% url 'accounts:delete_role' role.id %}">
-
-                                                        {% csrf_token %}
-
-                                                        <div class="d-flex justify-content-center gap-2">
-
-                                                            <button
-                                                                type="button"
-                                                                class="btn btn-light"
-                                                                data-bs-dismiss="modal">
-                                                                <i class="ri-close-line me-1"></i>
-                                                                Annuler
-                                                            </button>
-
-                                                            <button
-                                                                type="submit"
-                                                                class="btn btn-danger">
-                                                                <i class="ri-delete-bin-line me-1"></i>
-                                                                Supprimer
-                                                            </button>
-
-                                                        </div>
-
-                                                    </form>
-
                                                 </div>
 
+                                                <h5 class="mb-3">Supprimer le rôle ?</h5>
+
+                                                <p class="text-muted mb-4">
+                                                    Êtes-vous sûr de vouloir supprimer le rôle
+                                                    <strong>« {{ role.name }} »</strong> ?
+                                                    <br>
+                                                    Cette action est irréversible.
+                                                </p>
+
+                                                <form method="post" action="{% url 'accounts:delete_role' role.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                                            <i class="ri-close-line me-1"></i> Annuler
+                                                        </button>
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="ri-delete-bin-line me-1"></i> Supprimer
+                                                        </button>
+                                                    </div>
+                                                </form>
+
                                             </div>
-
                                         </div>
-
                                     </div>
+                                </div>
+                            </td>
 
-                                </td>
-
-                            </tr>
-
-                            {% empty %}
-
-                            <tr>
-                                <td colspan="6">
-
-                                    <div class="text-center py-5">
-
-                                        <div class="avatar-lg mx-auto mb-4">
-                                            <div class="avatar-title bg-light text-muted rounded-circle fs-1">
-                                                <i class="ri-shield-user-line"></i>
-                                            </div>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="text-center py-5">
+                                    <div class="avatar-lg mx-auto mb-4">
+                                        <div class="avatar-title rounded-circle fs-1" style="background: var(--teal-100); color: var(--teal-700);">
+                                            <i class="ri-shield-user-line"></i>
                                         </div>
-
-                                        <h5 class="mb-2">
-                                            Aucun rôle trouvé
-                                        </h5>
-
-                                        <p class="text-muted mb-3">
-                                            Aucun rôle ne correspond à votre recherche.
-                                        </p>
-
-                                        <a href="{% url 'accounts:add_role' %}"
-                                           class="btn btn-primary">
-                                            <i class="ri-add-line me-1"></i>
-                                            Ajouter un rôle
-                                        </a>
-
                                     </div>
-
-                                </td>
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-                </div>
-
-                <!-- ================= PAGINATION ================= -->
-                {% if is_paginated %}
-
-                <div class="d-flex justify-content-end align-items-center mt-4">
-
-                    <nav aria-label="Pagination">
-
-                        <ul class="pagination mb-0">
-
-                            {% if page_obj.has_previous %}
-
-                                <li class="page-item">
-                                    
-                                        class="page-link"
-                                        href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">
-                                        <i class="ri-arrow-left-s-line"></i>
+                                    <h5 class="mb-2">Aucun rôle trouvé</h5>
+                                    <p class="text-muted mb-3">Aucun rôle ne correspond à votre recherche.</p>
+                                    <a href="{% url 'accounts:add_role' %}" class="btn btn-primary">
+                                        <i class="ri-add-line me-1"></i>
+                                        Ajouter un rôle
                                     </a>
-                                </li>
-
-                            {% else %}
-
-                                <li class="page-item disabled">
-                                    <span class="page-link">
-                                        <i class="ri-arrow-left-s-line"></i>
-                                    </span>
-                                </li>
-
-                            {% endif %}
-
-
-                            <li class="page-item active">
-                                <span class="page-link">
-                                    {{ page_obj.number }}
-                                    /
-                                    {{ page_obj.paginator.num_pages }}
-                                </span>
-                            </li>
-
-
-                            {% if page_obj.has_next %}
-
-                                <li class="page-item">
-                                    
-                                        class="page-link"
-                                        href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">
-                                        <i class="ri-arrow-right-s-line"></i>
-                                    </a>
-                                </li>
-
-                            {% else %}
-
-                                <li class="page-item disabled">
-                                    <span class="page-link">
-                                        <i class="ri-arrow-right-s-line"></i>
-                                    </span>
-                                </li>
-
-                            {% endif %}
-
-                        </ul>
-
-                    </nav>
-
-                </div>
-
-                {% endif %}
-
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
 
+            {% if is_paginated %}
+            <div class="d-flex justify-content-end align-items-center px-3 py-3">
+                <nav aria-label="Pagination">
+                    <ul class="pagination mb-0">
+
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                
+                                    class="page-link"
+                                    href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="ri-arrow-left-s-line"></i></span>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                
+                                    class="page-link"
+                                    href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="ri-arrow-right-s-line"></i></span>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+        </div>
     </div>
+
 </div>
 
 {% endblock %}

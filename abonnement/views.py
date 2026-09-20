@@ -15,11 +15,11 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .models import Plan, License
-from .forms import PlanForm, LicenseForm
 from .models import Plan, License, MaintenanceContract
 from .forms import LicenseForm, PlanForm, MaintenanceContractForm
+from parametrage_general.models import ConfigurationEtablissement
 from django.db.models import Q
+
 # =========================================================
 # ===================== LICENCES ==========================
 # =========================================================
@@ -31,22 +31,49 @@ from django.db.models import Q
 
 class LicenseListView(LoginRequiredMixin, ListView):
     model = License
-    template_name = "administration/abonnement/list_licenses.html"
+    template_name = "backend/administration/abonnement/list_licenses.html"
     context_object_name = "licenses"
     paginate_by = 20
 
     def get_queryset(self):
         queryset = License.objects.select_related(
-            "societe",
+            "etablissement",
             "plan",
             "created_by",
         ).order_by("-created_at")
+
+        search = self.request.GET.get("search", "").strip()
+        status = self.request.GET.get("status", "").strip()
+
+        if search:
+            queryset = queryset.filter(
+                Q(license_key__icontains=search)
+                | Q(etablissement__nom_etablissement__icontains=search)
+            )
+
+        if status:
+            queryset = queryset.filter(status=status)
 
         # Mise à jour automatique des statuts
         for license in queryset:
             license.update_status()
 
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        all_licenses = License.objects.all()
+
+        context["total_licenses"] = all_licenses.count()
+        context["active_licenses"] = all_licenses.filter(status=License.Status.ACTIVE).count()
+        context["expiring_licenses"] = all_licenses.filter(status=License.Status.EXPIRING_SOON).count()
+        context["expired_licenses"] = all_licenses.filter(status=License.Status.EXPIRED).count()
+        context["status_choices"] = License.Status.choices
+        context["current_search"] = self.request.GET.get("search", "")
+        context["current_status"] = self.request.GET.get("status", "")
+
+        return context
 
 
 # =========================================================
@@ -56,9 +83,10 @@ class LicenseListView(LoginRequiredMixin, ListView):
 class LicenseCreateView(LoginRequiredMixin, CreateView):
     model = License
     form_class = LicenseForm
-    template_name = "administration/abonnement/add_license.html"
+    template_name = "backend/administration/abonnement/add_license.html"
 
     def form_valid(self, form):
+        form.instance.etablissement = ConfigurationEtablissement.objects.first()
         form.instance.created_by = self.request.user
 
         messages.success(
@@ -81,12 +109,12 @@ class LicenseCreateView(LoginRequiredMixin, CreateView):
 
 class LicenseDetailView(LoginRequiredMixin, DetailView):
     model = License
-    template_name = "administration/abonnement/detail_license.html"
+    template_name = "backend/administration/abonnement/detail_license.html"
     context_object_name = "license"
 
     def get_queryset(self):
         return License.objects.select_related(
-            "societe",
+            "etablissement",
             "plan",
             "created_by",
         )
@@ -107,7 +135,7 @@ class LicenseDetailView(LoginRequiredMixin, DetailView):
 class LicenseUpdateView(LoginRequiredMixin, UpdateView):
     model = License
     form_class = LicenseForm
-    template_name = "administration/abonnement/edit_license.html"
+    template_name = "backend/administration/abonnement/edit_license.html"
     context_object_name = "license"
 
     def form_valid(self, form):
@@ -194,10 +222,10 @@ def activate_license(request, pk):
 # =========================================================
 # RENOUVELER UNE LICENCE
 # =========================================================
-# NOTE : templates/administration/abonnement/renew_license.html existe mais
-# n'est rendu par aucune vue pour l'instant — celle-ci redirige directement
-# sans jamais afficher de page de confirmation. Dites-moi si vous voulez que
-# je la transforme en GET (affiche renew_license.html) / POST (traite).
+# NOTE (non résolue, reportée telle quelle) : templates/backend/administration/
+# abonnement/renew_license.html existe mais n'est rendu par aucune vue — celle-ci
+# redirige directement sans jamais afficher de page de confirmation. Toujours en
+# attente de la décision : GET (affiche renew_license.html) / POST (traite) ?
 
 def renew_license(request, pk):
     license = get_object_or_404(License, pk=pk)
@@ -234,7 +262,7 @@ def renew_license(request, pk):
 
 class PlanListView(LoginRequiredMixin, ListView):
     model = Plan
-    template_name = "administration/abonnement/list_plans.html"
+    template_name = "backend/administration/abonnement/list_plans.html"
     context_object_name = "plans"
 
     def get_queryset(self):
@@ -258,6 +286,8 @@ class PlanListView(LoginRequiredMixin, ListView):
         ).count()
 
         return context
+
+
 # =========================================================
 # AJOUTER UN PLAN
 # =========================================================
@@ -265,7 +295,7 @@ class PlanListView(LoginRequiredMixin, ListView):
 class PlanCreateView(LoginRequiredMixin, CreateView):
     model = Plan
     form_class = PlanForm
-    template_name = "administration/abonnement/add_plan.html"
+    template_name = "backend/administration/abonnement/add_plan.html"
 
     def form_valid(self, form):
         messages.success(
@@ -285,7 +315,7 @@ class PlanCreateView(LoginRequiredMixin, CreateView):
 
 class PlanDetailView(LoginRequiredMixin, DetailView):
     model = Plan
-    template_name = "administration/abonnement/detail_plan.html"
+    template_name = "backend/administration/abonnement/detail_plan.html"
     context_object_name = "plan"
 
     def get_queryset(self):
@@ -301,7 +331,7 @@ class PlanDetailView(LoginRequiredMixin, DetailView):
 class PlanUpdateView(LoginRequiredMixin, UpdateView):
     model = Plan
     form_class = PlanForm
-    template_name = "administration/abonnement/edit_plan.html"
+    template_name = "backend/administration/abonnement/edit_plan.html"
     context_object_name = "plan"
 
     def form_valid(self, form):
@@ -351,13 +381,13 @@ def toggle_plan(request, pk):
 
 class MaintenanceContractListView(ListView):
     model = MaintenanceContract
-    template_name = "administration/abonnement/contrats/list_contracts.html"
+    template_name = "backend/administration/abonnement/contrats/list_contracts.html"
     context_object_name = "contracts"
     paginate_by = 10
 
     def get_queryset(self):
         queryset = MaintenanceContract.objects.select_related(
-            "societe",
+            "etablissement",
             "license",
             "license__plan",
             "created_by",
@@ -368,7 +398,7 @@ class MaintenanceContractListView(ListView):
         if search:
             queryset = queryset.filter(
                 Q(contract_number__icontains=search)
-                | Q(societe__icontains=search)
+                | Q(etablissement__nom_etablissement__icontains=search)
                 | Q(license__license_key__icontains=search)
             )
 
@@ -405,9 +435,10 @@ class MaintenanceContractListView(ListView):
 class MaintenanceContractCreateView(CreateView):
     model = MaintenanceContract
     form_class = MaintenanceContractForm
-    template_name = "administration/abonnement/contrats/add_contract.html"
+    template_name = "backend/administration/abonnement/contrats/add_contract.html"
 
     def form_valid(self, form):
+        form.instance.etablissement = ConfigurationEtablissement.objects.first()
         form.instance.created_by = self.request.user
 
         messages.success(
@@ -430,7 +461,7 @@ class MaintenanceContractCreateView(CreateView):
 
 class MaintenanceContractDetailView(DetailView):
     model = MaintenanceContract
-    template_name = "administration/abonnement/contrats/detail_contract.html"
+    template_name = "backend/administration/abonnement/contrats/detail_contract.html"
     context_object_name = "contract"
 
     def get_object(self, queryset=None):
@@ -449,7 +480,7 @@ class MaintenanceContractDetailView(DetailView):
 class MaintenanceContractUpdateView(UpdateView):
     model = MaintenanceContract
     form_class = MaintenanceContractForm
-    template_name = "administration/abonnement/contrats/edit_contract.html"
+    template_name = "backend/administration/abonnement/contrats/edit_contract.html"
 
     def form_valid(self, form):
 

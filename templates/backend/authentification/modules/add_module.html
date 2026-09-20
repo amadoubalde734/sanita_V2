@@ -5,199 +5,228 @@
 
 {% include 'backend/includes/message.html' %}
 
-<!-- ========================= TITRE ========================= -->
-<div class="row">
-    <div class="col-12">
+<style>
+    .module-form-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #e7edeb;
+    }
 
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    .module-breadcrumb {
+        font-size: 0.78rem;
+        margin-bottom: 0.5rem;
+    }
+    .module-breadcrumb a {
+        color: var(--teal-700);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .module-breadcrumb a:hover { text-decoration: underline; }
+    .module-breadcrumb .sep { color: var(--muted); margin: 0 0.4rem; }
+    .module-breadcrumb .current { color: var(--muted); }
 
-            <div>
+    .module-form-header {
+        margin-bottom: 1.75rem;
+    }
+    .module-form-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        margin-bottom: 0.25rem;
+    }
+    .module-form-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
 
-                <h4 class="mb-sm-0">
-                    {% if module_instance %}
-                        Modifier le module
-                    {% else %}
-                        Nouveau module
-                    {% endif %}
-                </h4>
+    .module-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .module-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.25rem 1.5rem;
+    }
+    .module-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .module-card-body { padding: 1.75rem; }
 
-                <p class="text-muted mb-0">
-                    {% if module_instance %}
-                        Modifier les informations du module
-                    {% else %}
-                        Créer un nouveau module de l'application
-                    {% endif %}
-                </p>
+    .module-form-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+    .module-form-page .form-control {
+        border-color: var(--line);
+        border-radius: 10px;
+        padding: 0.55rem 0.85rem;
+        font-size: 0.9rem;
+    }
+    .module-form-page .form-control:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+    .module-form-page .form-text {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.35rem;
+    }
 
-            </div>
+    .module-code-hint {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--teal-100);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--teal-900);
+    }
+    .module-code-hint i { color: var(--teal-700); }
 
+    .module-status-box {
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        background: #fafcfb;
+        padding: 1.1rem 1.25rem;
+    }
+    .module-switch .form-check-input {
+        width: 2.5em;
+        height: 1.35em;
+        cursor: pointer;
+    }
+    .module-switch .form-check-input:checked {
+        background-color: var(--teal-500);
+        border-color: var(--teal-500);
+    }
 
-            <div class="page-title-right">
+    .module-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+        border-top: 1px solid var(--line);
+    }
+    .module-form-actions .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .module-form-actions .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+</style>
 
-                <ol class="breadcrumb m-0">
+<div class="module-form-page">
 
-                    <li class="breadcrumb-item">
+    <nav class="module-breadcrumb">
+        <a href="{% url 'administration:index' %}">Tableau de bord</a>
+        <span class="sep">/</span>
+        <span class="current">Administration</span>
+        <span class="sep">/</span>
+        <a href="{% url 'accounts:list_modules' %}">Modules</a>
+        <span class="sep">/</span>
+        <span class="current">{% if module_instance %}Modification{% else %}Nouveau{% endif %}</span>
+    </nav>
 
-                        <a href="{% url 'dashboard:index' %}">
-                            Tableau de bord
-                        </a>
-
-                    </li>
-
-
-                    <li class="breadcrumb-item">
-                        Administration
-                    </li>
-
-
-                    <li class="breadcrumb-item">
-
-                        <a href="{% url 'accounts:list_modules' %}">
-                            Modules
-                        </a>
-
-                    </li>
-
-
-                    <li class="breadcrumb-item active">
-
-                        {% if module_instance %}
-                            Modification
-                        {% else %}
-                            Nouveau
-                        {% endif %}
-
-                    </li>
-
-                </ol>
-
-            </div>
-
-        </div>
-
+    <div class="module-form-header">
+        <h4>
+            <i class="las la-cubes align-middle me-1"></i>
+            {% if module_instance %}Modifier le module{% else %}Nouveau module{% endif %}
+        </h4>
+        <p>
+            {% if module_instance %}
+                Modifier les informations du module.
+            {% else %}
+                Créer un nouveau module de l'application.
+            {% endif %}
+        </p>
     </div>
-</div>
 
+    <div class="row">
+        <div class="col-xl-8 mx-auto">
 
-<!-- ========================= FORMULAIRE ========================= -->
-<div class="row">
+            <div class="module-card">
 
-    <div class="col-xl-8 mx-auto">
+                <div class="module-card-header">
+                    <h5><i class="las la-cubes"></i> Informations du module</h5>
+                </div>
 
-        <div class="card">
+                <div class="module-card-body">
 
-            <div class="card-header">
+                    <form
+                        method="post"
+                        action="{% if module_instance %}{% url 'accounts:edit_module' module_id=module_instance.id %}{% else %}{% url 'accounts:add_module' %}{% endif %}"
+                    >
+                        {% csrf_token %}
 
-                <h5 class="card-title mb-0">
+                        <div class="row g-3 mb-3">
 
-                    <i class="las la-cubes text-primary me-1"></i>
+                            <div class="col-md-6">
+                                <label for="code" class="form-label">
+                                    Code du module <span class="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="code"
+                                    name="code"
+                                    class="form-control"
+                                    placeholder="Ex : gestion_commerciale"
+                                    value="{% if module_instance %}{{ module_instance.code }}{% else %}{{ code|default:'' }}{% endif %}"
+                                    required
+                                >
+                                <div class="module-code-hint">
+                                    <i class="las la-info-circle"></i>
+                                    Identifiant unique, en minuscules et sans espace (ex: gestion_commerciale)
+                                </div>
+                            </div>
 
-                    Informations du module
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">
+                                    Nom du module <span class="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    class="form-control"
+                                    placeholder="Ex : Gestion commerciale"
+                                    value="{% if module_instance %}{{ module_instance.name }}{% else %}{{ name|default:'' }}{% endif %}"
+                                    required
+                                >
+                            </div>
 
-                </h5>
-
-            </div>
-
-
-            <div class="card-body">
-
-                <form
-                    method="post"
-                    action="{% if module_instance %}{% url 'accounts:edit_module' module_id=module_instance.id %}{% else %}{% url 'accounts:add_module' %}{% endif %}"
-                >
-
-                    {% csrf_token %}
-
-
-                    <div class="row g-3">
-
-
-                        <!-- ================= CODE ================= -->
-
-                        <div class="col-md-6">
-
-                            <label
-                                for="code"
-                                class="form-label"
-                            >
-                                Code du module
-                                <span class="text-danger">*</span>
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="code"
-                                name="code"
-                                class="form-control"
-                                placeholder="Ex : gestion_commerciale"
-                                value="{% if module_instance %}{{ module_instance.code }}{% else %}{{ code|default:'' }}{% endif %}"
-                                required
-                            >
-
-
-                            <div class="form-text">
-                                Identifiant unique du module.
+                            <div class="col-12">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Décrivez brièvement le module..."
+                                >{% if module_instance %}{{ module_instance.description|default:'' }}{% else %}{{ description|default:'' }}{% endif %}</textarea>
                             </div>
 
                         </div>
 
-
-                        <!-- ================= NOM ================= -->
-
-                        <div class="col-md-6">
-
-                            <label
-                                for="name"
-                                class="form-label"
-                            >
-                                Nom du module
-                                <span class="text-danger">*</span>
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                class="form-control"
-                                placeholder="Ex : Gestion commerciale"
-                                value="{% if module_instance %}{{ module_instance.name }}{% else %}{{ name|default:'' }}{% endif %}"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- ================= DESCRIPTION ================= -->
-
-                        <div class="col-12">
-
-                            <label
-                                for="description"
-                                class="form-label"
-                            >
-                                Description
-                            </label>
-
-
-                            <textarea
-                                id="description"
-                                name="description"
-                                class="form-control"
-                                rows="4"
-                                placeholder="Décrivez brièvement le module..."
-                            >{% if module_instance %}{{ module_instance.description|default:'' }}{% else %}{{ description|default:'' }}{% endif %}</textarea>
-
-                        </div>
-
-
-                        <!-- ================= STATUT ================= -->
-
-                        <div class="col-12">
-
-                            <div class="form-check form-switch">
-
+                        <div class="module-status-box mb-4">
+                            <div class="form-check form-switch module-switch mb-0">
                                 <input
                                     class="form-check-input"
                                     type="checkbox"
@@ -210,65 +239,33 @@
                                         checked
                                     {% endif %}
                                 >
-
-                                <label
-                                    class="form-check-label"
-                                    for="active"
-                                >
+                                <label class="form-check-label ms-2" for="active">
                                     Module actif
                                 </label>
-
                             </div>
-
-                            <div class="form-text">
+                            <div class="form-text mb-0">
                                 Un module inactif ne sera pas proposé dans les permissions des rôles.
                             </div>
-
                         </div>
 
+                        <div class="module-form-actions">
+                            <a href="{% url 'accounts:list_modules' %}" class="btn btn-outline-secondary">
+                                <i class="las la-times me-1"></i>
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="las la-save me-1"></i>
+                                {% if module_instance %}Enregistrer les modifications{% else %}Créer le module{% endif %}
+                            </button>
+                        </div>
 
-                    </div>
+                    </form>
 
-
-                    <!-- ================= ACTIONS ================= -->
-
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-
-                        
-                            href="{% url 'accounts:list_modules' %}"
-                            class="btn btn-light"
-                        >
-
-                            <i class="las la-times me-1"></i>
-
-                            Annuler
-
-                        </a>
-
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
-
-                            <i class="las la-save me-1"></i>
-
-                            {% if module_instance %}
-                                Enregistrer les modifications
-                            {% else %}
-                                Créer le module
-                            {% endif %}
-
-                        </button>
-
-                    </div>
-
-                </form>
+                </div>
 
             </div>
 
         </div>
-
     </div>
 
 </div>

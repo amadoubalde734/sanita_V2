@@ -1,0 +1,59 @@
+{% extends 'backend/personnels/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="card-title mb-0">Ayants droit</h4>
+                <p class="text-muted mb-0">Gestion des bénéficiaires associés aux employés.</p>
+            </div>
+            <div>
+                <a href="{% url 'personnels:enfant_create' %}" class="btn btn-soft-primary me-2">Ajouter un enfant</a>
+                <a href="{% url 'personnels:conjoint_create' %}" class="btn btn-soft-success me-2">Ajouter un conjoint</a>
+                <a href="{% url 'personnels:autre_ayant_droit_create' %}" class="btn btn-soft-warning">Ajouter un autre ayant droit</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Employé</th>
+                                <th>Type</th>
+                                <th>Nom</th>
+                                <th>Prénoms</th>
+                                <th>Date de naissance</th>
+                                <th>Lien</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ayant in ayants_droit %}
+                            <tr>
+                                <td>{{ ayant.employe.nom }} {{ ayant.employe.prenoms }}</td>
+                                <td>{{ ayant.get_type_display }}</td>
+                                <td>{{ ayant.nom }}</td>
+                                <td>{{ ayant.prenoms }}</td>
+                                <td>{{ ayant.date_naissance|date:'d/m/Y' }}</td>
+                                <td>{{ ayant.lien_parente }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">Aucun ayant droit enregistré.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

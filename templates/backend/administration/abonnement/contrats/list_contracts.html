@@ -1,0 +1,327 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .contracts-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .contracts-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .contracts-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+    .contracts-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .stat-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        height: 100%;
+    }
+    .stat-icon {
+        width: 42px; height: 42px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+    }
+    .stat-label {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.04em; color: var(--muted); margin-bottom: 0.15rem;
+    }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0; }
+
+    .contracts-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .contracts-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+        display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .contracts-card-header h5 { color: #fff; font-weight: 600; margin: 0; }
+    .contracts-card-header .btn-light { font-weight: 600; }
+
+    .contracts-search { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--line); background: #fafcfb; }
+
+    .contracts-table thead th {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--muted); border-bottom: 1px solid var(--line); background: #fafcfb; padding: 0.85rem 1rem;
+    }
+    .contracts-table tbody td { padding: 0.85rem 1rem; vertical-align: middle; border-bottom: 1px solid var(--line); }
+    .contracts-table tbody tr:last-child td { border-bottom: none; }
+    .contracts-table tbody tr:hover { background: #fafcfb; }
+</style>
+
+<div class="contracts-page">
+
+    <div class="contracts-header">
+        <div>
+            <h4><i class="ri-file-shield-2-line align-middle me-1"></i> Contrats de maintenance</h4>
+            <p>Gérez les contrats de maintenance associés aux licences de vos établissements.</p>
+        </div>
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript:void(0);">Abonnement</a></li>
+            <li class="breadcrumb-item active">Contrats de maintenance</li>
+        </ol>
+    </div>
+
+    <!-- ============== STATISTIQUES ============== -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: var(--teal-100); color: var(--teal-700);"><i class="ri-file-list-3-line"></i></div>
+                <div><p class="stat-label">Total contrats</p><p class="stat-value">{{ total_contracts }}</p></div>
+            </div></div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #e7f7ef; color: #16a34a;"><i class="ri-checkbox-circle-line"></i></div>
+                <div><p class="stat-label">Contrats actifs</p><p class="stat-value">{{ active_contracts }}</p></div>
+            </div></div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #fff4e5; color: #b45309;"><i class="ri-time-line"></i></div>
+                <div><p class="stat-label">Expirent bientôt</p><p class="stat-value">{{ expiring_contracts }}</p></div>
+            </div></div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card"><div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: #fdecec; color: #b91c1c;"><i class="ri-close-circle-line"></i></div>
+                <div><p class="stat-label">Contrats expirés</p><p class="stat-value">{{ expired_contracts }}</p></div>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- ============== LISTE ============== -->
+    <div class="contracts-card">
+
+        <div class="contracts-card-header">
+            <h5>Liste des contrats</h5>
+            <a href="{% url 'abonnement:contract_add' %}" class="btn btn-light btn-sm">
+                <i class="ri-add-line align-bottom me-1"></i> Nouveau contrat
+            </a>
+        </div>
+
+        <div class="contracts-search">
+            <form method="get">
+                <div class="row g-3">
+                    <div class="col-xxl-5 col-sm-6">
+                        <div class="search-box">
+                            <input type="text" name="search" class="form-control search"
+                                   placeholder="Rechercher un contrat, un établissement ou une licence..."
+                                   value="{{ current_search }}">
+                            <i class="ri-search-line search-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-xxl-2 col-sm-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="ri-search-line me-1"></i> Rechercher
+                        </button>
+                    </div>
+                    <div class="col-xxl-2 col-sm-3">
+                        <a href="{% url 'abonnement:contract_list' %}" class="btn btn-light w-100">
+                            <i class="ri-refresh-line me-1"></i> Réinitialiser
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table contracts-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Contrat</th>
+                            <th>Établissement</th>
+                            <th>Licence</th>
+                            <th>Plan</th>
+                            <th>Période</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for contract in contracts %}
+                        <tr>
+                            <td class="text-muted">{{ forloop.counter }}</td>
+
+                            <td>
+                                <a href="{% url 'abonnement:contract_detail' contract.pk %}" class="fw-semibold text-decoration-none" style="color: var(--teal-700);">
+                                    {{ contract.contract_number }}
+                                </a>
+                            </td>
+
+                            <td><span class="fw-medium">{{ contract.etablissement.nom_etablissement }}</span></td>
+
+                            <td>
+                                {% if contract.license %}
+                                    <a href="{% url 'abonnement:detail' contract.license.pk %}" class="text-body fw-medium">
+                                        {{ contract.license.license_key }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if contract.license.plan %}
+                                    <span class="badge bg-primary-subtle text-primary">{{ contract.license.plan.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div><span class="text-muted">Du</span> {{ contract.start_date|date:"d/m/Y" }}</div>
+                                <div><span class="text-muted">Au</span> {{ contract.end_date|date:"d/m/Y" }}</div>
+                            </td>
+
+                            <td>
+                                {% if contract.status == "ACTIVE" %}
+                                    <span class="badge bg-success-subtle text-success"><i class="ri-checkbox-circle-line align-middle me-1"></i> Actif</span>
+                                {% elif contract.status == "EXPIRING_SOON" %}
+                                    <span class="badge bg-warning-subtle text-warning"><i class="ri-time-line align-middle me-1"></i> Expire bientôt</span>
+                                {% elif contract.status == "EXPIRED" %}
+                                    <span class="badge bg-danger-subtle text-danger"><i class="ri-close-circle-line align-middle me-1"></i> Expiré</span>
+                                {% elif contract.status == "SUSPENDED" %}
+                                    <span class="badge bg-warning-subtle text-warning"><i class="ri-pause-circle-line align-middle me-1"></i> Suspendu</span>
+                                {% elif contract.status == "CANCELLED" %}
+                                    <span class="badge bg-secondary-subtle text-secondary"><i class="ri-forbid-line align-middle me-1"></i> Annulé</span>
+                                {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary">{{ contract.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'abonnement:contract_detail' contract.pk %}" class="btn btn-sm btn-soft-primary" title="Voir">
+                                        <i class="ri-eye-line"></i>
+                                    </a>
+                                    <a href="{% url 'abonnement:contract_edit' contract.pk %}" class="btn btn-sm btn-soft-info" title="Modifier">
+                                        <i class="ri-pencil-line"></i>
+                                    </a>
+
+                                    {% if contract.status == "ACTIVE" or contract.status == "EXPIRING_SOON" %}
+                                        <a href="{% url 'abonnement:contract_suspend' contract.pk %}" class="btn btn-sm btn-soft-warning" title="Suspendre">
+                                            <i class="ri-pause-line"></i>
+                                        </a>
+                                        <a href="{% url 'abonnement:contract_cancel' contract.pk %}" class="btn btn-sm btn-soft-danger" title="Annuler">
+                                            <i class="ri-close-line"></i>
+                                        </a>
+                                    {% elif contract.status == "SUSPENDED" or contract.status == "CANCELLED" %}
+                                        <a href="{% url 'abonnement:contract_activate' contract.pk %}" class="btn btn-sm btn-soft-success" title="Réactiver">
+                                            <i class="ri-play-line"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="text-center py-5">
+                                    <div class="avatar-md mx-auto mb-4">
+                                        <div class="avatar-title rounded-circle fs-1" style="background: var(--teal-100); color: var(--teal-700);">
+                                            <i class="ri-file-shield-2-line"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="mb-2">Aucun contrat trouvé</h5>
+                                    {% if current_search %}
+                                        <p class="text-muted mb-3">Aucun contrat ne correspond à votre recherche.</p>
+                                        <a href="{% url 'abonnement:contract_list' %}" class="btn btn-light">
+                                            <i class="ri-refresh-line me-1"></i> Réinitialiser la recherche
+                                        </a>
+                                    {% else %}
+                                        <p class="text-muted mb-3">Aucun contrat de maintenance n'a encore été enregistré.</p>
+                                        <a href="{% url 'abonnement:contract_add' %}" class="btn btn-primary">
+                                            <i class="ri-add-line me-1"></i> Créer le premier contrat
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <div class="row align-items-center mt-4">
+                <div class="col-sm">
+                    <div class="text-muted">
+                        Affichage de <span class="fw-semibold">{{ page_obj.start_index }}</span>
+                        à <span class="fw-semibold">{{ page_obj.end_index }}</span>
+                        sur <span class="fw-semibold">{{ paginator.count }}</span> contrats
+                    </div>
+                </div>
+                <div class="col-sm-auto">
+                    <ul class="pagination pagination-separated mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a href="?page={{ page_obj.previous_page_number }}{% if current_search %}&search={{ current_search|urlencode }}{% endif %}" class="page-link">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link"><i class="ri-arrow-left-s-line"></i></span></li>
+                        {% endif %}
+
+                        {% for num in paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                                <li class="page-item">
+                                    <a href="?page={{ num }}{% if current_search %}&search={{ current_search|urlencode }}{% endif %}" class="page-link">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a href="?page={{ page_obj.next_page_number }}{% if current_search %}&search={{ current_search|urlencode }}{% endif %}" class="page-link">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link"><i class="ri-arrow-right-s-line"></i></span></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

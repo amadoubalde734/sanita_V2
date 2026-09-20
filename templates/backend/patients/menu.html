@@ -1,0 +1,22 @@
+{% load static %}
+
+<div class='navbar-brand-box'>
+    <a href='{% url 'patients:index' %}' class='logo logo-dark'>
+        <span class='logo-sm'>
+            <img src='{% static 'backend/assets/images/logo-sm.svg' %}' alt='Logo' height='22'>
+        </span>
+        <span class='logo-lg'>
+            <img src='{% static 'backend/assets/images/logo-dark.png' %}' alt='Logo' height='17'>
+        </span>
+    </a>
+</div>
+
+<div class='app-menu-content'>
+    <ul class='navbar-nav'>
+        <li class='nav-item'>
+            <a class='nav-link active' href='{% url 'patients:index' %}'>
+                <span data-key='t-dashboard'>Tableau de bord</span>
+            </a>
+        </li>
+    </ul>
+</div>

@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'crispy_forms',
     'crispy_bootstrap5',
-    'debug_toolbar',
+    # 'debug_toolbar',  # ⚠️ Désactivé : incompatible avec Django 6.1 (RecursionError sur staticfiles_storage.url())
     'rest_framework',
     'allauth',
     'allauth.account',
@@ -120,13 +120,13 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-# Nécessaire pour que debug_toolbar s'affiche
-INTERNAL_IPS = [
-    '127.0.0.1',
-]
+# Nécessaire uniquement si debug_toolbar est réactivé un jour (version compatible avec Django 6.1 disponible)
+# INTERNAL_IPS = [
+#     '127.0.0.1',
+# ]
 
 ROOT_URLCONF = 'sanita_project.urls'
 

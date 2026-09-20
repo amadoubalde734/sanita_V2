@@ -1,0 +1,542 @@
+{% extends 'backend/administration/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .admin-dash {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .admin-dash-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .admin-dash-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        margin-bottom: 0.25rem;
+    }
+    .admin-dash-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+    .admin-dash-header .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .admin-dash-header .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    /* ============ HERO METRIC ============ */
+    .hero-stat {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        padding: 1.75rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-stat::after {
+        content: "";
+        position: absolute;
+        right: -30px;
+        bottom: -30px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+    }
+    .hero-stat-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    .hero-stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        opacity: 0.85;
+        margin-bottom: 0.3rem;
+    }
+    .hero-stat-value {
+        font-size: 2.4rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.6rem;
+    }
+    .hero-stat-sub {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+    .trend-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: rgba(255,255,255,0.18);
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.75rem;
+    }
+    .trend-pill.down { background: rgba(220,38,38,0.25); }
+
+    /* ============ SUPPORTING STATS (asymmetric) ============ */
+    .stat-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        height: 100%;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .stat-card:hover {
+        box-shadow: 0 12px 26px -16px rgba(11, 61, 58, 0.2);
+        transform: translateY(-2px);
+    }
+    .stat-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    .ic-teal  { background: var(--teal-100); color: var(--teal-700); }
+    .ic-blue  { background: #e8f1fd; color: #2563eb; }
+    .ic-slate { background: #eef1f2; color: #475569; }
+    .ic-green { background: #e7f7ef; color: #16a34a; }
+    .ic-amber { background: #fff4e5; color: #b45309; }
+    .ic-red   { background: #fdecec; color: #b91c1c; }
+
+    .stat-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-bottom: 0.15rem;
+    }
+    .stat-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+    }
+    .stat-trend {
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.15rem;
+        margin-top: 0.15rem;
+    }
+    .stat-trend.up { color: #16a34a; }
+    .stat-trend.down { color: #dc2626; }
+
+    .dash-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin: 2rem 0 1rem;
+    }
+    .dash-section-title .bar {
+        width: 4px;
+        height: 16px;
+        border-radius: 4px;
+        background: var(--teal-500);
+    }
+    .dash-section-title span {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+    }
+
+    .panel-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        overflow: hidden;
+    }
+    .panel-card .card-header {
+        background: #fafcfb;
+        border-bottom: 1px solid var(--line);
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .panel-card .card-header h6 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--ink);
+        font-size: 0.9rem;
+    }
+    .panel-card .card-header a {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--teal-700);
+        text-decoration: none;
+    }
+    .panel-card .card-header a:hover {
+        text-decoration: underline;
+    }
+
+    /* ============ AVATARS COLORÉS PAR CYCLE ============ */
+    .avatar-initials {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.82rem;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    .av-0 { background: #12766e; }
+    .av-1 { background: #2563eb; }
+    .av-2 { background: #b45309; }
+    .av-3 { background: #7c3aed; }
+    .av-4 { background: #dc2626; }
+    .av-5 { background: #0891b2; }
+
+    .users-table thead th {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        padding: 0.7rem 1rem;
+    }
+    .users-table tbody td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+    }
+    .users-table tbody tr:last-child td { border-bottom: none; }
+    .users-table tbody tr:hover { background: #fafcfb; }
+
+    .watch-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+    }
+    .watch-item + .watch-item {
+        border-top: 1px solid var(--line);
+    }
+
+    /* ============ ACCES RAPIDES EN GRILLE D'ICONES ============ */
+    .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+    }
+    .quick-tile {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.9rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--ink);
+        transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .quick-tile:hover {
+        border-color: var(--teal-500);
+        background: var(--teal-100);
+        color: var(--teal-900);
+    }
+    .quick-tile-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+    .quick-tile span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+</style>
+
+<div class="admin-dash">
+
+    <div class="row mb-2">
+        <div class="col-12">
+            <ol class="breadcrumb m-0 justify-content-end">
+                <li class="breadcrumb-item active">Administration</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="admin-dash-header">
+        <div>
+            <h4>Tableau de bord Administration</h4>
+            <p>Vue d'ensemble des utilisateurs, rôles, licences et contrats de la plateforme.</p>
+        </div>
+        <a href="{% url 'accounts:add_user' %}" class="btn btn-primary">
+            <i class="ri-user-add-line align-middle me-1"></i> Ajouter un utilisateur
+        </a>
+    </div>
+
+    <!-- ============== HERO + SUPPORTING (asymétrique) ============== -->
+    <div class="row g-3 mb-3">
+
+        <div class="col-xl-4">
+            <div class="hero-stat">
+                <div class="hero-stat-icon"><i class="ri-team-line"></i></div>
+                <p class="hero-stat-label">Utilisateurs</p>
+                <div class="hero-stat-value">{{ total_users }}</div>
+                <p class="hero-stat-sub">{{ active_users }} actifs · {{ connected_users_count }} connectés</p>
+                {% if users_trend_pct %}
+                <span class="trend-pill {% if users_trend_pct < 0 %}down{% endif %}">
+                    <i class="ri-arrow-{% if users_trend_pct < 0 %}down{% else %}up{% endif %}-line"></i>
+                    {{ users_trend_pct }}% ce mois
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-xl-8">
+            <div class="row g-3 h-100">
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card mb-0">
+                        <div class="card-body">
+                            <div class="stat-icon ic-blue mb-2"><i class="ri-user-settings-line"></i></div>
+                            <p class="stat-label">Rôles</p>
+                            <p class="stat-value">{{ roles_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card mb-0">
+                        <div class="card-body">
+                            <div class="stat-icon ic-slate mb-2"><i class="ri-apps-2-line"></i></div>
+                            <p class="stat-label">Modules</p>
+                            <p class="stat-value">{{ active_modules }}<span class="fs-13 text-muted fw-normal">/{{ total_modules }}</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card mb-0">
+                        <div class="card-body">
+                            <div class="stat-icon ic-green mb-2"><i class="ri-group-line"></i></div>
+                            <p class="stat-label">Groupes</p>
+                            <p class="stat-value">{{ groups_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card mb-0">
+                        <div class="card-body">
+                            <div class="stat-icon ic-amber mb-2"><i class="ri-shield-check-line"></i></div>
+                            <p class="stat-label">Licences actives</p>
+                            <p class="stat-value">{{ licenses_active }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============== LICENCES / CONTRATS ============== -->
+    <div class="dash-section-title"><span class="bar"></span><span>Abonnement &amp; maintenance</span></div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-xl-4 col-md-6">
+            <div class="card stat-card mb-0">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="stat-label">Licences à renouveler</p>
+                        <p class="stat-value">{{ licenses_expiring_soon }}</p>
+                    </div>
+                    <div class="stat-icon ic-amber"><i class="ri-alarm-warning-line"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="card stat-card mb-0">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="stat-label">Contrats actifs</p>
+                        <p class="stat-value">{{ contracts_active }}</p>
+                    </div>
+                    <div class="stat-icon ic-blue"><i class="ri-file-shield-2-line"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="card stat-card mb-0">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="stat-label">Contrats à renouveler</p>
+                        <p class="stat-value">{{ contracts_expiring_soon }}</p>
+                    </div>
+                    <div class="stat-icon ic-red"><i class="ri-file-warning-line"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== TABLEAUX ============== -->
+    <div class="row g-3 mt-1">
+
+        <div class="col-lg-7">
+            <div class="panel-card h-100">
+                <div class="card-header">
+                    <h6>Derniers utilisateurs ajoutés</h6>
+                    <a href="{% url 'accounts:list_users' %}">Voir tout</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table users-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Utilisateur</th>
+                                    <th>Rôle</th>
+                                    <th>Statut</th>
+                                    <th>Ajouté le</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user_item in recent_users %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if user_item.avatar %}
+                                                <img src="{{ user_item.avatar.url }}" class="rounded avatar-initials me-2" alt="">
+                                            {% else %}
+                                                <div class="avatar-initials av-{{ forloop.counter0|divisibleby:6 }} me-2 av-{% widthratio forloop.counter0|add:0 1 1 %}">{{ user_item.username|slice:":2"|upper }}</div>
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0 fs-14">{{ user_item.get_full_name|default:user_item.username }}</h6>
+                                                <span class="text-muted fs-12">{{ user_item.email|default:"—" }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ user_item.role.name|default:"—" }}</td>
+                                    <td>
+                                        {% if user_item.statut_compte %}
+                                            <span class="badge bg-success-subtle text-success">Actif</span>
+                                        {% else %}
+                                            <span class="badge bg-danger-subtle text-danger">Inactif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="fs-13 text-muted">{{ user_item.date_creation|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">Aucun utilisateur pour le moment.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="panel-card mb-3">
+                <div class="card-header">
+                    <h6>Licences à surveiller</h6>
+                    <a href="{% url 'abonnement:list' %}">Voir tout</a>
+                </div>
+                <div class="card-body">
+                    {% for license in licenses_watchlist %}
+                    <div class="watch-item">
+                        <div>
+                            <h6 class="mb-0 fs-14">{{ license.etablissement.nom_etablissement }}</h6>
+                            <span class="text-muted fs-12">{{ license.license_key }} · {{ license.plan.name }}</span>
+                        </div>
+                        <div class="text-end">
+                            {% if license.status == 'EXPIRED' %}
+                                <span class="badge bg-danger-subtle text-danger">Expirée</span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-warning">{{ license.days_remaining }} j restants</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center mb-0 py-3">Aucune licence à surveiller pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="card-header">
+                    <h6>Accès rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="quick-grid">
+                        <a href="{% url 'accounts:add_user' %}" class="quick-tile">
+                            <div class="quick-tile-icon"><i class="ri-user-add-line"></i></div>
+                            <span>Ajouter un utilisateur</span>
+                        </a>
+                        <a href="{% url 'accounts:list_roles' %}" class="quick-tile">
+                            <div class="quick-tile-icon"><i class="ri-user-settings-line"></i></div>
+                            <span>Gérer les rôles</span>
+                        </a>
+                        <a href="{% url 'accounts:list_modules' %}" class="quick-tile">
+                            <div class="quick-tile-icon"><i class="ri-apps-2-line"></i></div>
+                            <span>Gérer les modules</span>
+                        </a>
+                        <a href="{% url 'abonnement:list' %}" class="quick-tile">
+                            <div class="quick-tile-icon"><i class="ri-shield-key-line"></i></div>
+                            <span>Voir les licences</span>
+                        </a>
+                        <a href="{% url 'abonnement:contract_list' %}" class="quick-tile" style="grid-column: span 2;">
+                            <div class="quick-tile-icon"><i class="ri-file-contract-line"></i></div>
+                            <span>Voir les contrats de maintenance</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

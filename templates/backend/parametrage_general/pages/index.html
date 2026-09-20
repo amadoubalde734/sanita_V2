@@ -1,0 +1,1293 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+<style>
+    .param-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #e7edeb;
+        --surface: #ffffff;
+    }
+
+    .param-header {
+        margin-bottom: 1.75rem;
+    }
+
+    .param-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        margin-bottom: 0.25rem;
+    }
+
+    .param-header p {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .param-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        background: #f2f5f4;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 0.3rem;
+        margin-bottom: 2rem;
+    }
+
+    .param-tabs .nav-link {
+        border: none;
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 0.825rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: background 0.15s ease, color 0.15s ease;
+        white-space: nowrap;
+        position: relative;
+    }
+
+    .param-tabs .nav-link i {
+        font-size: 1rem;
+    }
+
+    .param-tabs .nav-link:hover {
+        color: var(--teal-900);
+    }
+
+    .param-tabs .nav-link.active {
+        background: var(--surface);
+        color: var(--teal-900);
+        box-shadow: 0 1px 3px rgba(11, 61, 58, 0.12), 0 1px 2px rgba(11, 61, 58, 0.08);
+    }
+
+    .param-tabs .tab-inactive-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #f59e0b;
+        display: inline-block;
+        margin-left: 0.15rem;
+    }
+
+    .param-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin: 0 0 1rem;
+    }
+
+    .param-section-title .bar {
+        width: 4px;
+        height: 16px;
+        border-radius: 4px;
+        background: var(--teal-500);
+    }
+
+    .param-section-title span {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+    }
+
+    .param-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface);
+        padding: 1.5rem 1.25rem;
+        height: 100%;
+        text-align: left;
+        position: relative;
+        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .param-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px -12px rgba(11, 61, 58, 0.18);
+        border-color: rgba(18, 118, 110, 0.25);
+    }
+
+    .param-card-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .param-card h5 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
+    }
+
+    .param-card p {
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .param-card .param-link {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--teal-700);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .param-card .param-link i {
+        transition: transform 0.15s ease;
+        font-size: 0.9rem;
+    }
+
+    .param-card:hover .param-link i {
+        transform: translateX(3px);
+    }
+
+    .param-card-soon {
+        border: 1px dashed var(--line);
+        border-radius: 14px;
+        background: #fbfcfc;
+        padding: 1.5rem 1.25rem;
+        height: 100%;
+        text-align: left;
+        cursor: not-allowed;
+    }
+
+    .param-card-soon .param-card-icon {
+        background: #eef1f0 !important;
+        color: #97a29e !important;
+    }
+
+    .param-card-soon h5 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #8a9793;
+        margin-bottom: 0.35rem;
+    }
+
+    .param-card-soon p {
+        font-size: 0.8rem;
+        color: #a8b3af;
+        line-height: 1.5;
+        margin-bottom: 0.75rem;
+    }
+
+    .param-badge-soon {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--teal-700);
+        background: var(--teal-100);
+        padding: 0.2rem 0.55rem;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .param-config {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface);
+        padding: 1.25rem;
+        height: 100%;
+    }
+
+    .param-config-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .param-config-title h5 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+    .param-config-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid #f0f3f2;
+        font-size: 0.8rem;
+    }
+
+    .param-config-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .param-config-label {
+        color: var(--muted);
+    }
+
+    .param-config-value {
+        color: var(--ink);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .param-specialites {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .param-specialite {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        border-radius: 20px;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.72rem;
+        font-weight: 500;
+    }
+
+    .param-unites {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .param-unite {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.7rem 0.8rem;
+        background: #f8faf9;
+        border: 1px solid #eef2f0;
+        border-radius: 10px;
+    }
+
+    .param-unite-info {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+    }
+
+    .param-unite-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        flex-shrink: 0;
+    }
+
+    .param-unite-name {
+        color: var(--ink);
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .param-unite-site {
+        color: var(--muted);
+        font-size: 0.7rem;
+        margin-top: 0.1rem;
+    }
+
+    .param-unite-type {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--teal-700);
+        background: var(--teal-100);
+        border-radius: 20px;
+        padding: 0.25rem 0.5rem;
+        white-space: nowrap;
+    }
+
+    .param-notice-inactive {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        background: #fef6e6;
+        border: 1px solid #fbe3b8;
+        border-radius: 12px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.82rem;
+        color: #92400e;
+    }
+
+    .param-notice-inactive i {
+        font-size: 1.1rem;
+        margin-top: 0.1rem;
+    }
+
+    .param-notice-inactive a {
+        color: #92400e;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .ic-dark {
+        background: #ececec;
+        color: #1f2937;
+    }
+
+    .ic-green {
+        background: #e7f7ef;
+        color: #16a34a;
+    }
+
+    .ic-amber {
+        background: #fef6e6;
+        color: #b45309;
+    }
+
+    .ic-teal {
+        background: #e6f5f2;
+        color: #0f5c56;
+    }
+
+    .ic-blue {
+        background: #e8f1fd;
+        color: #2563eb;
+    }
+
+    .ic-red {
+        background: #fdecec;
+        color: #dc2626;
+    }
+
+    .ic-purple {
+        background: #f1ecfb;
+        color: #7c3aed;
+    }
+
+    .ic-slate {
+        background: #eef1f2;
+        color: #475569;
+    }
+
+    .ic-info {
+        background: #e6f4fb;
+        color: #0891b2;
+    }
+
+    .ic-secondary {
+        background: #eef0f2;
+        color: #64748b;
+    }
+
+    .ic-primary {
+        background: #e8f1fd;
+        color: #2563eb;
+    }
+
+    .ic-success {
+        background: #e7f7ef;
+        color: #16a34a;
+    }
+
+    .ic-warning {
+        background: #fef6e6;
+        color: #b45309;
+    }
+
+    .ic-danger {
+        background: #fdecec;
+        color: #dc2626;
+    }
+</style>
+
+<div class="param-page">
+
+    <div class="param-header">
+        <h4>Paramétrage général</h4>
+        <p>Référentiels, configuration et paramètres de fonctionnement de l'établissement.</p>
+    </div>
+
+    <ul class="nav param-tabs" role="tablist">
+
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#tab-general" role="tab">
+                <i class="ri-settings-4-line"></i>
+                Général
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-actes" role="tab">
+                <i class="ri-price-tag-2-line"></i>
+                Actes &amp; Tarifs
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-examens" role="tab">
+                <i class="ri-flask-line"></i>
+                Examens Laboratoire
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-hospitalisation" role="tab">
+                <i class="ri-hotel-bed-line"></i>
+                Hospitalisation
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-personnel" role="tab">
+                <i class="ri-user-settings-line"></i>
+                Personnel
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-cliniques" role="tab">
+                <i class="ri-hospital-line"></i>
+                Cliniques
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-pharmacies" role="tab">
+                <i class="ri-medicine-bottle-line"></i>
+                Pharmacies partenaires
+            </a>
+        </li>
+
+        {% if config_etablissement.module_prise_en_charge_actif or request.user.is_admin %}
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-entreprise" role="tab">
+                <i class="ri-building-4-line"></i>
+                Prise en Charge Entreprise
+                {% if not config_etablissement.module_prise_en_charge_actif %}
+                    <span class="tab-inactive-dot" title="Module non activé"></span>
+                {% endif %}
+            </a>
+        </li>
+        {% endif %}
+
+    </ul>
+
+    <div class="tab-content">
+
+        <div class="tab-pane fade show active" id="tab-general" role="tabpanel">
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:configuration_etablissement' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-dark">
+                                <i class="ri-hospital-line"></i>
+                            </div>
+                            <h5>Établissement</h5>
+                            <p>Identité, coordonnées, informations administratives et paramètres.</p>
+                            <span class="param-link">
+                                Voir la configuration
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_villes' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-success">
+                                <i class="ri-map-pin-2-line"></i>
+                            </div>
+                            <h5>Villes</h5>
+                            <p>Référentiel des villes utilisées dans SANITA.</p>
+                            <span class="param-link">
+                                Voir les villes
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_sites' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-warning">
+                                <i class="ri-map-pin-user-line"></i>
+                            </div>
+                            <h5>Sites</h5>
+                            <p>Sites, implantations et différents lieux d'activité.</p>
+                            <span class="param-link">
+                                Voir les sites
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_specialites' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-purple">
+                                <i class="ri-stethoscope-line"></i>
+                            </div>
+                            <h5>Spécialités</h5>
+                            <p>Spécialités médicales et domaines de prise en charge.</p>
+                            <span class="param-link">
+                                Gérer les spécialités
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_unites_medicales' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-teal">
+                                <i class="ri-hospital-line"></i>
+                            </div>
+                            <h5>Unités médicales</h5>
+                            <p>Infirmeries, laboratoires, pharmacies, urgences et autres unités.</p>
+                            <span class="param-link">
+                                Gérer les unités
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-xl-6">
+                    <div class="param-config">
+
+                        <div class="param-config-title">
+                            <h5>Établissement configuré</h5>
+
+                            {% if config_etablissement %}
+                                {% if config_etablissement.actif %}
+                                    <span class="badge bg-success-subtle text-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger">Inactif</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        {% if config_etablissement %}
+
+                            <div class="param-config-row">
+                                <span class="param-config-label">Nom</span>
+                                <span class="param-config-value">
+                                    {{ config_etablissement.nom_etablissement }}
+                                </span>
+                            </div>
+
+                            <div class="param-config-row">
+                                <span class="param-config-label">Code</span>
+                                <span class="param-config-value">
+                                    {{ config_etablissement.code_etablissement }}
+                                </span>
+                            </div>
+
+                            <div class="param-config-row">
+                                <span class="param-config-label">Type</span>
+                                <span class="param-config-value">
+                                    {{ config_etablissement.get_type_etablissement_display }}
+                                </span>
+                            </div>
+
+                            <div class="param-config-row">
+                                <span class="param-config-label">Ville</span>
+                                <span class="param-config-value">
+                                    {{ config_etablissement.ville|default:"—" }}
+                                </span>
+                            </div>
+
+                            <div class="param-config-row">
+                                <span class="param-config-label">Téléphone</span>
+                                <span class="param-config-value">
+                                    {{ config_etablissement.telephone|default:"—" }}
+                                </span>
+                            </div>
+
+                            <div class="param-config-row">
+                                <span class="param-config-label">Email</span>
+                                <span class="param-config-value">
+                                    {{ config_etablissement.email|default:"—" }}
+                                </span>
+                            </div>
+
+                        {% else %}
+
+                            <div class="text-center py-4">
+                                <i class="ri-hospital-line fs-32 text-muted"></i>
+
+                                <p class="text-muted mt-2 mb-3">
+                                    Aucune configuration d'établissement.
+                                </p>
+
+                                <a
+                                    href="{% url 'parametrage_general:modifier_configuration_etablissement' %}"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    <i class="ri-add-line me-1"></i>
+                                    Configurer l'établissement
+                                </a>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="col-xl-6">
+                    <div class="param-config">
+
+                        <div class="param-config-title">
+                            <h5>Spécialités de l'établissement</h5>
+
+                            <a
+                                href="{% url 'parametrage_general:liste_specialites' %}"
+                                class="btn btn-sm btn-soft-primary"
+                            >
+                                Gérer
+                            </a>
+                        </div>
+
+                        {% if config_etablissement %}
+
+                            <div class="param-specialites">
+
+                                {% for specialite in config_etablissement.specialites.all %}
+
+                                    {% if specialite.actif %}
+                                        <span class="param-specialite">
+                                            <i class="{{ specialite.icone|default:'ri-stethoscope-line' }}"></i>
+                                            {{ specialite.nom }}
+                                        </span>
+                                    {% endif %}
+
+                                {% empty %}
+
+                                    <p class="text-muted fs-13 mb-0">
+                                        Aucune spécialité associée à cet établissement.
+                                    </p>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <p class="text-muted fs-13 mb-0">
+                                Configurez d'abord l'établissement pour associer ses spécialités.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-12">
+                    <div class="param-config">
+
+                        <div class="param-config-title">
+                            <h5>Unités médicales de l'établissement</h5>
+
+                            <a
+                                href="{% url 'parametrage_general:liste_unites_medicales' %}"
+                                class="btn btn-sm btn-soft-primary"
+                            >
+                                Gérer
+                            </a>
+                        </div>
+
+                        {% if unites_medicales %}
+
+                            <div class="row g-2">
+
+                                {% for unite in unites_medicales %}
+
+                                    <div class="col-xl-4 col-md-6">
+                                        <div class="param-unite">
+
+                                            <div class="param-unite-info">
+
+                                                <div class="param-unite-icon">
+                                                    {% if unite.type_unite == 'laboratoire' %}
+                                                        <i class="ri-flask-line"></i>
+                                                    {% elif unite.type_unite == 'pharmacie' %}
+                                                        <i class="ri-medicine-bottle-line"></i>
+                                                    {% elif unite.type_unite == 'imagerie' %}
+                                                        <i class="ri-scan-line"></i>
+                                                    {% elif unite.type_unite == 'urgences' %}
+                                                        <i class="ri-alarm-warning-line"></i>
+                                                    {% elif unite.type_unite == 'hospitalisation' %}
+                                                        <i class="ri-hotel-bed-line"></i>
+                                                    {% elif unite.type_unite == 'consultation' %}
+                                                        <i class="ri-stethoscope-line"></i>
+                                                    {% else %}
+                                                        <i class="ri-hospital-line"></i>
+                                                    {% endif %}
+                                                </div>
+
+                                                <div>
+                                                    <div class="param-unite-name">
+                                                        {{ unite.nom }}
+                                                    </div>
+
+                                                    {% if unite.site %}
+                                                        <div class="param-unite-site">
+                                                            {{ unite.site.nom_site }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+
+                                            <span class="param-unite-type">
+                                                {{ unite.get_type_unite_display }}
+                                            </span>
+
+                                        </div>
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="text-center py-4">
+                                <i class="ri-hospital-line fs-32 text-muted"></i>
+
+                                <p class="text-muted mt-2 mb-3">
+                                    Aucune unité médicale configurée.
+                                </p>
+
+                                <a
+                                    href="{% url 'parametrage_general:liste_unites_medicales' %}"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    <i class="ri-add-line me-1"></i>
+                                    Ajouter une unité médicale
+                                </a>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-actes" role="tabpanel">
+
+            <div class="row g-3">
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-primary mt-3">
+                            <i class="ri-price-tag-2-line"></i>
+                        </div>
+
+                        <h5>Actes médicaux &amp; tarifs</h5>
+                        <p>Nomenclature des actes et leur tarification.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-red mt-3">
+                            <i class="ri-stethoscope-line"></i>
+                        </div>
+
+                        <h5>Types de consultation</h5>
+                        <p>Consultation générale, spécialisée, urgence et autres types.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-slate mt-3">
+                            <i class="ri-file-list-3-line"></i>
+                        </div>
+
+                        <h5>Motifs de consultation</h5>
+                        <p>Référentiel des motifs de venue et de consultation.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-purple mt-3">
+                            <i class="ri-capsule-fill"></i>
+                        </div>
+
+                        <h5>Posologie</h5>
+                        <p>Référentiel des posologies et prescriptions types.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-examens" role="tabpanel">
+
+            <div class="row g-3">
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-blue mt-3">
+                            <i class="ri-flask-line"></i>
+                        </div>
+
+                        <h5>Examens &amp; tarifs</h5>
+                        <p>Nomenclature des examens et tarification.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-info mt-3">
+                            <i class="ri-price-tag-line"></i>
+                        </div>
+
+                        <h5>Catégories d'examen</h5>
+                        <p>Regroupement des examens par catégorie.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-secondary mt-3">
+                            <i class="ri-list-check-2"></i>
+                        </div>
+
+                        <h5>Natures d'examen</h5>
+                        <p>Biologique, radiologique, imagerie et autres examens.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-hospitalisation" role="tabpanel">
+
+            <div class="row g-3">
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-dark mt-3">
+                            <i class="ri-hotel-bed-line"></i>
+                        </div>
+
+                        <h5>Configuration</h5>
+                        <p>Paramètres généraux de l'hospitalisation.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-success mt-3">
+                            <i class="ri-door-line"></i>
+                        </div>
+
+                        <h5>Chambres &amp; lits</h5>
+                        <p>Gestion des chambres, lits et unités d'hospitalisation.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-info mt-3">
+                            <i class="ri-nurse-line"></i>
+                        </div>
+
+                        <h5>Soins</h5>
+                        <p>Paramétrage des soins infirmiers et hospitaliers.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-amber mt-3">
+                            <i class="ri-restaurant-line"></i>
+                        </div>
+
+                        <h5>Types de régime</h5>
+                        <p>Régimes alimentaires des patients hospitalisés.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-personnel" role="tabpanel">
+
+            <div class="param-section-title">
+                <span class="bar"></span>
+                <span>Organisation</span>
+            </div>
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_directions' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-dark">
+                                <i class="ri-organization-chart"></i>
+                            </div>
+
+                            <h5>Directions</h5>
+                            <p>Directions et niveaux organisationnels.</p>
+
+                            <span class="param-link">
+                                Voir
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_departements' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-danger">
+                                <i class="ri-building-line"></i>
+                            </div>
+
+                            <h5>Départements</h5>
+                            <p>Départements et unités organisationnelles.</p>
+
+                            <span class="param-link">
+                                Voir
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_services' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-info">
+                                <i class="ri-tools-line"></i>
+                            </div>
+
+                            <h5>Services</h5>
+                            <p>Services et unités de travail.</p>
+
+                            <span class="param-link">
+                                Voir
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_fonctions' %}" class="text-decoration-none">
+                        <div class="param-card">
+                            <div class="param-card-icon ic-secondary">
+                                <i class="ri-briefcase-4-line"></i>
+                            </div>
+
+                            <h5>Fonctions</h5>
+                            <p>Fonctions et postes du personnel.</p>
+
+                            <span class="param-link">
+                                Voir
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="param-section-title">
+                <span class="bar"></span>
+                <span>Ressources humaines</span>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-teal mt-3">
+                            <i class="ri-user-settings-line"></i>
+                        </div>
+
+                        <h5>Paramétrage personnel</h5>
+                        <p>Grades, catégories, contrats et statuts du personnel.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-purple mt-3">
+                            <i class="ri-stethoscope-line"></i>
+                        </div>
+
+                        <h5>Profils médicaux</h5>
+                        <p>Médecins, infirmiers, spécialistes et autres professionnels de santé.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-cliniques" role="tabpanel">
+
+            <div class="row g-3">
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-green mt-3">
+                            <i class="ri-hospital-line"></i>
+                        </div>
+
+                        <h5>Établissements partenaires</h5>
+                        <p>Cliniques, hôpitaux et structures de santé partenaires.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-blue mt-3">
+                            <i class="ri-share-forward-line"></i>
+                        </div>
+
+                        <h5>Orientations</h5>
+                        <p>Structures de référence et parcours d'orientation des patients.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-info mt-3">
+                            <i class="ri-file-list-3-line"></i>
+                        </div>
+
+                        <h5>Conventions médicales</h5>
+                        <p>Paramétrage des relations avec les structures partenaires.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-pharmacies" role="tabpanel">
+
+            <div class="row g-3">
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-amber mt-3">
+                            <i class="ri-medicine-bottle-line"></i>
+                        </div>
+
+                        <h5>Pharmacies partenaires</h5>
+                        <p>Référencement des pharmacies externes partenaires.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-green mt-3">
+                            <i class="ri-capsule-line"></i>
+                        </div>
+
+                        <h5>Convention pharmacie</h5>
+                        <p>Conditions et paramètres des conventions avec les pharmacies.</p>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-primary mt-3">
+                            <i class="ri-shopping-bag-3-line"></i>
+                        </div>
+
+                        <h5>Dispensation</h5>
+                        <p>Paramètres liés à la délivrance des médicaments.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        {% if config_etablissement.module_prise_en_charge_actif or request.user.is_admin %}
+
+        <div class="tab-pane fade" id="tab-entreprise" role="tabpanel">
+
+            {% if not config_etablissement.module_prise_en_charge_actif %}
+
+            <div class="param-notice-inactive">
+                <i class="ri-error-warning-line"></i>
+
+                <div>
+                    Le module Prise en charge entreprise n'est pas activé pour cet établissement.
+                    Vous accédez à cette configuration en tant qu'administrateur.
+
+                    <a href="{% url 'parametrage_general:configuration_etablissement' %}">
+                        Activer le module
+                    </a>
+                </div>
+            </div>
+
+            {% endif %}
+
+            <div class="param-section-title">
+                <span class="bar"></span>
+                <span>Entreprises</span>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-xl-4 col-md-6">
+                    <a href="{% url 'parametrage_general:liste_societes' %}" class="text-decoration-none">
+                        <div class="param-card">
+
+                            <div class="param-card-icon ic-primary">
+                                <i class="ri-building-4-line"></i>
+                            </div>
+
+                            <h5>Sociétés</h5>
+
+                            <p>
+                                Entreprises clientes, sociétés affiliées et organisations partenaires.
+                            </p>
+
+                            <span class="param-link">
+                                Voir les sociétés
+                                <i class="ri-arrow-right-line"></i>
+                            </span>
+
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-dark mt-3">
+                            <i class="ri-qr-code-line"></i>
+                        </div>
+
+                        <h5>Cartes sanitaires</h5>
+
+                        <p>
+                            Paramétrage des cartes sanitaires et identification des bénéficiaires.
+                        </p>
+
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6">
+                    <div class="param-card-soon">
+
+                        <span class="param-badge-soon">Bientôt disponible</span>
+
+                        <div class="param-card-icon ic-teal mt-3">
+                            <i class="ri-file-shield-2-line"></i>
+                        </div>
+
+                        <h5>Prise en charge</h5>
+
+                        <p>
+                            Règles de couverture et paramètres de prise en charge des bénéficiaires.
+                        </p>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

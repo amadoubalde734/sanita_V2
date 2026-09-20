@@ -1,0 +1,308 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Configuration de l'établissement</h4>
+            <div class="page-title-right">
+                <a href="{% url 'parametrage_general:modifier_configuration_etablissement' %}" class="btn btn-primary">
+                    <i class="ri-pencil-line me-1"></i>
+                    Modifier
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if config %}
+
+<div class="row">
+    <div class="col-xl-8">
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations générales</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 240px;">Nom de l'établissement</th>
+                                <td>{{ config.nom_etablissement }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Code établissement</th>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary">
+                                        {{ config.code_etablissement }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Type d'établissement</th>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info">
+                                        {{ config.get_type_etablissement_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Pays</th>
+                                <td>{{ config.pays|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Ville</th>
+                                <td>{{ config.ville|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Adresse</th>
+                                <td>{{ config.adresse|default:"—"|linebreaksbr }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Boîte postale</th>
+                                <td>{{ config.boite_postale|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Téléphone</th>
+                                <td>{{ config.telephone|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Téléphone secondaire</th>
+                                <td>{{ config.telephone_secondaire|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Email</th>
+                                <td>{{ config.email|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Site web</th>
+                                <td>
+                                    {% if config.site_web %}
+                                        <a href="{{ config.site_web }}" target="_blank" rel="noopener noreferrer">
+                                            {{ config.site_web }}
+                                        </a>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Statut</th>
+                                <td>
+                                    {% if config.actif %}
+                                        <span class="badge bg-success-subtle text-success">
+                                            Actif
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger">
+                                            Inactif
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Spécialités médicales</h5>
+            </div>
+            <div class="card-body">
+                {% with specialites=config.specialites.all %}
+                    {% if specialites %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for specialite in specialites %}
+                                {% if specialite.actif %}
+                                    <span class="badge bg-primary-subtle text-primary fs-12">
+                                        <i class="{{ specialite.icone|default:'ri-stethoscope-line' }} me-1"></i>
+                                        {{ specialite.nom }}
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">
+                            Aucune spécialité configurée.
+                        </p>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations administratives</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 240px;">Numéro d'agrément</th>
+                                <td>{{ config.numero_agrement|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Numéro d'autorisation</th>
+                                <td>{{ config.numero_autorisation|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Numéro fiscal</th>
+                                <td>{{ config.numero_fiscal|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Registre de commerce</th>
+                                <td>{{ config.registre_commerce|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Identifiant administratif</th>
+                                <td>{{ config.identifiant_administratif|default:"—" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if config.module_prise_en_charge_actif or config.module_conventions_actif %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Modules entreprise</h5>
+            </div>
+            <div class="card-body">
+
+                {% if config.module_prise_en_charge_actif %}
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                    <div>
+                        <h6 class="mb-1">Prise en charge entreprise</h6>
+                        <p class="text-muted fs-13 mb-0">
+                            Gestion des employés, ayants droit et patients pris en charge par une entreprise.
+                        </p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success fs-12">
+                        Activé
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if config.module_conventions_actif %}
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-1">Conventions entreprises</h6>
+                        <p class="text-muted fs-13 mb-0">
+                            Gestion des patients affiliés ou référés par des entreprises partenaires.
+                        </p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success fs-12">
+                        Activé
+                    </span>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Logo</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if config.logo %}
+                    <img
+                        src="{{ config.logo.url }}"
+                        alt="Logo {{ config.nom_etablissement }}"
+                        class="img-fluid rounded"
+                        style="max-height: 180px;"
+                    >
+                {% else %}
+                    <div class="avatar-lg mx-auto">
+                        <span class="avatar-title bg-light text-secondary rounded-circle fs-32">
+                            <i class="ri-hospital-line"></i>
+                        </span>
+                    </div>
+                    <p class="text-muted fs-13 mt-2 mb-0">Aucun logo</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Paramètres régionaux</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted fs-13 mb-2">
+                    <strong>Devise :</strong>
+                    {{ config.devise|default:"—" }}
+                </p>
+                <p class="text-muted fs-13 mb-0">
+                    <strong>Fuseau horaire :</strong>
+                    {{ config.fuseau_horaire|default:"—" }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations système</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted fs-13 mb-2">
+                    <strong>Créé le :</strong>
+                    {{ config.date_creation|date:"d/m/Y à H:i" }}
+                </p>
+                <p class="text-muted fs-13 mb-0">
+                    <strong>Modifié le :</strong>
+                    {{ config.date_modification|date:"d/m/Y à H:i" }}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% else %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+
+                <div class="avatar-lg mx-auto mb-3">
+                    <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-32">
+                        <i class="ri-error-warning-line"></i>
+                    </span>
+                </div>
+
+                <h5 class="mb-2">Aucune configuration trouvée</h5>
+
+                <p class="text-muted mb-3">
+                    Vous devez créer la configuration de votre établissement pour continuer.
+                </p>
+
+                <a
+                    href="{% url 'parametrage_general:modifier_configuration_etablissement' %}"
+                    class="btn btn-primary"
+                >
+                    <i class="ri-add-line me-1"></i>
+                    Créer la configuration
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

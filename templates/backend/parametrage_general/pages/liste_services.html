@@ -1,0 +1,99 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Services</h4>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalService">
+                <i class="ri-add-line me-1"></i> Nouveau service
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Département</th>
+                                <th>Description</th>
+                                <th>Statut</th>
+                                <th style="width: 120px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for service in services %}
+                            <tr>
+                                <td>{{ service.nom }}</td>
+                                <td>{{ service.departement.nom|default:"—" }}</td>
+                                <td>{{ service.description|default:"—"|truncatewords:15 }}</td>
+                                <td>
+                                    {% if service.actif %}
+                                        <span class="badge bg-success-subtle text-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'parametrage_general:modifier_service' service.pk %}" class="btn btn-soft-primary btn-sm">
+                                        <i class="ri-pencil-line"></i>
+                                    </a>
+                                    <a href="{% url 'parametrage_general:supprimer_service' service.pk %}" class="btn btn-soft-danger btn-sm"
+                                       onclick="return confirm('Supprimer ce service ?');">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Aucun service enregistré.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajout / Modification -->
+<div class="modal fade" id="modalService" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'parametrage_general:ajouter_service' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Nouveau service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom</label>
+                        {{ form.nom }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Département</label>
+                        {{ form.departement }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

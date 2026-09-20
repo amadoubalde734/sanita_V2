@@ -9,34 +9,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
-    <!-- App favicon -->
     <link rel="shortcut icon" href="{% static 'backend/assets/images/favicon.ico' %}" />
 
-    <!-- jsvectormap css -->
     <link href="{% static 'backend/assets/libs/jsvectormap/jsvectormap.min.css' %}" rel="stylesheet" type="text/css" />
-
-    <!--Swiper slider css-->
     <link href="{% static 'backend/assets/libs/swiper/swiper-bundle.min.css' %}" rel="stylesheet" type="text/css" />
-
-    <!-- Bootstrap Css -->
     <link href="{% static 'backend/assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
     <link href="{% static 'backend/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
     <link href="{% static 'backend/assets/css/app.min.css' %}" rel="stylesheet" type="text/css" />
-    <!-- custom Css-->
     <link href="{% static 'backend/assets/css/custom.min.css' %}" rel="stylesheet" type="text/css" />
 
-    <!-- Layout config Js -->
     <script src="{% static 'backend/assets/js/layout.js' %}"></script>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
-    <!--datatable responsive css-->
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
-
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 
-    <!-- ✅ Harmonisation de la sidebar avec la palette SANITA (teal) -->
     <style>
         [data-sidebar="dark"] {
             --vz-vertical-menu-bg: #0b3d3a;
@@ -48,25 +35,20 @@
             --vz-vertical-menu-title-color: rgba(255, 255, 255, 0.45);
             --vz-vertical-menu-border-color: rgba(255, 255, 255, 0.08);
         }
-
-        /* Filet de sécurité si le thème ne repose pas entièrement sur ces variables */
         .app-menu.navbar-menu,
         .navbar-brand-box {
             background: linear-gradient(180deg, #0b3d3a 0%, #12766e 100%) !important;
         }
-
         .app-menu .nav-link.active,
         .app-menu .nav-link:hover {
             color: #ffffff !important;
         }
-
         #page-topbar {
             z-index: 1001;
         }
     </style>
 
 </head>
-
 
 <body>
 
@@ -82,7 +64,6 @@
         <div class="main-content">
 
             {% block content %}
-            <!-- LA STRUCTURE page-content ET container-fluid RESTE ICI -->
             <div class="page-content">
                 <div class="container-fluid">
                     {% block inner_content %}{% endblock %}

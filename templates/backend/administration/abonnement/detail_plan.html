@@ -1,0 +1,382 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+
+        <div>
+            <h4 class="mb-1">
+                <i class="ri-price-tag-3-line align-middle me-1 text-primary"></i>
+                Détail du plan
+            </h4>
+            <p class="text-muted mb-0">
+                Consultez les informations et les limites de cette formule.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a href="{% url 'abonnement:plans' %}"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="ri-arrow-left-line me-1"></i>
+                Retour
+            </a>
+
+            <a href="{% url 'abonnement:plan_edit' plan.pk %}"
+               class="btn btn-primary btn-sm">
+                <i class="ri-pencil-line me-1"></i>
+                Modifier
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-lg-8">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header" style="background-color: #12766e;">
+                <h5 class="mb-0 text-white">
+                    <i class="ri-price-tag-3-line me-1"></i>
+                    Informations du plan
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-4">
+
+                    <!-- Nom -->
+                    <div class="col-md-6">
+                        <label class="text-muted small">
+                            Nom du plan
+                        </label>
+
+                        <h5 class="mb-0">
+                            {{ plan.name }}
+                        </h5>
+                    </div>
+
+
+                    <!-- Code -->
+                    <div class="col-md-6">
+                        <label class="text-muted small">
+                            Code
+                        </label>
+
+                        <div>
+                            <span class="badge bg-primary-subtle text-primary fs-13">
+                                {{ plan.code }}
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <!-- Prix -->
+                    <div class="col-md-6">
+                        <label class="text-muted small">
+                            Prix
+                        </label>
+
+                        <h5 class="mb-0">
+                            {{ plan.price|floatformat:0 }}
+                            {{ plan.currency }}
+                        </h5>
+                    </div>
+
+
+                    <!-- Statut -->
+                    <div class="col-md-6">
+                        <label class="text-muted small">
+                            Statut
+                        </label>
+
+                        <div>
+
+                            {% if plan.active %}
+                                <span class="badge bg-success-subtle text-success">
+                                    <i class="ri-checkbox-circle-line me-1"></i>
+                                    Actif
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger">
+                                    <i class="ri-close-circle-line me-1"></i>
+                                    Inactif
+                                </span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+
+                    <!-- Description -->
+                    <div class="col-12">
+
+                        <label class="text-muted small">
+                            Description
+                        </label>
+
+                        {% if plan.description %}
+                            <p class="mb-0">
+                                {{ plan.description }}
+                            </p>
+                        {% else %}
+                            <p class="text-muted mb-0">
+                                Aucune description renseignée.
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-4">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-settings-3-line me-1 text-primary"></i>
+                    Limites du plan
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <!-- Utilisateurs -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+                        <h6 class="mb-1">
+                            <i class="ri-user-line me-1 text-muted"></i>
+                            Utilisateurs
+                        </h6>
+                        <span class="text-muted small">
+                            Nombre maximum
+                        </span>
+                    </div>
+
+                    {% if plan.unlimited_users %}
+                        <span class="badge bg-success-subtle text-success">
+                            Illimité
+                        </span>
+                    {% else %}
+                        <h5 class="mb-0">
+                            {{ plan.max_users }}
+                        </h5>
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Sites -->
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <h6 class="mb-1">
+                            <i class="ri-building-line me-1 text-muted"></i>
+                            Sites
+                        </h6>
+                        <span class="text-muted small">
+                            Nombre maximum
+                        </span>
+                    </div>
+
+                    {% if plan.unlimited_sites %}
+                        <span class="badge bg-success-subtle text-success">
+                            Illimité
+                        </span>
+                    {% else %}
+                        <h5 class="mb-0">
+                            {{ plan.max_sites }}
+                        </h5>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-bar-chart-line me-1 text-primary"></i>
+                    Utilisation
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="text-center">
+
+                    <div class="avatar-md mx-auto mb-3">
+                        <div class="avatar-title bg-primary-subtle text-primary rounded-circle fs-24">
+                            <i class="ri-key-2-line"></i>
+                        </div>
+                    </div>
+
+                    <h4 class="mb-1">
+                        {{ plan.licenses.count }}
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        Licence{{ plan.licenses.count|pluralize }} associée{{ plan.licenses.count|pluralize }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row mt-4">
+
+    <div class="col-12">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="avatar-sm me-3">
+                                <div class="avatar-title bg-light text-primary rounded-circle">
+                                    <i class="ri-calendar-line"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="text-muted mb-1">
+                                    Date de création
+                                </p>
+
+                                <h6 class="mb-0">
+                                    {{ plan.created_at|date:"d/m/Y H:i" }}
+                                </h6>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6 mt-3 mt-md-0">
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="avatar-sm me-3">
+                                <div class="avatar-title bg-light text-primary rounded-circle">
+                                    <i class="ri-refresh-line"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="text-muted mb-1">
+                                    Dernière modification
+                                </p>
+
+                                <h6 class="mb-0">
+                                    {{ plan.updated_at|date:"d/m/Y H:i" }}
+                                </h6>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row mt-3">
+
+    <div class="col-12">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <h6 class="mb-1">
+                            Gestion du plan
+                        </h6>
+
+                        <p class="text-muted mb-0">
+                            Vous pouvez modifier ou changer le statut de cette formule.
+                        </p>
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <a href="{% url 'abonnement:plan_edit' plan.pk %}"
+                           class="btn btn-primary">
+
+                            <i class="ri-pencil-line me-1"></i>
+                            Modifier
+
+                        </a>
+
+
+                        <a href="{% url 'abonnement:plan_toggle' plan.pk %}"
+                           class="btn {% if plan.active %}btn-warning{% else %}btn-success{% endif %}">
+
+                            {% if plan.active %}
+                                <i class="ri-pause-circle-line me-1"></i>
+                                Désactiver
+                            {% else %}
+                                <i class="ri-play-circle-line me-1"></i>
+                                Activer
+                            {% endif %}
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

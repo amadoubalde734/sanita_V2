@@ -1,0 +1,14 @@
+{% extends "backend/base.html" %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container-fluid">
+
+        {% include 'backend/entreprises/menu.html' %}
+
+        {% block entreprises_content %}
+        {% endblock %}
+
+    </div>
+</div>
+{% endblock %}

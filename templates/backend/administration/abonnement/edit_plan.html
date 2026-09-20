@@ -1,0 +1,388 @@
+{% extends "backend/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .plan-form-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #e7edeb;
+    }
+
+    .plan-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .plan-form-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        margin-bottom: 0.25rem;
+    }
+    .plan-form-header p {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .plan-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .plan-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.25rem 1.5rem;
+    }
+    .plan-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .plan-card-body {
+        padding: 1.75rem;
+    }
+
+    .plan-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.1rem;
+    }
+    .plan-section-title .bar {
+        width: 4px;
+        height: 16px;
+        border-radius: 4px;
+        background: var(--teal-500);
+    }
+    .plan-section-title span {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+    }
+
+    .plan-form-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+    .plan-form-page .form-control,
+    .plan-form-page .form-select {
+        border-color: var(--line);
+        border-radius: 10px;
+        padding: 0.55rem 0.85rem;
+        font-size: 0.9rem;
+    }
+    .plan-form-page .form-control:focus,
+    .plan-form-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    .plan-price-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .plan-price-group .price-input {
+        flex: 1;
+    }
+    .plan-price-group .currency-input {
+        width: 110px;
+        flex-shrink: 0;
+    }
+
+    .plan-limits-box {
+        border: 1px dashed var(--line);
+        border-radius: 14px;
+        background: #fafcfb;
+        padding: 1.5rem;
+    }
+    .plan-limit-item {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        padding: 1.1rem;
+        height: 100%;
+    }
+    .plan-limit-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .plan-switch .form-check-input {
+        width: 2.5em;
+        height: 1.35em;
+        cursor: pointer;
+    }
+    .plan-switch .form-check-input:checked {
+        background-color: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+
+    .plan-info-note {
+        background: #fef6e6;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+    }
+    .plan-info-note i {
+        color: #b45309;
+    }
+
+    .plan-key-box {
+        background: var(--teal-100);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+    }
+    .plan-key-box .badge-code {
+        background: var(--teal-700);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+    }
+
+    .plan-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+        border-top: 1px solid var(--line);
+    }
+    .plan-form-actions .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+    .plan-form-actions .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+</style>
+
+<div class="plan-form-page">
+
+    <div class="plan-form-header">
+        <div>
+            <h4><i class="ri-edit-2-line align-middle me-1"></i> Modifier le plan</h4>
+            <p>Modification de la formule <strong>{{ object.name }}</strong></p>
+        </div>
+
+        <a href="{% url 'abonnement:plans' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="ri-arrow-left-line me-1"></i>
+            Retour aux plans
+        </a>
+    </div>
+
+    <div class="plan-card">
+
+        <div class="plan-card-header">
+            <h5><i class="ri-price-tag-3-line"></i> Informations du plan</h5>
+        </div>
+
+        <div class="plan-card-body">
+
+            <div class="plan-key-box">
+                <span class="badge-code">{{ object.code }}</span>
+                <span class="text-muted fs-13">Le code identifie ce plan de façon unique dans le système.</span>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger d-flex align-items-start" role="alert">
+                        <i class="ri-error-warning-line fs-18 me-2 mt-1"></i>
+                        <div>
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- ============== IDENTIFICATION ============== -->
+                <div class="plan-section-title"><span class="bar"></span><span>Identification</span></div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="{{ form.code.id_for_label }}" class="form-label">
+                            Code <span class="text-danger">*</span>
+                        </label>
+                        {{ form.code }}
+                        {% for error in form.code.errors %}
+                            <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                            Nom du plan <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% for error in form.name.errors %}
+                            <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ============== TARIFICATION ============== -->
+                <div class="plan-section-title"><span class="bar"></span><span>Tarification</span></div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Prix &amp; devise <span class="text-danger">*</span>
+                        </label>
+                        <div class="plan-price-group">
+                            <div class="price-input">
+                                {{ form.price }}
+                                {% for error in form.price.errors %}
+                                    <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="currency-input">
+                                {{ form.currency }}
+                                {% for error in form.currency.errors %}
+                                    <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check form-switch plan-switch mb-2">
+                            {{ form.active }}
+                            <label for="{{ form.active.id_for_label }}" class="form-check-label ms-2">
+                                Plan actif
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============== LIMITES ============== -->
+                <div class="plan-section-title"><span class="bar"></span><span>Limites du plan</span></div>
+
+                <div class="plan-limits-box mb-4">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <div class="plan-limit-item">
+                                <div class="plan-limit-icon"><i class="ri-user-line"></i></div>
+                                <label for="{{ form.max_users.id_for_label }}" class="form-label">
+                                    Nombre maximum d'utilisateurs
+                                </label>
+                                {{ form.max_users }}
+                                <div class="form-check form-switch plan-switch mt-3 mb-0">
+                                    {{ form.unlimited_users }}
+                                    <label for="{{ form.unlimited_users.id_for_label }}" class="form-check-label ms-2">
+                                        Utilisateurs illimités
+                                    </label>
+                                </div>
+                                {% for error in form.max_users.errors %}
+                                    <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                                {% endfor %}
+                                {% for error in form.unlimited_users.errors %}
+                                    <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="plan-limit-item">
+                                <div class="plan-limit-icon"><i class="ri-building-line"></i></div>
+                                <label for="{{ form.max_sites.id_for_label }}" class="form-label">
+                                    Nombre maximum de sites
+                                </label>
+                                {{ form.max_sites }}
+                                <div class="form-check form-switch plan-switch mt-3 mb-0">
+                                    {{ form.unlimited_sites }}
+                                    <label for="{{ form.unlimited_sites.id_for_label }}" class="form-check-label ms-2">
+                                        Sites illimités
+                                    </label>
+                                </div>
+                                {% for error in form.max_sites.errors %}
+                                    <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                                {% endfor %}
+                                {% for error in form.unlimited_sites.errors %}
+                                    <div class="text-danger fs-13 mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ============== AVERTISSEMENT ============== -->
+                <div class="plan-info-note d-flex align-items-start mb-4">
+                    <i class="ri-alert-line fs-20 me-2 mt-1"></i>
+                    <div>
+                        <h6 class="mb-1" style="color: #92400e;">Attention</h6>
+                        <p class="mb-0 text-muted fs-13">
+                            La modification des limites du plan peut avoir un impact sur les licences qui
+                            utilisent actuellement cette formule. Les nouvelles licences utiliseront
+                            automatiquement les limites définies ici.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ============== ACTIONS ============== -->
+                <div class="plan-form-actions">
+                    <a href="{% url 'abonnement:plans' %}" class="btn btn-outline-secondary">
+                        <i class="ri-close-line me-1"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line me-1"></i>
+                        Enregistrer les modifications
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
