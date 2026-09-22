@@ -1,0 +1,788 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .consultations-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .consultations-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .consultations-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+
+    .consultations-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .consultations-header .btn-primary,
+    .consultations-page .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+
+    .consultations-header .btn-primary:hover,
+    .consultations-page .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .consultations-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .consultations-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+    }
+
+    .consultations-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .consultations-table thead th {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+        padding: 0.85rem 1rem;
+    }
+
+    .consultations-table tbody td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .consultations-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .consultations-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .consultation-icon-cell {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .consultation-code {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--teal-700);
+        background: var(--teal-100);
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    .consultation-order {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 28px;
+        padding: 0 0.45rem;
+        border-radius: 7px;
+        background: #f5f7f6;
+        color: var(--ink);
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .consultations-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+
+    .consultations-page .form-control,
+    .consultations-page .form-select {
+        border-color: var(--line);
+        border-radius: 10px;
+    }
+
+    .consultations-page .form-control:focus,
+    .consultations-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    .modal-header-teal {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .modal-header-teal .btn-close {
+        filter: invert(1) brightness(2);
+    }
+
+    .stats-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+</style>
+
+<div class="consultations-page">
+
+    <div class="consultations-header">
+
+        <div>
+            <h4>
+                <i class="ri-medicine-bottle-line align-middle me-1"></i>
+                Formes pharmaceutiques
+            </h4>
+
+            <p>
+                Référentiel des formes pharmaceutiques utilisées dans les prescriptions.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'parametrage_general:liste_formes' %}"
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#formeModal"
+            onclick="prepareAddForme()"
+        >
+            <i class="ri-add-line align-bottom me-1"></i>
+            Ajouter une forme
+        </a>
+
+    </div>
+
+    <div class="consultations-card">
+
+        <div class="consultations-card-header">
+
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+                <h5>
+                    Liste des formes pharmaceutiques
+                </h5>
+
+                <div class="stats-wrapper">
+
+                    <span class="stat-badge">
+                        Total : {{ total_formes }}
+                    </span>
+
+                    <span class="stat-badge">
+                        Actifs : {{ active_formes }}
+                    </span>
+
+                    <span class="stat-badge">
+                        Inactifs : {{ inactive_formes }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="p-3 border-bottom">
+
+                <form method="get">
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-white">
+                            <i class="ri-search-line"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ search_query }}"
+                            class="form-control"
+                            placeholder="Rechercher par code, nom ou description..."
+                        >
+
+                        {% if search_query %}
+
+                            <a
+                                href="{% url 'parametrage_general:liste_formes' %}"
+                                class="btn btn-light"
+                            >
+                                <i class="ri-close-line"></i>
+                            </a>
+
+                        {% endif %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Rechercher
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            {% if formes %}
+
+                <div class="table-responsive">
+
+                    <table class="table consultations-table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Code</th>
+                                <th>Forme pharmaceutique</th>
+                                <th>Description</th>
+                                <th class="text-center">Ordre</th>
+                                <th class="text-center">Statut</th>
+                                <th class="text-center" style="width: 160px;">Actions</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for forme in formes %}
+
+                                <tr>
+
+                                    <td class="text-muted">
+                                        {{ forloop.counter }}
+                                    </td>
+
+                                    <td>
+                                        <span class="consultation-code">
+                                            {{ forme.code }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            <div class="consultation-icon-cell">
+                                                <i class="ri-medicine-bottle-line"></i>
+                                            </div>
+
+                                            <div>
+                                                <h6 class="mb-0">
+                                                    {{ forme.nom }}
+                                                </h6>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        {% if forme.description %}
+
+                                            <span class="text-muted">
+                                                {{ forme.description|truncatechars:80 }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        <span class="consultation-order">
+                                            {{ forme.ordre }}
+                                        </span>
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        {% if forme.actif %}
+
+                                            <span class="badge bg-success-subtle text-success">
+                                                <i class="ri-checkbox-circle-line me-1"></i>
+                                                Actif
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-danger-subtle text-danger">
+                                                <i class="ri-close-circle-line me-1"></i>
+                                                Inactif
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        <div class="d-inline-flex gap-1">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-soft-primary"
+                                                title="Modifier"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#formeModal"
+                                                onclick="prepareEditForme(
+                                                    '{{ forme.pk }}',
+                                                    '{{ forme.code|escapejs }}',
+                                                    '{{ forme.nom|escapejs }}',
+                                                    '{{ forme.description|default:''|escapejs }}',
+                                                    '{{ forme.ordre }}',
+                                                    {{ forme.actif|yesno:'true,false' }}
+                                                )"
+                                            >
+                                                <i class="ri-pencil-line"></i>
+                                            </button>
+
+                                            <a
+                                                href="{% url 'parametrage_general:toggle_forme' forme.pk %}"
+                                                class="btn btn-sm btn-soft-{% if forme.actif %}warning{% else %}success{% endif %}"
+                                                title="{% if forme.actif %}Désactiver{% else %}Activer{% endif %}"
+                                            >
+                                                <i class="ri-{% if forme.actif %}pause{% else %}play{% endif %}-circle-line"></i>
+                                            </a>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-soft-danger"
+                                                title="Supprimer"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteFormeModal{{ forme.pk }}"
+                                            >
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                                <div
+                                    class="modal fade"
+                                    id="deleteFormeModal{{ forme.pk }}"
+                                    tabindex="-1"
+                                    aria-hidden="true"
+                                >
+
+                                    <div class="modal-dialog modal-dialog-centered">
+
+                                        <div class="modal-content">
+
+                                            <div class="modal-body text-center p-4">
+
+                                                <div class="avatar-lg mx-auto mb-3">
+
+                                                    <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </span>
+
+                                                </div>
+
+                                                <h5 class="mb-3">
+                                                    Supprimer la forme pharmaceutique ?
+                                                </h5>
+
+                                                <p class="text-muted mb-4">
+
+                                                    Êtes-vous sûr de vouloir supprimer
+                                                    <strong>« {{ forme.nom }} »</strong> ?
+
+                                                    <br>
+
+                                                    Cette action est irréversible.
+
+                                                </p>
+
+                                                <form
+                                                    method="post"
+                                                    action="{% url 'parametrage_general:supprimer_forme' forme.pk %}"
+                                                >
+
+                                                    {% csrf_token %}
+
+                                                    <div class="d-flex justify-content-center gap-2">
+
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-light"
+                                                            data-bs-dismiss="modal"
+                                                        >
+                                                            <i class="ri-close-line me-1"></i>
+                                                            Annuler
+                                                        </button>
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-danger"
+                                                        >
+                                                            <i class="ri-delete-bin-line me-1"></i>
+                                                            Supprimer
+                                                        </button>
+
+                                                    </div>
+
+                                                </form>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-5">
+
+                    <div class="avatar-lg mx-auto mb-4">
+
+                        <span
+                            class="avatar-title rounded-circle fs-1"
+                            style="background: var(--teal-100); color: var(--teal-700);"
+                        >
+                            <i class="ri-medicine-bottle-line"></i>
+                        </span>
+
+                    </div>
+
+                    <h5 class="mb-2">
+
+                        {% if search_query %}
+                            Aucune forme trouvée
+                        {% else %}
+                            Aucune forme pharmaceutique enregistrée
+                        {% endif %}
+
+                    </h5>
+
+                    <p class="text-muted mb-3">
+
+                        {% if search_query %}
+                            Aucune forme ne correspond à votre recherche.
+                        {% else %}
+                            Commencez par créer votre première forme pharmaceutique.
+                        {% endif %}
+
+                    </p>
+
+                    {% if not search_query %}
+
+                        <a
+                            href="{% url 'parametrage_general:liste_formes' %}"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#formeModal"
+                            onclick="prepareAddForme()"
+                        >
+                            <i class="ri-add-line me-1"></i>
+                            Créer la première forme
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="formeModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header modal-header-teal">
+
+                <h5
+                    class="modal-title"
+                    id="formeModalTitle"
+                >
+                    Ajouter une forme pharmaceutique
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+            <form
+                method="post"
+                id="formeForm"
+                action="{% url 'parametrage_general:ajouter_forme' %}"
+            >
+
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-4 mb-3">
+
+                            <label
+                                for="{{ form.code.id_for_label }}"
+                                class="form-label"
+                            >
+                                Code <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.code }}
+
+                            {% if form.code.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.code.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-8 mb-3">
+
+                            <label
+                                for="{{ form.nom.id_for_label }}"
+                                class="form-label"
+                            >
+                                Nom <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.nom }}
+
+                            {% if form.nom.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.nom.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-4 mb-3">
+
+                            <label
+                                for="{{ form.ordre.id_for_label }}"
+                                class="form-label"
+                            >
+                                Ordre d'affichage
+                            </label>
+
+                            {{ form.ordre }}
+
+                            {% if form.ordre.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.ordre.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-8 mb-3">
+
+                            <label
+                                for="{{ form.description.id_for_label }}"
+                                class="form-label"
+                            >
+                                Description
+                            </label>
+
+                            {{ form.description }}
+
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.description.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        {{ form.actif }}
+
+                        <label
+                            class="form-check-label"
+                            for="{{ form.actif.id_for_label }}"
+                        >
+                            Forme pharmaceutique active
+                        </label>
+
+                    </div>
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger mt-3 mb-0">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="ri-save-line me-1"></i>
+
+                        <span id="formeSubmitLabel">
+                            Enregistrer
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function prepareAddForme() {
+        document.getElementById('formeModalTitle').textContent =
+            'Ajouter une forme pharmaceutique';
+
+        document.getElementById('formeSubmitLabel').textContent =
+            'Enregistrer';
+
+        document.getElementById('formeForm').action =
+            "{% url 'parametrage_general:ajouter_forme' %}";
+
+        document.getElementById('id_code').value = '';
+        document.getElementById('id_nom').value = '';
+        document.getElementById('id_description').value = '';
+        document.getElementById('id_ordre').value = '0';
+        document.getElementById('id_actif').checked = true;
+    }
+
+    function prepareEditForme(
+        pk,
+        code,
+        nom,
+        description,
+        ordre,
+        actif
+    ) {
+        document.getElementById('formeModalTitle').textContent =
+            'Modifier la forme pharmaceutique';
+
+        document.getElementById('formeSubmitLabel').textContent =
+            'Enregistrer les modifications';
+
+        document.getElementById('formeForm').action =
+            '/parametrage/medicaments/formes/modifier/' + pk + '/';
+
+        document.getElementById('id_code').value = code;
+        document.getElementById('id_nom').value = nom;
+        document.getElementById('id_description').value = description;
+        document.getElementById('id_ordre').value = ordre;
+        document.getElementById('id_actif').checked = actif;
+    }
+</script>
+
+{% endblock %}
+

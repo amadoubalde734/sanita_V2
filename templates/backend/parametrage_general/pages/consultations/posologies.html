@@ -1,0 +1,659 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .consultations-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .consultations-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .consultations-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+
+    .consultations-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .consultations-header .btn-primary,
+    .consultations-page .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+
+    .consultations-header .btn-primary:hover,
+    .consultations-page .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .consultations-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .consultations-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+    }
+
+    .consultations-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .consultations-table thead th {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+        padding: 0.85rem 1rem;
+    }
+
+    .consultations-table tbody td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .consultations-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .consultations-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .consultation-icon-cell {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .consultation-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+    .consultations-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+
+    .consultations-page .form-control,
+    .consultations-page .form-select {
+        border-color: var(--line);
+        border-radius: 10px;
+    }
+
+    .consultations-page .form-control:focus,
+    .consultations-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    .modal-header-teal {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .modal-header-teal .btn-close {
+        filter: invert(1) brightness(2);
+    }
+
+    .stats-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+</style>
+
+<div class="consultations-page">
+<div class="consultations-header">
+
+    <div>
+        <h4>
+            <i class="ri-capsule-line align-middle me-1"></i>
+            Posologies
+        </h4>
+
+        <p>
+            Référentiel des posologies utilisées pour la prescription des médicaments dans SANITA.
+        </p>
+    </div>
+
+    <a
+        href="{% url 'parametrage_general:liste_posologies' %}"
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#posologieModal"
+        onclick="prepareAddPosologie()"
+    >
+        <i class="ri-add-line align-bottom me-1"></i>
+        Ajouter une posologie
+    </a>
+
+</div>
+
+<div class="consultations-card">
+
+    <div class="consultations-card-header">
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+            <h5>
+                Liste des posologies
+            </h5>
+
+            <div class="stats-wrapper">
+
+                <span class="stat-badge">
+                    Total : {{ total_posologies }}
+                </span>
+
+                <span class="stat-badge">
+                    Actives : {{ active_posologies }}
+                </span>
+
+                <span class="stat-badge">
+                    Inactives : {{ inactive_posologies }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <div class="p-3 border-bottom">
+
+            <form method="get">
+
+                <div class="input-group">
+
+                    <span class="input-group-text bg-white">
+                        <i class="ri-search-line"></i>
+                    </span>
+
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ search_query }}"
+                        class="form-control"
+                        placeholder="Rechercher une posologie..."
+                    >
+
+                    {% if search_query %}
+
+                        <a
+                            href="{% url 'parametrage_general:liste_posologies' %}"
+                            class="btn btn-light"
+                        >
+                            <i class="ri-close-line"></i>
+                        </a>
+
+                    {% endif %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Rechercher
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        {% if posologies %}
+
+            <div class="table-responsive">
+
+                <table class="table consultations-table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th style="width: 60px;">#</th>
+                            <th>Posologie</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center" style="width: 160px;">
+                                Actions
+                            </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for posologie in posologies %}
+
+                            <tr>
+
+                                <td class="text-muted">
+                                    {{ forloop.counter }}
+                                </td>
+
+                                <td>
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <div class="consultation-icon-cell">
+                                            <i class="ri-capsule-line"></i>
+                                        </div>
+
+                                        <div class="consultation-text">
+                                            {{ posologie.libelle }}
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    {% if posologie.actif %}
+
+                                        <span class="badge bg-success-subtle text-success">
+                                            <i class="ri-checkbox-circle-line me-1"></i>
+                                            Actif
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-danger-subtle text-danger">
+                                            <i class="ri-close-circle-line me-1"></i>
+                                            Inactif
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    <div class="d-inline-flex gap-1">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-soft-primary"
+                                            title="Modifier"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#posologieModal"
+                                            onclick="prepareEditPosologie(
+                                                '{{ posologie.pk }}',
+                                                '{{ posologie.libelle|escapejs }}',
+                                                {{ posologie.actif|yesno:'true,false' }}
+                                            )"
+                                        >
+                                            <i class="ri-pencil-line"></i>
+                                        </button>
+
+                                        <a
+                                            href="{% url 'parametrage_general:toggle_posologie' posologie.pk %}"
+                                            class="btn btn-sm btn-soft-{% if posologie.actif %}warning{% else %}success{% endif %}"
+                                            title="{% if posologie.actif %}Désactiver{% else %}Activer{% endif %}"
+                                        >
+                                            <i class="ri-{% if posologie.actif %}pause{% else %}play{% endif %}-circle-line"></i>
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-soft-danger"
+                                            title="Supprimer"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deletePosologieModal{{ posologie.pk }}"
+                                        >
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            <div
+                                class="modal fade"
+                                id="deletePosologieModal{{ posologie.pk }}"
+                                tabindex="-1"
+                                aria-hidden="true"
+                            >
+
+                                <div class="modal-dialog modal-dialog-centered">
+
+                                    <div class="modal-content">
+
+                                        <div class="modal-body text-center p-4">
+
+                                            <div class="avatar-lg mx-auto mb-3">
+
+                                                <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </span>
+
+                                            </div>
+
+                                            <h5 class="mb-3">
+                                                Supprimer la posologie ?
+                                            </h5>
+
+                                            <p class="text-muted mb-4">
+
+                                                Êtes-vous sûr de vouloir supprimer
+                                                <strong>« {{ posologie.libelle }} »</strong> ?
+
+                                                <br>
+
+                                                Cette action est irréversible.
+
+                                            </p>
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'parametrage_general:supprimer_posologie' posologie.pk %}"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <div class="d-flex justify-content-center gap-2">
+
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-light"
+                                                        data-bs-dismiss="modal"
+                                                    >
+                                                        <i class="ri-close-line me-1"></i>
+                                                        Annuler
+                                                    </button>
+
+                                                    <button
+                                                        type="submit"
+                                                        class="btn btn-danger"
+                                                    >
+                                                        <i class="ri-delete-bin-line me-1"></i>
+                                                        Supprimer
+                                                    </button>
+
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-5">
+
+                <div class="avatar-lg mx-auto mb-4">
+
+                    <span
+                        class="avatar-title rounded-circle fs-1"
+                        style="background: var(--teal-100); color: var(--teal-700);"
+                    >
+                        <i class="ri-capsule-line"></i>
+                    </span>
+
+                </div>
+
+                <h5 class="mb-2">
+
+                    {% if search_query %}
+                        Aucune posologie trouvée
+                    {% else %}
+                        Aucune posologie enregistrée
+                    {% endif %}
+
+                </h5>
+
+                <p class="text-muted mb-3">
+
+                    {% if search_query %}
+                        Aucune posologie ne correspond à votre recherche.
+                    {% else %}
+                        Commencez par créer votre première posologie.
+                    {% endif %}
+
+                </p>
+
+                {% if not search_query %}
+
+                    <a
+                        href="{% url 'parametrage_general:liste_posologies' %}"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#posologieModal"
+                        onclick="prepareAddPosologie()"
+                    >
+                        <i class="ri-add-line me-1"></i>
+                        Créer la première posologie
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<div
+    class="modal fade"
+    id="posologieModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+```
+<div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content">
+
+        <div class="modal-header modal-header-teal">
+
+            <h5
+                class="modal-title"
+                id="posologieModalTitle"
+            >
+                Ajouter une posologie
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Fermer"
+            ></button>
+
+        </div>
+
+        <form
+            method="post"
+            id="posologieForm"
+            action="{% url 'parametrage_general:ajouter_posologie' %}"
+        >
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <div class="mb-3">
+
+                    <label
+                        for="{{ form.libelle.id_for_label }}"
+                        class="form-label"
+                    >
+                        Posologie <span class="text-danger">*</span>
+                    </label>
+
+                    {{ form.libelle }}
+
+                    {% if form.libelle.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.libelle.errors }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <div class="form-check form-switch">
+
+                    {{ form.actif }}
+
+                    <label
+                        class="form-check-label"
+                        for="{{ form.actif.id_for_label }}"
+                    >
+                        Posologie active
+                    </label>
+
+                </div>
+
+                {% if form.non_field_errors %}
+
+                    <div class="alert alert-danger mt-3 mb-0">
+                        {{ form.non_field_errors }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="ri-save-line me-1"></i>
+
+                    <span id="posologieSubmitLabel">
+                        Enregistrer
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<script>
+    function prepareAddPosologie() {
+        document.getElementById('posologieModalTitle').textContent =
+            'Ajouter une posologie';
+
+        document.getElementById('posologieSubmitLabel').textContent =
+            'Enregistrer';
+
+        document.getElementById('posologieForm').action =
+            "{% url 'parametrage_general:ajouter_posologie' %}";
+
+        document.getElementById('id_libelle').value = '';
+        document.getElementById('id_actif').checked = true;
+    }
+
+    function prepareEditPosologie(
+        pk,
+        libelle,
+        actif
+    ) {
+        document.getElementById('posologieModalTitle').textContent =
+            'Modifier la posologie';
+
+        document.getElementById('posologieSubmitLabel').textContent =
+            'Enregistrer les modifications';
+
+        document.getElementById('posologieForm').action =
+            '/parametrage/consultations/posologies/modifier/' + pk + '/';
+
+        document.getElementById('id_libelle').value = libelle;
+        document.getElementById('id_actif').checked = actif;
+    }
+</script>
+
+{% endblock %}

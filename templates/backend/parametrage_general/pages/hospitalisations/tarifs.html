@@ -1,0 +1,1051 @@
+{% extends "backend/parametrage_general/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<div class="hospitalisation-page">
+
+```
+<div class="row">
+    <div class="col-12">
+
+        <div class="page-header mb-4">
+            <div>
+                <h4 class="mb-1">
+                    <i class="ri-money-dollar-circle-line me-2"></i>
+                    Tarifs de séjour
+                </h4>
+                <p class="mb-0">
+                    Gestion des tarifs applicables aux séjours d'hospitalisation
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-light"
+                data-bs-toggle="modal"
+                data-bs-target="#tarifSejourModal"
+                data-mode="add"
+            >
+                <i class="ri-add-line me-1"></i>
+                Nouveau tarif
+            </button>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Total des tarifs
+                    </div>
+                    <div class="stat-value">
+                        {{ total_tarifs|default:0 }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Tarifs actifs
+                    </div>
+                    <div class="stat-value text-success">
+                        {{ tarifs_actifs|default:0 }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Tarifs inactifs
+                    </div>
+                    <div class="stat-value text-danger">
+                        {{ tarifs_inactifs|default:0 }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="content-card">
+
+            <div class="content-card-header">
+
+                <div>
+                    <h5 class="mb-1">
+                        Liste des tarifs de séjour
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Consultez et gérez les tarifs d'hospitalisation.
+                    </p>
+                </div>
+
+                <form
+                    method="get"
+                    action="{% url 'parametrage_general:liste_tarifs_sejours' %}"
+                    class="d-flex gap-2"
+                >
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ri-search-line"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ q|default:'' }}"
+                            class="form-control"
+                            placeholder="Rechercher..."
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Rechercher
+                    </button>
+
+                    {% if q %}
+                        <a
+                            href="{% url 'parametrage_general:liste_tarifs_sejours' %}"
+                            class="btn btn-light"
+                        >
+                            <i class="ri-refresh-line"></i>
+                        </a>
+                    {% endif %}
+                </form>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Établissement</th>
+                            <th>Type de séjour</th>
+                            <th>Type de chambre</th>
+                            <th>Montant</th>
+                            <th>Unité</th>
+                            <th>Période</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for tarif in tarifs %}
+
+                            <tr>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ tarif.etablissement.nom }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if tarif.type_sejour %}
+                                        {{ tarif.type_sejour.nom }}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if tarif.type_chambre %}
+                                        {{ tarif.type_chambre.nom }}
+                                    {% else %}
+                                        <span class="text-muted">Tous types</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="fw-semibold">
+                                        {{ tarif.montant|floatformat:2 }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ tarif.unite_facturation }}
+                                </td>
+
+                                <td>
+                                    <div>
+                                        {{ tarif.date_debut|date:"d/m/Y" }}
+                                    </div>
+
+                                    {% if tarif.date_fin %}
+                                        <small class="text-muted">
+                                            au {{ tarif.date_fin|date:"d/m/Y" }}
+                                        </small>
+                                    {% else %}
+                                        <small class="text-muted">
+                                            Sans date de fin
+                                        </small>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if tarif.actif %}
+                                        <span class="badge bg-success-subtle text-success">
+                                            Actif
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger">
+                                            Inactif
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end">
+
+                                    <div class="d-inline-flex gap-1">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-soft-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#tarifSejourModal"
+                                            data-mode="edit"
+                                            data-id="{{ tarif.id }}"
+                                            data-etablissement="{{ tarif.etablissement_id }}"
+                                            data-type-sejour="{{ tarif.type_sejour_id }}"
+                                            data-type-chambre="{{ tarif.type_chambre_id }}"
+                                            data-montant="{{ tarif.montant }}"
+                                            data-unite-facturation="{{ tarif.unite_facturation }}"
+                                            data-date-debut="{{ tarif.date_debut|date:'Y-m-d' }}"
+                                            data-date-fin="{% if tarif.date_fin %}{{ tarif.date_fin|date:'Y-m-d' }}{% endif %}"
+                                            data-actif="{% if tarif.actif %}1{% else %}0{% endif %}"
+                                            title="Modifier"
+                                        >
+                                            <i class="ri-edit-line"></i>
+                                        </button>
+
+                                        <a
+                                            href="{% url 'parametrage_general:toggle_tarif_sejour' tarif.id %}"
+                                            class="btn btn-sm {% if tarif.actif %}btn-soft-warning{% else %}btn-soft-success{% endif %}"
+                                            title="{% if tarif.actif %}Désactiver{% else %}Activer{% endif %}"
+                                        >
+                                            {% if tarif.actif %}
+                                                <i class="ri-eye-off-line"></i>
+                                            {% else %}
+                                                <i class="ri-eye-line"></i>
+                                            {% endif %}
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-soft-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteTarifSejourModal"
+                                            data-id="{{ tarif.id }}"
+                                            data-etablissement="{{ tarif.etablissement.nom }}"
+                                            data-type-sejour="{{ tarif.type_sejour.nom }}"
+                                            title="Supprimer"
+                                        >
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="8">
+
+                                    <div class="empty-state text-center py-5">
+
+                                        <div class="mb-3">
+                                            <i class="ri-money-dollar-circle-line fs-1 text-muted"></i>
+                                        </div>
+
+                                        <h5 class="mb-2">
+                                            Aucun tarif trouvé
+                                        </h5>
+
+                                        <p class="text-muted mb-3">
+                                            {% if q %}
+                                                Aucun résultat ne correspond à votre recherche.
+                                            {% else %}
+                                                Aucun tarif de séjour n'a encore été enregistré.
+                                            {% endif %}
+                                        </p>
+
+                                        {% if q %}
+
+                                            <a
+                                                href="{% url 'parametrage_general:liste_tarifs_sejours' %}"
+                                                class="btn btn-light"
+                                            >
+                                                Réinitialiser la recherche
+                                            </a>
+
+                                        {% else %}
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#tarifSejourModal"
+                                                data-mode="add"
+                                            >
+                                                <i class="ri-add-line me-1"></i>
+                                                Ajouter un tarif
+                                            </button>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+```
+
+</div>
+
+<div
+    class="modal fade"
+    id="tarifSejourModal"
+    tabindex="-1"
+    aria-labelledby="tarifSejourModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+```
+    <div class="modal-content">
+
+        <div class="modal-header modal-header-teal">
+
+            <h5
+                class="modal-title text-white"
+                id="tarifSejourModalLabel"
+            >
+                <i class="ri-money-dollar-circle-line me-2"></i>
+
+                <span id="tarifSejourModalTitle">
+                    Nouveau tarif de séjour
+                </span>
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Fermer"
+            ></button>
+
+        </div>
+
+        <form
+            method="post"
+            id="tarifSejourForm"
+            action="{% url 'parametrage_general:ajouter_tarif_sejour' %}"
+        >
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ form.etablissement.id_for_label }}"
+                            class="form-label"
+                        >
+                            Établissement <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.etablissement }}
+
+                        {% if form.etablissement.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.etablissement.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ form.type_sejour.id_for_label }}"
+                            class="form-label"
+                        >
+                            Type de séjour <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.type_sejour }}
+
+                        {% if form.type_sejour.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.type_sejour.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ form.type_chambre.id_for_label }}"
+                            class="form-label"
+                        >
+                            Type de chambre
+                        </label>
+
+                        {{ form.type_chambre }}
+
+                        {% if form.type_chambre.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.type_chambre.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ form.montant.id_for_label }}"
+                            class="form-label"
+                        >
+                            Montant <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.montant }}
+
+                        {% if form.montant.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.montant.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ form.unite_facturation.id_for_label }}"
+                            class="form-label"
+                        >
+                            Unité de facturation <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.unite_facturation }}
+
+                        {% if form.unite_facturation.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.unite_facturation.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label
+                            for="{{ form.date_debut.id_for_label }}"
+                            class="form-label"
+                        >
+                            Date de début <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.date_debut }}
+
+                        {% if form.date_debut.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.date_debut.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label
+                            for="{{ form.date_fin.id_for_label }}"
+                            class="form-label"
+                        >
+                            Date de fin
+                        </label>
+
+                        {{ form.date_fin }}
+
+                        {% if form.date_fin.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.date_fin.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-12">
+
+                        <div class="form-check form-switch">
+
+                            {{ form.actif }}
+
+                            <label
+                                class="form-check-label"
+                                for="{{ form.actif.id_for_label }}"
+                            >
+                                Tarif actif
+                            </label>
+
+                        </div>
+
+                        {% if form.actif.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.actif.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="ri-save-line me-1"></i>
+
+                    <span id="tarifSejourSubmitText">
+                        Enregistrer
+                    </span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<div
+    class="modal fade"
+    id="deleteTarifSejourModal"
+    tabindex="-1"
+    aria-labelledby="deleteTarifSejourModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+
+```
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h5
+                class="modal-title"
+                id="deleteTarifSejourModalLabel"
+            >
+                <i class="ri-delete-bin-line text-danger me-2"></i>
+                Supprimer le tarif
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Fermer"
+            ></button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p class="mb-2">
+                Voulez-vous vraiment supprimer ce tarif de séjour ?
+            </p>
+
+            <div class="alert alert-light border mb-0">
+                <div>
+                    <strong>Établissement :</strong>
+                    <span id="deleteTarifEtablissement"></span>
+                </div>
+
+                <div>
+                    <strong>Type de séjour :</strong>
+                    <span id="deleteTarifTypeSejour"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-light"
+                data-bs-dismiss="modal"
+            >
+                Annuler
+            </button>
+
+            <a
+                href="#"
+                id="deleteTarifSejourConfirm"
+                class="btn btn-danger"
+            >
+                <i class="ri-delete-bin-line me-1"></i>
+                Supprimer
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<style>
+    .hospitalisation-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    .hospitalisation-page .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 24px 28px;
+        border-radius: 14px;
+        background: linear-gradient(
+            135deg,
+            var(--teal-900),
+            var(--teal-700)
+        );
+        color: #fff;
+    }
+
+    .hospitalisation-page .page-header h4 {
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .hospitalisation-page .page-header p {
+        color: rgba(255, 255, 255, 0.78);
+    }
+
+    .hospitalisation-page .stat-card {
+        height: 100%;
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .hospitalisation-page .stat-label {
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .hospitalisation-page .stat-value {
+        color: var(--ink);
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .hospitalisation-page .content-card {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .hospitalisation-page .content-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .hospitalisation-page .content-card-header h5 {
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .hospitalisation-page table {
+        min-width: 1100px;
+    }
+
+    .hospitalisation-page thead th {
+        padding: 14px 16px;
+        background: var(--teal-900);
+        color: #fff;
+        border: 0;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .hospitalisation-page tbody td {
+        padding: 14px 16px;
+        color: var(--ink);
+        border-color: var(--border);
+        vertical-align: middle;
+    }
+
+    .hospitalisation-page tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .hospitalisation-page .badge {
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .hospitalisation-page .btn-soft-primary,
+    .hospitalisation-page .btn-soft-success,
+    .hospitalisation-page .btn-soft-warning,
+    .hospitalisation-page .btn-soft-danger {
+        border: 0;
+    }
+
+    .hospitalisation-page .btn-soft-primary {
+        background: #e8f0ff;
+        color: #356ae6;
+    }
+
+    .hospitalisation-page .btn-soft-success {
+        background: #e8f7ef;
+        color: #159957;
+    }
+
+    .hospitalisation-page .btn-soft-warning {
+        background: #fff5dc;
+        color: #c58a00;
+    }
+
+    .hospitalisation-page .btn-soft-danger {
+        background: #fdecec;
+        color: #d63939;
+    }
+
+    .hospitalisation-page .empty-state {
+        color: var(--muted);
+    }
+
+    .hospitalisation-page .modal-header-teal {
+        background: linear-gradient(
+            135deg,
+            var(--teal-900),
+            var(--teal-700)
+        );
+        border-bottom: 0;
+    }
+
+    .hospitalisation-page .modal-header-teal .btn-close {
+        filter: invert(1);
+    }
+
+    .hospitalisation-page .form-label {
+        margin-bottom: 7px;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .hospitalisation-page .form-control,
+    .hospitalisation-page .form-select {
+        border-color: var(--border);
+        border-radius: 8px;
+    }
+
+    .hospitalisation-page .form-control:focus,
+    .hospitalisation-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    @media (max-width: 991.98px) {
+        .hospitalisation-page .content-card-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .hospitalisation-page .content-card-header form {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .hospitalisation-page .page-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .hospitalisation-page .page-header .btn {
+            width: 100%;
+        }
+
+        .hospitalisation-page .stat-value {
+            font-size: 24px;
+        }
+
+        .hospitalisation-page .content-card-header {
+            padding: 16px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tarifSejourModal = document.getElementById(
+        'tarifSejourModal'
+    );
+
+    const tarifSejourForm = document.getElementById(
+        'tarifSejourForm'
+    );
+
+    const tarifSejourModalTitle = document.getElementById(
+        'tarifSejourModalTitle'
+    );
+
+    const tarifSejourSubmitText = document.getElementById(
+        'tarifSejourSubmitText'
+    );
+
+    const etablissementField = document.getElementById(
+        '{{ form.etablissement.id_for_label }}'
+    );
+
+    const typeSejourField = document.getElementById(
+        '{{ form.type_sejour.id_for_label }}'
+    );
+
+    const typeChambreField = document.getElementById(
+        '{{ form.type_chambre.id_for_label }}'
+    );
+
+    const montantField = document.getElementById(
+        '{{ form.montant.id_for_label }}'
+    );
+
+    const uniteFacturationField = document.getElementById(
+        '{{ form.unite_facturation.id_for_label }}'
+    );
+
+    const dateDebutField = document.getElementById(
+        '{{ form.date_debut.id_for_label }}'
+    );
+
+    const dateFinField = document.getElementById(
+        '{{ form.date_fin.id_for_label }}'
+    );
+
+    const actifField = document.getElementById(
+        '{{ form.actif.id_for_label }}'
+    );
+
+    const ajouterUrl = "{% url 'parametrage_general:ajouter_tarif_sejour' %}";
+
+    const modifierUrlTemplate = "{% url 'parametrage_general:modifier_tarif_sejour' 0 %}";
+
+    const supprimerUrlTemplate = "{% url 'parametrage_general:supprimer_tarif_sejour' 0 %}";
+
+    tarifSejourModal.addEventListener(
+        'show.bs.modal',
+        function (event) {
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const mode = button.getAttribute('data-mode');
+
+            if (mode === 'edit') {
+                const id = button.getAttribute('data-id');
+                const etablissement = button.getAttribute(
+                    'data-etablissement'
+                );
+                const typeSejour = button.getAttribute(
+                    'data-type-sejour'
+                );
+                const typeChambre = button.getAttribute(
+                    'data-type-chambre'
+                );
+                const montant = button.getAttribute('data-montant');
+                const uniteFacturation = button.getAttribute(
+                    'data-unite-facturation'
+                );
+                const dateDebut = button.getAttribute(
+                    'data-date-debut'
+                );
+                const dateFin = button.getAttribute(
+                    'data-date-fin'
+                );
+                const actif = button.getAttribute('data-actif');
+
+                tarifSejourModalTitle.textContent =
+                    'Modifier le tarif de séjour';
+
+                tarifSejourSubmitText.textContent =
+                    'Enregistrer les modifications';
+
+                tarifSejourForm.action =
+                    modifierUrlTemplate.replace(
+                        '/0/',
+                        '/' + id + '/'
+                    );
+
+                etablissementField.value = etablissement || '';
+                typeSejourField.value = typeSejour || '';
+                typeChambreField.value = typeChambre || '';
+                montantField.value = montant || '';
+                uniteFacturationField.value =
+                    uniteFacturation || '';
+                dateDebutField.value = dateDebut || '';
+                dateFinField.value = dateFin || '';
+                actifField.checked = actif === '1';
+
+            } else {
+                tarifSejourModalTitle.textContent =
+                    'Nouveau tarif de séjour';
+
+                tarifSejourSubmitText.textContent =
+                    'Enregistrer';
+
+                tarifSejourForm.action = ajouterUrl;
+
+                tarifSejourForm.reset();
+
+                actifField.checked = true;
+            }
+        }
+    );
+
+    const deleteTarifSejourModal = document.getElementById(
+        'deleteTarifSejourModal'
+    );
+
+    const deleteTarifEtablissement = document.getElementById(
+        'deleteTarifEtablissement'
+    );
+
+    const deleteTarifTypeSejour = document.getElementById(
+        'deleteTarifTypeSejour'
+    );
+
+    const deleteTarifSejourConfirm = document.getElementById(
+        'deleteTarifSejourConfirm'
+    );
+
+    deleteTarifSejourModal.addEventListener(
+        'show.bs.modal',
+        function (event) {
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const id = button.getAttribute('data-id');
+            const etablissement = button.getAttribute(
+                'data-etablissement'
+            );
+            const typeSejour = button.getAttribute(
+                'data-type-sejour'
+            );
+
+            deleteTarifEtablissement.textContent =
+                etablissement || '—';
+
+            deleteTarifTypeSejour.textContent =
+                typeSejour || '—';
+
+            deleteTarifSejourConfirm.href =
+                supprimerUrlTemplate.replace(
+                    '/0/',
+                    '/' + id + '/'
+                );
+        }
+    );
+
+    {% if modifier and tarif_to_edit %}
+        const editButton = document.querySelector(
+            '[data-mode="edit"][data-id="{{ tarif_to_edit.id }}"]'
+        );
+
+        if (editButton) {
+            const modal = bootstrap.Modal.getOrCreateInstance(
+                tarifSejourModal
+            );
+
+            modal.show();
+        }
+    {% endif %}
+});
+</script>
+
+{% endblock inner_content %}

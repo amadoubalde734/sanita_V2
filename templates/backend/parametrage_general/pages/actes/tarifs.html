@@ -1,0 +1,872 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .tarifs-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .tarifs-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tarifs-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+
+    .tarifs-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .tarifs-header .btn-primary,
+    .tarifs-page .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+
+    .tarifs-header .btn-primary:hover,
+    .tarifs-page .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .tarifs-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .tarifs-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+    }
+
+    .tarifs-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .tarifs-table thead th {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+        padding: 0.85rem 1rem;
+    }
+
+    .tarifs-table tbody td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .tarifs-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .tarifs-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .tarif-icon-cell {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .tarif-code {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--teal-700);
+        background: var(--teal-100);
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    .tarif-montant {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--ink);
+        white-space: nowrap;
+    }
+
+    .tarif-date {
+        font-size: 0.8rem;
+        color: var(--muted);
+        white-space: nowrap;
+    }
+
+    .tarifs-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+
+    .tarifs-page .form-control,
+    .tarifs-page .form-select {
+        border-color: var(--line);
+        border-radius: 10px;
+    }
+
+    .tarifs-page .form-control:focus,
+    .tarifs-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    .modal-header-teal {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .modal-header-teal .btn-close {
+        filter: invert(1) brightness(2);
+    }
+
+    .stats-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+
+    .period-badge {
+        font-size: 0.72rem;
+    }
+</style>
+
+<div class="tarifs-page">
+
+    <div class="tarifs-header">
+
+        <div>
+            <h4>
+                <i class="ri-price-tag-3-line align-middle me-1"></i>
+                Tarifs des actes
+            </h4>
+
+            <p>
+                Gestion des tarifs applicables aux actes médicaux selon les établissements et les périodes.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'parametrage_general:liste_tarifs_actes' %}"
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#tarifActeModal"
+            onclick="prepareAddTarifActe()"
+        >
+            <i class="ri-add-line align-bottom me-1"></i>
+            Ajouter un tarif
+        </a>
+
+    </div>
+
+    <div class="tarifs-card">
+
+        <div class="tarifs-card-header">
+
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+                <h5>
+                    Liste des tarifs
+                </h5>
+
+                <div class="stats-wrapper">
+
+                    <span class="stat-badge">
+                        Total : {{ total_tarifs }}
+                    </span>
+
+                    <span class="stat-badge">
+                        Actifs : {{ active_tarifs }}
+                    </span>
+
+                    <span class="stat-badge">
+                        Inactifs : {{ inactive_tarifs }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="p-3 border-bottom">
+
+                <form method="get">
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-white">
+                            <i class="ri-search-line"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ search_query }}"
+                            class="form-control"
+                            placeholder="Rechercher par code ou acte médical..."
+                        >
+
+                        {% if search_query %}
+
+                            <a
+                                href="{% url 'parametrage_general:liste_tarifs_actes' %}"
+                                class="btn btn-light"
+                            >
+                                <i class="ri-close-line"></i>
+                            </a>
+
+                        {% endif %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Rechercher
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            {% if tarifs %}
+
+                <div class="table-responsive">
+
+                    <table class="table tarifs-table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Acte médical</th>
+                                <th>Établissement</th>
+                                <th>Montant</th>
+                                <th>Période</th>
+                                <th class="text-center">Statut</th>
+                                <th class="text-center" style="width: 160px;">
+                                    Actions
+                                </th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for tarif in tarifs %}
+
+                                <tr>
+
+                                    <td class="text-muted">
+                                        {{ forloop.counter }}
+                                    </td>
+
+                                    <td>
+
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            <div class="tarif-icon-cell">
+                                                <i class="ri-price-tag-3-line"></i>
+                                            </div>
+
+                                            <div>
+
+                                                <h6 class="mb-1">
+                                                    {{ tarif.acte.libelle }}
+                                                </h6>
+
+                                                <span class="tarif-code">
+                                                    {{ tarif.acte.code }}
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="fw-medium">
+                                            {{ tarif.etablissement.nom_etablissement }}
+                                        </span>
+
+                                        <br>
+
+                                        <small class="text-muted">
+                                            {{ tarif.etablissement.code_etablissement }}
+                                        </small>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="tarif-montant">
+                                            {{ tarif.montant|floatformat:0 }} GNF
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="tarif-date">
+
+                                            <div>
+                                                <i class="ri-calendar-line me-1"></i>
+                                                {{ tarif.date_debut|date:"d/m/Y" }}
+                                            </div>
+
+                                            <div class="mt-1">
+
+                                                {% if tarif.date_fin %}
+
+                                                    <i class="ri-calendar-check-line me-1"></i>
+                                                    {{ tarif.date_fin|date:"d/m/Y" }}
+
+                                                {% else %}
+
+                                                    <span class="badge bg-info-subtle text-info period-badge">
+                                                        Sans date de fin
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        {% if tarif.actif %}
+
+                                            <span class="badge bg-success-subtle text-success">
+                                                <i class="ri-checkbox-circle-line me-1"></i>
+                                                Actif
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-danger-subtle text-danger">
+                                                <i class="ri-close-circle-line me-1"></i>
+                                                Inactif
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        <div class="d-inline-flex gap-1">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-soft-primary"
+                                                title="Modifier"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#tarifActeModal"
+                                                onclick="prepareEditTarifActe(
+                                                    '{{ tarif.pk }}',
+                                                    '{{ tarif.acte.pk }}',
+                                                    '{{ tarif.etablissement.pk }}',
+                                                    '{{ tarif.montant }}',
+                                                    '{{ tarif.date_debut|date:'Y-m-d' }}',
+                                                    '{% if tarif.date_fin %}{{ tarif.date_fin|date:'Y-m-d' }}{% endif %}',
+                                                    {{ tarif.actif|yesno:'true,false' }}
+                                                )"
+                                            >
+                                                <i class="ri-pencil-line"></i>
+                                            </button>
+
+                                            <a
+                                                href="{% url 'parametrage_general:toggle_tarif_acte' tarif.pk %}"
+                                                class="btn btn-sm btn-soft-{% if tarif.actif %}warning{% else %}success{% endif %}"
+                                                title="{% if tarif.actif %}Désactiver{% else %}Activer{% endif %}"
+                                            >
+                                                <i class="ri-{% if tarif.actif %}pause{% else %}play{% endif %}-circle-line"></i>
+                                            </a>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-soft-danger"
+                                                title="Supprimer"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteTarifActeModal{{ tarif.pk }}"
+                                            >
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                                <div
+                                    class="modal fade"
+                                    id="deleteTarifActeModal{{ tarif.pk }}"
+                                    tabindex="-1"
+                                    aria-hidden="true"
+                                >
+
+                                    <div class="modal-dialog modal-dialog-centered">
+
+                                        <div class="modal-content">
+
+                                            <div class="modal-body text-center p-4">
+
+                                                <div class="avatar-lg mx-auto mb-3">
+
+                                                    <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </span>
+
+                                                </div>
+
+                                                <h5 class="mb-3">
+                                                    Supprimer le tarif ?
+                                                </h5>
+
+                                                <p class="text-muted mb-4">
+
+                                                    Êtes-vous sûr de vouloir supprimer le tarif de
+
+                                                    <strong>
+                                                        « {{ tarif.acte.libelle }} »
+                                                    </strong>
+
+                                                    pour
+
+                                                    <strong>
+                                                        « {{ tarif.etablissement.nom_etablissement }} »
+                                                    </strong>
+
+                                                    ?
+
+                                                    <br>
+
+                                                    Cette action est irréversible.
+
+                                                </p>
+
+                                                <form
+                                                    method="post"
+                                                    action="{% url 'parametrage_general:supprimer_tarif_acte' tarif.pk %}"
+                                                >
+
+                                                    {% csrf_token %}
+
+                                                    <div class="d-flex justify-content-center gap-2">
+
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-light"
+                                                            data-bs-dismiss="modal"
+                                                        >
+                                                            <i class="ri-close-line me-1"></i>
+                                                            Annuler
+                                                        </button>
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-danger"
+                                                        >
+                                                            <i class="ri-delete-bin-line me-1"></i>
+                                                            Supprimer
+                                                        </button>
+
+                                                    </div>
+
+                                                </form>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-5">
+
+                    <div class="avatar-lg mx-auto mb-4">
+
+                        <span
+                            class="avatar-title rounded-circle fs-1"
+                            style="background: var(--teal-100); color: var(--teal-700);"
+                        >
+                            <i class="ri-price-tag-3-line"></i>
+                        </span>
+
+                    </div>
+
+                    <h5 class="mb-2">
+
+                        {% if search_query %}
+                            Aucun tarif trouvé
+                        {% else %}
+                            Aucun tarif enregistré
+                        {% endif %}
+
+                    </h5>
+
+                    <p class="text-muted mb-3">
+
+                        {% if search_query %}
+                            Aucun tarif ne correspond à votre recherche.
+                        {% else %}
+                            Commencez par définir le premier tarif d'un acte médical.
+                        {% endif %}
+
+                    </p>
+
+                    {% if not search_query %}
+
+                        <a
+                            href="{% url 'parametrage_general:liste_tarifs_actes' %}"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#tarifActeModal"
+                            onclick="prepareAddTarifActe()"
+                        >
+                            <i class="ri-add-line me-1"></i>
+                            Créer le premier tarif
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="tarifActeModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header modal-header-teal">
+
+                <h5
+                    class="modal-title"
+                    id="tarifActeModalTitle"
+                >
+                    Ajouter un tarif
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+            <form
+                method="post"
+                id="tarifActeForm"
+                action="{% url 'parametrage_general:ajouter_tarif_acte' %}"
+            >
+
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="{{ form.acte.id_for_label }}"
+                                class="form-label"
+                            >
+                                Acte médical <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.acte }}
+
+                            {% if form.acte.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.acte.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="{{ form.etablissement.id_for_label }}"
+                                class="form-label"
+                            >
+                                Établissement <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.etablissement }}
+
+                            {% if form.etablissement.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.etablissement.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="{{ form.montant.id_for_label }}"
+                                class="form-label"
+                            >
+                                Montant <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                {{ form.montant }}
+
+                                <span class="input-group-text">
+                                    GNF
+                                </span>
+
+                            </div>
+
+                            {% if form.montant.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.montant.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="{{ form.date_debut.id_for_label }}"
+                                class="form-label"
+                            >
+                                Date de début <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.date_debut }}
+
+                            {% if form.date_debut.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.date_debut.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="{{ form.date_fin.id_for_label }}"
+                                class="form-label"
+                            >
+                                Date de fin
+                            </label>
+
+                            {{ form.date_fin }}
+
+                            <div class="form-text">
+                                Laisser vide pour un tarif sans date de fin.
+                            </div>
+
+                            {% if form.date_fin.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.date_fin.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <div class="form-check form-switch mt-4">
+
+                                {{ form.actif }}
+
+                                <label
+                                    class="form-check-label"
+                                    for="{{ form.actif.id_for_label }}"
+                                >
+                                    Tarif actif
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger mt-2 mb-0">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="ri-save-line me-1"></i>
+
+                        <span id="tarifActeSubmitLabel">
+                            Enregistrer
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function prepareAddTarifActe() {
+        document.getElementById('tarifActeModalTitle').textContent =
+            'Ajouter un tarif';
+
+        document.getElementById('tarifActeSubmitLabel').textContent =
+            'Enregistrer';
+
+        document.getElementById('tarifActeForm').action =
+            "{% url 'parametrage_general:ajouter_tarif_acte' %}";
+
+        document.getElementById('id_acte').value = '';
+        document.getElementById('id_etablissement').value = '';
+        document.getElementById('id_montant').value = '';
+        document.getElementById('id_date_debut').value = '';
+        document.getElementById('id_date_fin').value = '';
+        document.getElementById('id_actif').checked = true;
+    }
+
+    function prepareEditTarifActe(
+        pk,
+        acte,
+        etablissement,
+        montant,
+        dateDebut,
+        dateFin,
+        actif
+    ) {
+        document.getElementById('tarifActeModalTitle').textContent =
+            'Modifier le tarif';
+
+        document.getElementById('tarifActeSubmitLabel').textContent =
+            'Enregistrer les modifications';
+
+        document.getElementById('tarifActeForm').action =
+            '/parametrage/actes/tarifs/modifier/' + pk + '/';
+
+        document.getElementById('id_acte').value = acte;
+        document.getElementById('id_etablissement').value = etablissement;
+        document.getElementById('id_montant').value = montant;
+        document.getElementById('id_date_debut').value = dateDebut;
+        document.getElementById('id_date_fin').value = dateFin;
+        document.getElementById('id_actif').checked = actif;
+    }
+</script>
+
+{% endblock %}

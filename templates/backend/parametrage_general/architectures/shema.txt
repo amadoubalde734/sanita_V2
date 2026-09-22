@@ -1,0 +1,63 @@
+parametrage/
+├── models/
+│   ├── __init__.py
+│   ├── general.py
+│   ├── actes.py
+│   ├── consultations.py
+│   ├── motifs.py
+│   ├── posologie.py
+│   ├── examens.py
+│   ├── hospitalisation.py
+│   ├── personnel.py
+│   ├── cliniques.py
+│   ├── conventions.py
+│   └── pharmacies.py
+│
+├── views/
+│   ├── __init__.py
+│   ├── general.py
+│   ├── actes.py
+│   ├── consultations.py
+│   ├── motifs.py
+│   ├── posologie.py
+│   ├── examens.py
+│   ├── hospitalisation.py
+│   ├── personnel.py
+│   ├── cliniques.py
+│   ├── conventions.py
+│   └── pharmacies.py
+│
+├── urls.py
+│
+├── forms/
+│   ├── __init__.py
+│   ├── general.py
+│   ├── actes.py
+│   ├── consultations.py
+│   ├── motifs.py
+│   ├── posologie.py
+│   ├── examens.py
+│   ├── hospitalisation.py
+│   ├── personnel.py
+│   ├── cliniques.py
+│   ├── conventions.py
+│   └── pharmacies.py
+│
+└── templates/
+    └── backend/
+        └── parametrage_general/
+            ├── base.html
+            ├── menu.html
+            └── pages/
+                ├── index.html
+                ├── general/
+                ├── actes/
+                ├── consultations/
+                ├── motifs/
+                ├── posologie/
+                ├── examens/
+                ├── hospitalisation/
+                ├── personnel/
+                ├── cliniques/
+                ├── conventions/
+                └── pharmacies/

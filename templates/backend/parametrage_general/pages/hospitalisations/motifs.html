@@ -1,0 +1,919 @@
+{% extends "backend/parametrage_general/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<div class="hospitalisation-page">
+
+```
+<div class="row">
+    <div class="col-12">
+
+        <div class="page-header mb-4">
+            <div>
+                <h4 class="mb-1">
+                    <i class="ri-file-list-3-line me-2"></i>
+                    Motifs d'hospitalisation
+                </h4>
+                <p class="mb-0">
+                    Gestion des motifs d'hospitalisation
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-light"
+                data-bs-toggle="modal"
+                data-bs-target="#motifHospitalisationModal"
+                data-mode="add"
+            >
+                <i class="ri-add-line me-1"></i>
+                Nouveau motif
+            </button>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Total des motifs
+                    </div>
+                    <div class="stat-value">
+                        {{ total_motifs|default:0 }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Motifs actifs
+                    </div>
+                    <div class="stat-value text-success">
+                        {{ motifs_actifs|default:0 }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Motifs inactifs
+                    </div>
+                    <div class="stat-value text-danger">
+                        {{ motifs_inactifs|default:0 }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="content-card">
+
+            <div class="content-card-header">
+
+                <div>
+                    <h5 class="mb-1">
+                        Liste des motifs
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Consultez et gérez les motifs d'hospitalisation disponibles.
+                    </p>
+                </div>
+
+                <form
+                    method="get"
+                    action="{% url 'parametrage_general:liste_motifs_hospitalisation' %}"
+                    class="d-flex gap-2"
+                >
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ri-search-line"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ q|default:'' }}"
+                            class="form-control"
+                            placeholder="Rechercher..."
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Rechercher
+                    </button>
+
+                    {% if q %}
+                        <a
+                            href="{% url 'parametrage_general:liste_motifs_hospitalisation' %}"
+                            class="btn btn-light"
+                        >
+                            <i class="ri-refresh-line"></i>
+                        </a>
+                    {% endif %}
+                </form>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Ordre</th>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for motif in motifs %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="badge bg-light text-dark">
+                                        {{ motif.ordre }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="fw-semibold">
+                                        {{ motif.code }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ motif.nom }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if motif.description %}
+                                        {{ motif.description|truncatechars:80 }}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            —
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if motif.actif %}
+                                        <span class="badge bg-success-subtle text-success">
+                                            Actif
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger">
+                                            Inactif
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end">
+
+                                    <div class="d-inline-flex gap-1">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-soft-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#motifHospitalisationModal"
+                                            data-mode="edit"
+                                            data-id="{{ motif.id }}"
+                                            data-code="{{ motif.code }}"
+                                            data-nom="{{ motif.nom }}"
+                                            data-description="{{ motif.description|default:'' }}"
+                                            data-ordre="{{ motif.ordre }}"
+                                            data-actif="{% if motif.actif %}1{% else %}0{% endif %}"
+                                            title="Modifier"
+                                        >
+                                            <i class="ri-edit-line"></i>
+                                        </button>
+
+                                        <a
+                                            href="{% url 'parametrage_general:toggle_motif_hospitalisation' motif.id %}"
+                                            class="btn btn-sm {% if motif.actif %}btn-soft-warning{% else %}btn-soft-success{% endif %}"
+                                            title="{% if motif.actif %}Désactiver{% else %}Activer{% endif %}"
+                                        >
+                                            {% if motif.actif %}
+                                                <i class="ri-eye-off-line"></i>
+                                            {% else %}
+                                                <i class="ri-eye-line"></i>
+                                            {% endif %}
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-soft-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteMotifHospitalisationModal"
+                                            data-id="{{ motif.id }}"
+                                            data-code="{{ motif.code }}"
+                                            title="Supprimer"
+                                        >
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="6">
+
+                                    <div class="empty-state text-center py-5">
+
+                                        <div class="mb-3">
+                                            <i class="ri-file-list-3-line fs-1 text-muted"></i>
+                                        </div>
+
+                                        <h5 class="mb-2">
+                                            Aucun motif d'hospitalisation trouvé
+                                        </h5>
+
+                                        <p class="text-muted mb-3">
+                                            {% if q %}
+                                                Aucun résultat ne correspond à votre recherche.
+                                            {% else %}
+                                                Aucun motif d'hospitalisation n'a encore été enregistré.
+                                            {% endif %}
+                                        </p>
+
+                                        {% if q %}
+
+                                            <a
+                                                href="{% url 'parametrage_general:liste_motifs_hospitalisation' %}"
+                                                class="btn btn-light"
+                                            >
+                                                Réinitialiser la recherche
+                                            </a>
+
+                                        {% else %}
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#motifHospitalisationModal"
+                                                data-mode="add"
+                                            >
+                                                <i class="ri-add-line me-1"></i>
+                                                Ajouter un motif
+                                            </button>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+```
+
+</div>
+
+<div
+    class="modal fade"
+    id="motifHospitalisationModal"
+    tabindex="-1"
+    aria-labelledby="motifHospitalisationModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+```
+    <div class="modal-content">
+
+        <div class="modal-header modal-header-teal">
+
+            <h5
+                class="modal-title text-white"
+                id="motifHospitalisationModalLabel"
+            >
+                <i class="ri-file-list-3-line me-2"></i>
+
+                <span id="motifHospitalisationModalTitle">
+                    Nouveau motif d'hospitalisation
+                </span>
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Fermer"
+            ></button>
+
+        </div>
+
+        <form
+            method="post"
+            id="motifHospitalisationForm"
+            action="{% url 'parametrage_general:ajouter_motif_hospitalisation' %}"
+        >
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="{{ form.code.id_for_label }}"
+                            class="form-label"
+                        >
+                            Code <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.code }}
+
+                        {% if form.code.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.code.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-8">
+
+                        <label
+                            for="{{ form.nom.id_for_label }}"
+                            class="form-label"
+                        >
+                            Nom <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.nom }}
+
+                        {% if form.nom.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.nom.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-12">
+
+                        <label
+                            for="{{ form.description.id_for_label }}"
+                            class="form-label"
+                        >
+                            Description
+                        </label>
+
+                        {{ form.description }}
+
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.description.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ form.ordre.id_for_label }}"
+                            class="form-label"
+                        >
+                            Ordre
+                        </label>
+
+                        {{ form.ordre }}
+
+                        {% if form.ordre.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.ordre.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+
+                        <div class="form-check form-switch mb-2">
+
+                            {{ form.actif }}
+
+                            <label
+                                class="form-check-label"
+                                for="{{ form.actif.id_for_label }}"
+                            >
+                                Motif actif
+                            </label>
+
+                        </div>
+
+                        {% if form.actif.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.actif.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="ri-save-line me-1"></i>
+
+                    <span id="motifHospitalisationSubmitText">
+                        Enregistrer
+                    </span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<div
+    class="modal fade"
+    id="deleteMotifHospitalisationModal"
+    tabindex="-1"
+    aria-labelledby="deleteMotifHospitalisationModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+
+```
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h5
+                class="modal-title"
+                id="deleteMotifHospitalisationModalLabel"
+            >
+                <i class="ri-delete-bin-line text-danger me-2"></i>
+                Supprimer le motif
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Fermer"
+            ></button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p class="mb-2">
+                Voulez-vous vraiment supprimer le motif
+                <strong id="deleteMotifHospitalisationCode"></strong> ?
+            </p>
+
+            <p class="text-muted mb-0">
+                Cette action est définitive.
+            </p>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-light"
+                data-bs-dismiss="modal"
+            >
+                Annuler
+            </button>
+
+            <a
+                href="#"
+                id="deleteMotifHospitalisationConfirm"
+                class="btn btn-danger"
+            >
+                <i class="ri-delete-bin-line me-1"></i>
+                Supprimer
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<style>
+    .hospitalisation-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    .hospitalisation-page .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 24px 28px;
+        border-radius: 14px;
+        background: linear-gradient(
+            135deg,
+            var(--teal-900),
+            var(--teal-700)
+        );
+        color: #fff;
+    }
+
+    .hospitalisation-page .page-header h4 {
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .hospitalisation-page .page-header p {
+        color: rgba(255, 255, 255, 0.78);
+    }
+
+    .hospitalisation-page .stat-card {
+        height: 100%;
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .hospitalisation-page .stat-label {
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .hospitalisation-page .stat-value {
+        color: var(--ink);
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .hospitalisation-page .content-card {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .hospitalisation-page .content-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .hospitalisation-page .content-card-header h5 {
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .hospitalisation-page table {
+        min-width: 850px;
+    }
+
+    .hospitalisation-page thead th {
+        padding: 14px 16px;
+        background: var(--teal-900);
+        color: #fff;
+        border: 0;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .hospitalisation-page tbody td {
+        padding: 14px 16px;
+        color: var(--ink);
+        border-color: var(--border);
+        vertical-align: middle;
+    }
+
+    .hospitalisation-page tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .hospitalisation-page .badge {
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .hospitalisation-page .btn-soft-primary,
+    .hospitalisation-page .btn-soft-success,
+    .hospitalisation-page .btn-soft-warning,
+    .hospitalisation-page .btn-soft-danger {
+        border: 0;
+    }
+
+    .hospitalisation-page .btn-soft-primary {
+        background: #e8f0ff;
+        color: #356ae6;
+    }
+
+    .hospitalisation-page .btn-soft-success {
+        background: #e8f7ef;
+        color: #159957;
+    }
+
+    .hospitalisation-page .btn-soft-warning {
+        background: #fff5dc;
+        color: #c58a00;
+    }
+
+    .hospitalisation-page .btn-soft-danger {
+        background: #fdecec;
+        color: #d63939;
+    }
+
+    .hospitalisation-page .empty-state {
+        color: var(--muted);
+    }
+
+    .hospitalisation-page .modal-header-teal {
+        background: linear-gradient(
+            135deg,
+            var(--teal-900),
+            var(--teal-700)
+        );
+        border-bottom: 0;
+    }
+
+    .hospitalisation-page .modal-header-teal .btn-close {
+        filter: invert(1);
+    }
+
+    .hospitalisation-page .form-label {
+        margin-bottom: 7px;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .hospitalisation-page .form-control,
+    .hospitalisation-page .form-select {
+        border-color: var(--border);
+        border-radius: 8px;
+    }
+
+    .hospitalisation-page .form-control:focus,
+    .hospitalisation-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    @media (max-width: 991.98px) {
+        .hospitalisation-page .content-card-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .hospitalisation-page .content-card-header form {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .hospitalisation-page .page-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .hospitalisation-page .page-header .btn {
+            width: 100%;
+        }
+
+        .hospitalisation-page .stat-value {
+            font-size: 24px;
+        }
+
+        .hospitalisation-page .content-card-header {
+            padding: 16px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const motifHospitalisationModal = document.getElementById(
+        'motifHospitalisationModal'
+    );
+
+    const motifHospitalisationForm = document.getElementById(
+        'motifHospitalisationForm'
+    );
+
+    const motifHospitalisationModalTitle = document.getElementById(
+        'motifHospitalisationModalTitle'
+    );
+
+    const motifHospitalisationSubmitText = document.getElementById(
+        'motifHospitalisationSubmitText'
+    );
+
+    const codeField = document.getElementById(
+        '{{ form.code.id_for_label }}'
+    );
+
+    const nomField = document.getElementById(
+        '{{ form.nom.id_for_label }}'
+    );
+
+    const descriptionField = document.getElementById(
+        '{{ form.description.id_for_label }}'
+    );
+
+    const ordreField = document.getElementById(
+        '{{ form.ordre.id_for_label }}'
+    );
+
+    const actifField = document.getElementById(
+        '{{ form.actif.id_for_label }}'
+    );
+
+    const ajouterUrl = "{% url 'parametrage_general:ajouter_motif_hospitalisation' %}";
+
+    const modifierUrlTemplate = "{% url 'parametrage_general:modifier_motif_hospitalisation' 0 %}";
+
+    const supprimerUrlTemplate = "{% url 'parametrage_general:supprimer_motif_hospitalisation' 0 %}";
+
+    motifHospitalisationModal.addEventListener(
+        'show.bs.modal',
+        function (event) {
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const mode = button.getAttribute('data-mode');
+
+            if (mode === 'edit') {
+                const id = button.getAttribute('data-id');
+                const code = button.getAttribute('data-code');
+                const nom = button.getAttribute('data-nom');
+                const description = button.getAttribute(
+                    'data-description'
+                );
+                const ordre = button.getAttribute('data-ordre');
+                const actif = button.getAttribute('data-actif');
+
+                motifHospitalisationModalTitle.textContent =
+                    "Modifier le motif d'hospitalisation";
+
+                motifHospitalisationSubmitText.textContent =
+                    'Enregistrer les modifications';
+
+                motifHospitalisationForm.action =
+                    modifierUrlTemplate.replace(
+                        '/0/',
+                        '/' + id + '/'
+                    );
+
+                codeField.value = code || '';
+                nomField.value = nom || '';
+                descriptionField.value = description || '';
+                ordreField.value = ordre || '';
+                actifField.checked = actif === '1';
+
+            } else {
+                motifHospitalisationModalTitle.textContent =
+                    "Nouveau motif d'hospitalisation";
+
+                motifHospitalisationSubmitText.textContent =
+                    'Enregistrer';
+
+                motifHospitalisationForm.action = ajouterUrl;
+
+                motifHospitalisationForm.reset();
+
+                actifField.checked = true;
+            }
+        }
+    );
+
+    const deleteMotifHospitalisationModal = document.getElementById(
+        'deleteMotifHospitalisationModal'
+    );
+
+    const deleteMotifHospitalisationCode = document.getElementById(
+        'deleteMotifHospitalisationCode'
+    );
+
+    const deleteMotifHospitalisationConfirm = document.getElementById(
+        'deleteMotifHospitalisationConfirm'
+    );
+
+    deleteMotifHospitalisationModal.addEventListener(
+        'show.bs.modal',
+        function (event) {
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const id = button.getAttribute('data-id');
+            const code = button.getAttribute('data-code');
+
+            deleteMotifHospitalisationCode.textContent = code || '';
+
+            deleteMotifHospitalisationConfirm.href =
+                supprimerUrlTemplate.replace(
+                    '/0/',
+                    '/' + id + '/'
+                );
+        }
+    );
+
+    {% if modifier and motif_to_edit %}
+        const editButton = document.querySelector(
+            '[data-mode="edit"][data-id="{{ motif_to_edit.id }}"]'
+        );
+
+        if (editButton) {
+            const modal = bootstrap.Modal.getOrCreateInstance(
+                motifHospitalisationModal
+            );
+
+            modal.show();
+        }
+    {% endif %}
+});
+</script>
+
+{% endblock inner_content %}

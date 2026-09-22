@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from django.core.cache import cache
 import secrets
 
-from .forms import (
+from ..forms import (
     SocieteForm,
     VilleForm,
     SiteForm,
@@ -18,7 +18,7 @@ from .forms import (
     ConfigurationEtablissementForm,
 )
 
-from .models import (
+from ..models import (
     Societe,
     Ville,
     Site,
@@ -30,7 +30,6 @@ from .models import (
     UniteMedicale,
     ConfigurationEtablissement,
 )
-
 
 @login_required
 def index(request):

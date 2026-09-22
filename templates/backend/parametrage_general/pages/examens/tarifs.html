@@ -1,0 +1,782 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .tarifs-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-100: #e6f5f2;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--teal-900), var(--teal-700));
+        border-radius: 14px;
+        padding: 22px 24px;
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
+    .page-header h4 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        margin: 5px 0 0;
+        opacity: .85;
+    }
+
+    .stat-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        background: #fff;
+        height: 100%;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .stat-value {
+        color: var(--ink);
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .content-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table th {
+        background: #f8fafc;
+        color: var(--teal-900);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .badge-status {
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-active {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .badge-inactive {
+        background: #f8d7da;
+        color: #842029;
+    }
+
+    .badge-current {
+        background: #d1ecf1;
+        color: #055160;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-expired {
+        background: #e2e3e5;
+        color: #41464b;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        background: #fff;
+        text-decoration: none;
+        margin-right: 4px;
+    }
+
+    .action-btn:hover {
+        background: var(--teal-100);
+    }
+
+    .empty-state {
+        padding: 45px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .modal-header {
+        background: var(--teal-900);
+        color: #fff;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .amount {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .exam-info {
+        min-width: 220px;
+    }
+
+    .establishment-info {
+        min-width: 180px;
+    }
+</style>
+
+<div class="tarifs-page">
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h4>
+            <i class="ri-price-tag-3-line me-2"></i>
+            Tarifs des examens
+        </h4>
+        <p>Gestion des tarifs des examens par établissement.</p>
+    </div>
+
+    <button
+        type="button"
+        class="btn btn-light"
+        data-bs-toggle="modal"
+        data-bs-target="#tarifModal"
+    >
+        <i class="ri-add-line me-1"></i>
+        Nouveau tarif
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value">{{ total_tarifs }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Actifs</div>
+            <div class="stat-value text-success">{{ tarifs_actifs }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Inactifs</div>
+            <div class="stat-value text-danger">{{ tarifs_inactifs }}</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="content-card">
+
+    <div class="content-card-header">
+
+        <form method="get">
+            <div class="row g-2 align-items-center">
+
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ri-search-line"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ q }}"
+                            class="form-control"
+                            placeholder="Rechercher par code ou libellé de l'examen..."
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        <i class="ri-search-line me-1"></i>
+                        Rechercher
+                    </button>
+                </div>
+
+                <div class="col-md-2">
+                    <a
+                        href="{% url 'parametrage_general:liste_tarifs_examens' %}"
+                        class="btn btn-light w-100"
+                    >
+                        Réinitialiser
+                    </a>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead>
+                <tr>
+                    <th>Examen</th>
+                    <th>Catégorie</th>
+                    <th>Type</th>
+                    <th>Établissement</th>
+                    <th>Montant</th>
+                    <th>Date début</th>
+                    <th>Date fin</th>
+                    <th>Période</th>
+                    <th>Statut</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for tarif in tarifs %}
+
+                <tr>
+
+                    <td class="exam-info">
+                        <strong>{{ tarif.examen.libelle }}</strong>
+
+                        <div class="small text-muted">
+                            {{ tarif.examen.code }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="badge bg-light text-dark border">
+                            {{ tarif.examen.type_examen.categorie.nom }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ tarif.examen.type_examen.nom }}
+                    </td>
+
+                    <td class="establishment-info">
+                        {{ tarif.etablissement }}
+                    </td>
+
+                    <td>
+                        <span class="amount">
+                            {{ tarif.montant|floatformat:2 }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ tarif.date_debut|date:"d/m/Y" }}
+                    </td>
+
+                    <td>
+                        {% if tarif.date_fin %}
+                            {{ tarif.date_fin|date:"d/m/Y" }}
+                        {% else %}
+                            <span class="text-muted">
+                                Illimitée
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if tarif.actif %}
+                            {% if not tarif.date_fin %}
+                                <span class="badge-current">
+                                    En cours
+                                </span>
+                            {% else %}
+                                <span class="badge-current">
+                                    Période définie
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge-expired">
+                                Inactif
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if tarif.actif %}
+                            <span class="badge-status badge-active">
+                                Actif
+                            </span>
+                        {% else %}
+                            <span class="badge-status badge-inactive">
+                                Inactif
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end">
+
+                        <button
+                            type="button"
+                            class="action-btn"
+                            title="Modifier"
+                            data-bs-toggle="modal"
+                            data-bs-target="#tarifModal"
+                            data-id="{{ tarif.pk }}"
+                            data-examen="{{ tarif.examen_id }}"
+                            data-etablissement="{{ tarif.etablissement_id }}"
+                            data-montant="{{ tarif.montant }}"
+                            data-date-debut="{{ tarif.date_debut|date:'Y-m-d' }}"
+                            data-date-fin="{% if tarif.date_fin %}{{ tarif.date_fin|date:'Y-m-d' }}{% endif %}"
+                            data-actif="{{ tarif.actif|yesno:'true,false' }}"
+                        >
+                            <i class="ri-edit-line text-primary"></i>
+                        </button>
+
+                        <a
+                            href="{% url 'parametrage_general:toggle_tarif_examen' tarif.pk %}"
+                            class="action-btn"
+                            title="{% if tarif.actif %}Désactiver{% else %}Activer{% endif %}"
+                        >
+                            {% if tarif.actif %}
+                                <i class="ri-toggle-line text-warning"></i>
+                            {% else %}
+                                <i class="ri-checkbox-circle-line text-success"></i>
+                            {% endif %}
+                        </a>
+
+                        <button
+                            type="button"
+                            class="action-btn"
+                            title="Supprimer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteTarifModal"
+                            data-id="{{ tarif.pk }}"
+                            data-examen="{{ tarif.examen.libelle }}"
+                        >
+                            <i class="ri-delete-bin-line text-danger"></i>
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="10">
+
+                        <div class="empty-state">
+                            <i class="ri-price-tag-3-line fs-1 d-block mb-2"></i>
+                            Aucun tarif trouvé.
+                        </div>
+
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<div
+    class="modal fade"
+    id="tarifModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+```
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h5 class="modal-title">
+                {% if modifier %}
+                    Modifier le tarif
+                {% else %}
+                    Nouveau tarif
+                {% endif %}
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+            ></button>
+
+        </div>
+
+        <form
+            method="post"
+            id="tarifForm"
+            action="{% if modifier %}{% url 'parametrage_general:modifier_tarif_examen' tarif_to_edit.pk %}{% else %}{% url 'parametrage_general:ajouter_tarif_examen' %}{% endif %}"
+        >
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Examen
+                        </label>
+
+                        {{ form.examen }}
+
+                        {% for error in form.examen.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Établissement
+                        </label>
+
+                        {{ form.etablissement }}
+
+                        {% for error in form.etablissement.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Montant
+                        </label>
+
+                        {{ form.montant }}
+
+                        {% for error in form.montant.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Date de début
+                        </label>
+
+                        {{ form.date_debut }}
+
+                        {% for error in form.date_debut.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Date de fin
+                        </label>
+
+                        {{ form.date_fin }}
+
+                        {% for error in form.date_fin.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <div class="form-check">
+                            {{ form.actif }}
+
+                            <label class="form-check-label">
+                                Tarif actif
+                            </label>
+                        </div>
+
+                        {% for error in form.actif.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="ri-save-line me-1"></i>
+                    Enregistrer
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<div
+    class="modal fade"
+    id="deleteTarifModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h5 class="modal-title">
+                Confirmation
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+            ></button>
+
+        </div>
+
+        <form
+            method="post"
+            id="deleteTarifForm"
+        >
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <p class="mb-0">
+                    Voulez-vous vraiment supprimer le tarif de
+                    <strong id="deleteTarifName"></strong> ?
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    <i class="ri-delete-bin-line me-1"></i>
+                    Supprimer
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const tarifModal = document.getElementById('tarifModal');
+    const tarifForm = document.getElementById('tarifForm');
+
+    if (tarifModal && tarifForm) {
+
+        tarifModal.addEventListener('show.bs.modal', function (event) {
+
+            const button = event.relatedTarget;
+
+            if (!button || !button.hasAttribute('data-id')) {
+
+                {% if not modifier %}
+                    tarifForm.action = "{% url 'parametrage_general:ajouter_tarif_examen' %}";
+                    tarifForm.reset();
+
+                    const actif = tarifForm.querySelector('[name="actif"]');
+
+                    if (actif) {
+                        actif.checked = true;
+                    }
+                {% endif %}
+
+                return;
+            }
+
+            const id = button.getAttribute('data-id');
+            const examen = button.getAttribute('data-examen');
+            const etablissement = button.getAttribute('data-etablissement');
+            const montant = button.getAttribute('data-montant');
+            const dateDebut = button.getAttribute('data-date-debut');
+            const dateFin = button.getAttribute('data-date-fin');
+            const actifValue = button.getAttribute('data-actif');
+
+            tarifForm.action = "{% url 'parametrage_general:modifier_tarif_examen' 0 %}".replace(
+                '/0/',
+                '/' + encodeURIComponent(id) + '/'
+            );
+
+            const examenField = tarifForm.querySelector('[name="examen"]');
+            const etablissementField = tarifForm.querySelector('[name="etablissement"]');
+            const montantField = tarifForm.querySelector('[name="montant"]');
+            const dateDebutField = tarifForm.querySelector('[name="date_debut"]');
+            const dateFinField = tarifForm.querySelector('[name="date_fin"]');
+            const actifField = tarifForm.querySelector('[name="actif"]');
+
+            if (examenField) {
+                examenField.value = examen || '';
+            }
+
+            if (etablissementField) {
+                etablissementField.value = etablissement || '';
+            }
+
+            if (montantField) {
+                montantField.value = montant || '';
+            }
+
+            if (dateDebutField) {
+                dateDebutField.value = dateDebut || '';
+            }
+
+            if (dateFinField) {
+                dateFinField.value = dateFin || '';
+            }
+
+            if (actifField) {
+                actifField.checked = actifValue === 'true';
+            }
+
+            tarifModal.querySelector('.modal-title').textContent = "Modifier le tarif";
+        });
+    }
+
+    const deleteTarifModal = document.getElementById('deleteTarifModal');
+    const deleteTarifForm = document.getElementById('deleteTarifForm');
+    const deleteTarifName = document.getElementById('deleteTarifName');
+
+    if (deleteTarifModal && deleteTarifForm) {
+
+        deleteTarifModal.addEventListener('show.bs.modal', function (event) {
+
+            const button = event.relatedTarget;
+
+            if (!button || !button.hasAttribute('data-id')) {
+                return;
+            }
+
+            const id = button.getAttribute('data-id');
+            const examen = button.getAttribute('data-examen');
+
+            if (deleteTarifName) {
+                deleteTarifName.textContent = examen || '';
+            }
+
+            deleteTarifForm.action = "{% url 'parametrage_general:supprimer_tarif_examen' 0 %}".replace(
+                '/0/',
+                '/' + encodeURIComponent(id) + '/'
+            );
+        });
+    }
+
+    {% if modifier %}
+        if (tarifModal) {
+            const modal = bootstrap.Modal.getOrCreateInstance(tarifModal);
+            modal.show();
+        }
+    {% endif %}
+
+});
+</script>
+
+{% endblock %}

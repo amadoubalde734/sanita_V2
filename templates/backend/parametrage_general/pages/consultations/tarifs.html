@@ -1,0 +1,899 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .tarifs-consultations-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #16241f;
+        --muted: #6b7c78;
+        --line: #edf1f0;
+    }
+
+    .tarifs-consultations-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tarifs-consultations-header h4 {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+
+    .tarifs-consultations-header p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .tarifs-consultations-header .btn-primary,
+    .tarifs-consultations-page .btn-primary {
+        background: var(--teal-500);
+        border-color: var(--teal-500);
+    }
+
+    .tarifs-consultations-header .btn-primary:hover,
+    .tarifs-consultations-page .btn-primary:hover {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+    }
+
+    .tarifs-consultations-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .tarifs-consultations-card-header {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        padding: 1.1rem 1.5rem;
+    }
+
+    .tarifs-consultations-card-header h5 {
+        color: #fff;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .tarifs-consultations-table thead th {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        background: #fafcfb;
+        padding: 0.85rem 1rem;
+    }
+
+    .tarifs-consultations-table tbody td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .tarifs-consultations-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .tarifs-consultations-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .consultation-icon-cell {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .consultation-code {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--teal-700);
+        background: var(--teal-100);
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    .consultation-category {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--teal-700);
+        background: var(--teal-100);
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    .tarif-montant {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--teal-700);
+        white-space: nowrap;
+    }
+
+    .tarif-periode {
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+    .tarifs-consultations-page .form-label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+
+    .tarifs-consultations-page .form-control,
+    .tarifs-consultations-page .form-select {
+        border-color: var(--line);
+        border-radius: 10px;
+    }
+
+    .tarifs-consultations-page .form-control:focus,
+    .tarifs-consultations-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 0.2rem rgba(18, 118, 110, 0.12);
+    }
+
+    .modal-header-teal {
+        background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-500) 100%);
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .modal-header-teal .btn-close {
+        filter: invert(1) brightness(2);
+    }
+
+    .stats-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+</style>
+
+<div class="tarifs-consultations-page">
+
+    <div class="tarifs-consultations-header">
+
+        <div>
+            <h4>
+                <i class="ri-money-dollar-circle-line align-middle me-1"></i>
+                Tarifs des consultations
+            </h4>
+
+            <p>
+                Configuration des tarifs de consultation selon les établissements et les périodes.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'parametrage_general:liste_tarifs_consultation' %}"
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#tarifConsultationModal"
+            onclick="prepareAddTarifConsultation()"
+        >
+            <i class="ri-add-line align-bottom me-1"></i>
+            Ajouter un tarif
+        </a>
+
+    </div>
+
+    <div class="tarifs-consultations-card">
+
+        <div class="tarifs-consultations-card-header">
+
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+                <h5>
+                    Liste des tarifs de consultation
+                </h5>
+
+                <div class="stats-wrapper">
+
+                    <span class="stat-badge">
+                        Total : {{ total_tarifs }}
+                    </span>
+
+                    <span class="stat-badge">
+                        Actifs : {{ active_tarifs }}
+                    </span>
+
+                    <span class="stat-badge">
+                        Inactifs : {{ inactive_tarifs }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="p-3 border-bottom">
+
+                <form method="get">
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-white">
+                            <i class="ri-search-line"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ search_query }}"
+                            class="form-control"
+                            placeholder="Rechercher par type, code, catégorie ou établissement..."
+                        >
+
+                        {% if search_query %}
+
+                            <a
+                                href="{% url 'parametrage_general:liste_tarifs_consultation' %}"
+                                class="btn btn-light"
+                            >
+                                <i class="ri-close-line"></i>
+                            </a>
+
+                        {% endif %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Rechercher
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            {% if tarifs %}
+
+                <div class="table-responsive">
+
+                    <table class="table tarifs-consultations-table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Type de consultation</th>
+                                <th>Catégorie</th>
+                                <th>Établissement</th>
+                                <th>Montant</th>
+                                <th>Période</th>
+                                <th class="text-center">Statut</th>
+                                <th class="text-center" style="width: 160px;">
+                                    Actions
+                                </th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for tarif in tarifs %}
+
+                                <tr>
+
+                                    <td class="text-muted">
+                                        {{ forloop.counter }}
+                                    </td>
+
+                                    <td>
+
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            <div class="consultation-icon-cell">
+                                                <i class="ri-stethoscope-line"></i>
+                                            </div>
+
+                                            <div>
+
+                                                <h6 class="mb-0">
+                                                    {{ tarif.type_consultation.nom }}
+                                                </h6>
+
+                                                {% if tarif.type_consultation.code %}
+
+                                                    <small>
+                                                        <span class="consultation-code">
+                                                            {{ tarif.type_consultation.code }}
+                                                        </span>
+                                                    </small>
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="consultation-category">
+                                            {{ tarif.type_consultation.get_categorie_display }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <div>
+
+                                            <span class="fw-semibold">
+                                                {{ tarif.etablissement.nom_etablissement }}
+                                            </span>
+
+                                            {% if tarif.etablissement.code_etablissement %}
+
+                                                <br>
+
+                                                <small class="text-muted">
+                                                    {{ tarif.etablissement.code_etablissement }}
+                                                </small>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="tarif-montant">
+                                            {{ tarif.montant|floatformat:0 }} GNF
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="tarif-periode">
+
+                                            <div>
+                                                <i class="ri-calendar-line me-1"></i>
+                                                {{ tarif.date_debut|date:"d/m/Y" }}
+                                            </div>
+
+                                            <div class="mt-1">
+
+                                                {% if tarif.date_fin %}
+
+                                                    <i class="ri-calendar-check-line me-1"></i>
+                                                    {{ tarif.date_fin|date:"d/m/Y" }}
+
+                                                {% else %}
+
+                                                    <span class="badge bg-info-subtle text-info">
+                                                        Sans date de fin
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        {% if tarif.actif %}
+
+                                            <span class="badge bg-success-subtle text-success">
+                                                <i class="ri-checkbox-circle-line me-1"></i>
+                                                Actif
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-danger-subtle text-danger">
+                                                <i class="ri-close-circle-line me-1"></i>
+                                                Inactif
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        <div class="d-inline-flex gap-1">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-soft-primary"
+                                                title="Modifier"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#tarifConsultationModal"
+                                                onclick="prepareEditTarifConsultation(
+                                                    '{{ tarif.pk }}',
+                                                    '{{ tarif.type_consultation.pk }}',
+                                                    '{{ tarif.etablissement.pk }}',
+                                                    '{{ tarif.montant }}',
+                                                    '{{ tarif.date_debut|date:"Y-m-d" }}',
+                                                    '{{ tarif.date_fin|date:"Y-m-d" }}',
+                                                    {{ tarif.actif|yesno:'true,false' }}
+                                                )"
+                                            >
+                                                <i class="ri-pencil-line"></i>
+                                            </button>
+
+                                            <a
+                                                href="{% url 'parametrage_general:toggle_tarif_consultation' tarif.pk %}"
+                                                class="btn btn-sm btn-soft-{% if tarif.actif %}warning{% else %}success{% endif %}"
+                                                title="{% if tarif.actif %}Désactiver{% else %}Activer{% endif %}"
+                                            >
+                                                <i class="ri-{% if tarif.actif %}pause{% else %}play{% endif %}-circle-line"></i>
+                                            </a>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-soft-danger"
+                                                title="Supprimer"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteTarifConsultationModal{{ tarif.pk }}"
+                                            >
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                                <div
+                                    class="modal fade"
+                                    id="deleteTarifConsultationModal{{ tarif.pk }}"
+                                    tabindex="-1"
+                                    aria-hidden="true"
+                                >
+
+                                    <div class="modal-dialog modal-dialog-centered">
+
+                                        <div class="modal-content">
+
+                                            <div class="modal-body text-center p-4">
+
+                                                <div class="avatar-lg mx-auto mb-3">
+
+                                                    <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-1">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </span>
+
+                                                </div>
+
+                                                <h5 class="mb-3">
+                                                    Supprimer le tarif ?
+                                                </h5>
+
+                                                <p class="text-muted mb-4">
+
+                                                    Êtes-vous sûr de vouloir supprimer le tarif de
+
+                                                    <strong>
+                                                        « {{ tarif.type_consultation.nom }} »
+                                                    </strong>
+
+                                                    pour
+
+                                                    <strong>
+                                                        « {{ tarif.etablissement.nom_etablissement }} »
+                                                    </strong>
+
+                                                    ?
+
+                                                    <br>
+
+                                                    Cette action est irréversible.
+
+                                                </p>
+
+                                                <form
+                                                    method="post"
+                                                    action="{% url 'parametrage_general:supprimer_tarif_consultation' tarif.pk %}"
+                                                >
+
+                                                    {% csrf_token %}
+
+                                                    <div class="d-flex justify-content-center gap-2">
+
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-light"
+                                                            data-bs-dismiss="modal"
+                                                        >
+                                                            <i class="ri-close-line me-1"></i>
+                                                            Annuler
+                                                        </button>
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-danger"
+                                                        >
+                                                            <i class="ri-delete-bin-line me-1"></i>
+                                                            Supprimer
+                                                        </button>
+
+                                                    </div>
+
+                                                </form>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-5">
+
+                    <div class="avatar-lg mx-auto mb-4">
+
+                        <span
+                            class="avatar-title rounded-circle fs-1"
+                            style="background: var(--teal-100); color: var(--teal-700);"
+                        >
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </span>
+
+                    </div>
+
+                    <h5 class="mb-2">
+
+                        {% if search_query %}
+                            Aucun tarif trouvé
+                        {% else %}
+                            Aucun tarif de consultation enregistré
+                        {% endif %}
+
+                    </h5>
+
+                    <p class="text-muted mb-3">
+
+                        {% if search_query %}
+                            Aucun tarif ne correspond à votre recherche.
+                        {% else %}
+                            Commencez par configurer votre premier tarif de consultation.
+                        {% endif %}
+
+                    </p>
+
+                    {% if not search_query %}
+
+                        <a
+                            href="{% url 'parametrage_general:liste_tarifs_consultation' %}"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#tarifConsultationModal"
+                            onclick="prepareAddTarifConsultation()"
+                        >
+                            <i class="ri-add-line me-1"></i>
+                            Créer le premier tarif
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="tarifConsultationModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header modal-header-teal">
+
+                <h5
+                    class="modal-title"
+                    id="tarifConsultationModalTitle"
+                >
+                    Ajouter un tarif de consultation
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+            <form
+                method="post"
+                id="tarifConsultationForm"
+                action="{% url 'parametrage_general:ajouter_tarif_consultation' %}"
+            >
+
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="{{ form.type_consultation.id_for_label }}"
+                                class="form-label"
+                            >
+                                Type de consultation
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.type_consultation }}
+
+                            {% if form.type_consultation.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.type_consultation.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="{{ form.etablissement.id_for_label }}"
+                                class="form-label"
+                            >
+                                Établissement
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.etablissement }}
+
+                            {% if form.etablissement.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.etablissement.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-4 mb-3">
+
+                            <label
+                                for="{{ form.montant.id_for_label }}"
+                                class="form-label"
+                            >
+                                Montant
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.montant }}
+
+                            {% if form.montant.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.montant.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+
+                            <label
+                                for="{{ form.date_debut.id_for_label }}"
+                                class="form-label"
+                            >
+                                Date de début
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{ form.date_debut }}
+
+                            {% if form.date_debut.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.date_debut.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+
+                            <label
+                                for="{{ form.date_fin.id_for_label }}"
+                                class="form-label"
+                            >
+                                Date de fin
+                            </label>
+
+                            {{ form.date_fin }}
+
+                            {% if form.date_fin.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.date_fin.errors }}
+                                </div>
+                            {% endif %}
+
+                            <div class="form-text">
+                                Laisser vide pour un tarif sans date de fin.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        {{ form.actif }}
+
+                        <label
+                            class="form-check-label"
+                            for="{{ form.actif.id_for_label }}"
+                        >
+                            Tarif actif
+                        </label>
+
+                    </div>
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger mt-3 mb-0">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="ri-save-line me-1"></i>
+
+                        <span id="tarifConsultationSubmitLabel">
+                            Enregistrer
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function prepareAddTarifConsultation() {
+        document.getElementById('tarifConsultationModalTitle').textContent =
+            'Ajouter un tarif de consultation';
+
+        document.getElementById('tarifConsultationSubmitLabel').textContent =
+            'Enregistrer';
+
+        document.getElementById('tarifConsultationForm').action =
+            "{% url 'parametrage_general:ajouter_tarif_consultation' %}";
+
+        document.getElementById('id_type_consultation').value = '';
+        document.getElementById('id_etablissement').value = '';
+        document.getElementById('id_montant').value = '';
+        document.getElementById('id_date_debut').value = '';
+        document.getElementById('id_date_fin').value = '';
+        document.getElementById('id_actif').checked = true;
+    }
+
+    function prepareEditTarifConsultation(
+        pk,
+        typeConsultation,
+        etablissement,
+        montant,
+        dateDebut,
+        dateFin,
+        actif
+    ) {
+        document.getElementById('tarifConsultationModalTitle').textContent =
+            'Modifier le tarif de consultation';
+
+        document.getElementById('tarifConsultationSubmitLabel').textContent =
+            'Enregistrer les modifications';
+
+        document.getElementById('tarifConsultationForm').action =
+            '/parametrage/consultations/tarifs/modifier/' + pk + '/';
+
+        document.getElementById('id_type_consultation').value =
+            typeConsultation;
+
+        document.getElementById('id_etablissement').value =
+            etablissement;
+
+        document.getElementById('id_montant').value =
+            montant;
+
+        document.getElementById('id_date_debut').value =
+            dateDebut;
+
+        document.getElementById('id_date_fin').value =
+            dateFin;
+
+        document.getElementById('id_actif').checked =
+            actif;
+    }
+</script>
+
+{% endblock %}

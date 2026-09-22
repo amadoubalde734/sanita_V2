@@ -1,0 +1,509 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    .examens-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --danger: #dc3545;
+        --success: #198754;
+        --warning: #f59e0b;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--teal-900), var(--teal-700));
+        border-radius: 14px;
+        padding: 22px 24px;
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
+    .page-header h4 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        margin: 5px 0 0;
+        opacity: .85;
+    }
+
+    .stat-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        background: #fff;
+        height: 100%;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .stat-value {
+        color: var(--ink);
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .content-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .content-card-header h5 {
+        margin: 0;
+        color: var(--teal-900);
+        font-weight: 700;
+    }
+
+    .table th {
+        background: #f8fafc;
+        color: var(--teal-900);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .badge-status {
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-active {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .badge-inactive {
+        background: #f8d7da;
+        color: #842029;
+    }
+
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        background: #fff;
+        text-decoration: none;
+        margin-right: 4px;
+    }
+
+    .action-btn:hover {
+        background: var(--teal-100);
+    }
+
+    .empty-state {
+        padding: 45px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .modal-header {
+        background: var(--teal-900);
+        color: #fff;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+</style>
+
+<div class="examens-page">
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h4>
+            <i class="ri-test-tube-line me-2"></i>
+            Catégories d'examens
+        </h4>
+        <p>Gestion des catégories utilisées pour organiser les examens médicaux.</p>
+    </div>
+
+    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#categorieModal">
+        <i class="ri-add-line me-1"></i>
+        Nouvelle catégorie
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value">{{ total_categories }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Actives</div>
+            <div class="stat-value text-success">{{ categories_actives }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Inactives</div>
+            <div class="stat-value text-danger">{{ categories_inactives }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+
+    <div class="content-card-header">
+        <form method="get">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ri-search-line"></i>
+                        </span>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ q }}"
+                            class="form-control"
+                            placeholder="Rechercher par code, nom ou description..."
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ri-search-line me-1"></i>
+                        Rechercher
+                    </button>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{% url 'parametrage_general:liste_categories_examens' %}" class="btn btn-light w-100">
+                        Réinitialiser
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Ordre</th>
+                    <th>Code</th>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Statut</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for categorie in categories %}
+                <tr>
+                    <td>{{ categorie.ordre }}</td>
+
+                    <td>
+                        <strong>{{ categorie.code }}</strong>
+                    </td>
+
+                    <td>{{ categorie.nom }}</td>
+
+                    <td>
+                        {% if categorie.description %}
+                            {{ categorie.description|truncatechars:80 }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if categorie.actif %}
+                            <span class="badge-status badge-active">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="badge-status badge-inactive">
+                                Inactive
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end">
+                        <button
+                            type="button"
+                            class="action-btn"
+                            title="Modifier"
+                            data-bs-toggle="modal"
+                            data-bs-target="#categorieModal"
+                            data-id="{{ categorie.pk }}"
+                            data-code="{{ categorie.code }}"
+                            data-nom="{{ categorie.nom }}"
+                            data-description="{{ categorie.description }}"
+                            data-ordre="{{ categorie.ordre }}"
+                            data-actif="{{ categorie.actif|yesno:'true,false' }}"
+                        >
+                            <i class="ri-edit-line text-primary"></i>
+                        </button>
+
+                        <a
+                            href="{% url 'parametrage_general:toggle_categorie_examen' categorie.pk %}"
+                            class="action-btn"
+                            title="{% if categorie.actif %}Désactiver{% else %}Activer{% endif %}"
+                        >
+                            {% if categorie.actif %}
+                                <i class="ri-toggle-line text-warning"></i>
+                            {% else %}
+                                <i class="ri-checkbox-circle-line text-success"></i>
+                            {% endif %}
+                        </a>
+
+                        <button
+                            type="button"
+                            class="action-btn"
+                            title="Supprimer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteCategorieModal"
+                            data-id="{{ categorie.pk }}"
+                            data-nom="{{ categorie.nom }}"
+                        >
+                            <i class="ri-delete-bin-line text-danger"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="ri-test-tube-line fs-1 d-block mb-2"></i>
+                            Aucune catégorie d'examen trouvée.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+</div>
+
+<div class="modal fade" id="categorieModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                {% if modifier %}
+                    Modifier la catégorie
+                {% else %}
+                    Nouvelle catégorie
+                {% endif %}
+            </h5>
+
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <form method="post" id="categorieForm">
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Code</label>
+                        {{ form.code }}
+                        {% for error in form.code.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Nom</label>
+                        {{ form.nom }}
+                        {% for error in form.nom.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Ordre</label>
+                        {{ form.ordre }}
+                        {% for error in form.ordre.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-8 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            {{ form.actif }}
+                            <label class="form-check-label">
+                                Catégorie active
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="ri-save-line me-1"></i>
+                    Enregistrer
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+```
+
+</div>
+
+<div class="modal fade" id="deleteCategorieModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+        <div class="modal-header">
+            <h5 class="modal-title">Confirmation</h5>
+
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <form method="post" id="deleteCategorieForm">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <p class="mb-0">
+                    Voulez-vous vraiment supprimer la catégorie
+                    <strong id="deleteCategorieName"></strong> ?
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="ri-delete-bin-line me-1"></i>
+                    Supprimer
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const categorieModal = document.getElementById('categorieModal');
+    const categorieForm = document.getElementById('categorieForm');
+
+    categorieModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+
+        if (!button || !button.hasAttribute('data-id')) {
+            categorieForm.action = "{% url 'parametrage_general:ajouter_categorie_examen' %}";
+            categorieForm.reset();
+
+            categorieModal.querySelector('.modal-title').textContent = 'Nouvelle catégorie';
+
+            const actif = categorieForm.querySelector('[name="actif"]');
+            if (actif) {
+                actif.checked = true;
+            }
+
+            return;
+        }
+
+        const id = button.getAttribute('data-id');
+        const code = button.getAttribute('data-code');
+        const nom = button.getAttribute('data-nom');
+        const description = button.getAttribute('data-description');
+        const ordre = button.getAttribute('data-ordre');
+        const actifValue = button.getAttribute('data-actif');
+
+        categorieForm.action = "{% url 'parametrage_general:modifier_categorie_examen' 0 %}".replace('/0/', '/' + id + '/');
+
+        categorieModal.querySelector('.modal-title').textContent = 'Modifier la catégorie';
+
+        categorieForm.querySelector('[name="code"]').value = code || '';
+        categorieForm.querySelector('[name="nom"]').value = nom || '';
+        categorieForm.querySelector('[name="description"]').value = description || '';
+        categorieForm.querySelector('[name="ordre"]').value = ordre || 0;
+        categorieForm.querySelector('[name="actif"]').checked = actifValue === 'true';
+    });
+
+    const deleteCategorieModal = document.getElementById('deleteCategorieModal');
+    const deleteCategorieForm = document.getElementById('deleteCategorieForm');
+    const deleteCategorieName = document.getElementById('deleteCategorieName');
+
+    deleteCategorieModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const nom = button.getAttribute('data-nom');
+
+        deleteCategorieName.textContent = nom;
+        deleteCategorieForm.action = "{% url 'parametrage_general:supprimer_categorie_examen' 0 %}".replace('/0/', '/' + id + '/');
+    });
+
+    {% if modifier %}
+        const modal = new bootstrap.Modal(categorieModal);
+        modal.show();
+    {% endif %}
+});
+</script>
+
+{% endblock %}

@@ -1,3 +1,4 @@
+
 {% extends 'backend/parametrage_general/base.html' %}
 {% load static %}
 
@@ -423,871 +424,1124 @@
 
 <div class="param-page">
 
-    <div class="param-header">
-        <h4>Paramétrage général</h4>
-        <p>Référentiels, configuration et paramètres de fonctionnement de l'établissement.</p>
-    </div>
+<div class="param-header">
+    <h4>Paramétrage général</h4>
+    <p>Référentiels, configuration et paramètres de fonctionnement de l'établissement.</p>
+</div>
 
-    <ul class="nav param-tabs" role="tablist">
+<ul class="nav param-tabs" role="tablist">
 
-        <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#tab-general" role="tab">
-                <i class="ri-settings-4-line"></i>
-                Général
-            </a>
-        </li>
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#tab-general" role="tab">
+            <i class="ri-settings-4-line"></i>
+            Général
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-actes" role="tab">
-                <i class="ri-price-tag-2-line"></i>
-                Actes &amp; Tarifs
-            </a>
-        </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-actes" role="tab">
+            <i class="ri-price-tag-2-line"></i>
+            Actes &amp; Tarifs
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-examens" role="tab">
-                <i class="ri-flask-line"></i>
-                Examens Laboratoire
-            </a>
-        </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-examens" role="tab">
+            <i class="ri-flask-line"></i>
+            Examens &amp; Diagnostic
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-hospitalisation" role="tab">
-                <i class="ri-hotel-bed-line"></i>
-                Hospitalisation
-            </a>
-        </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-hospitalisation" role="tab">
+            <i class="ri-hotel-bed-line"></i>
+            Hospitalisation
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-personnel" role="tab">
-                <i class="ri-user-settings-line"></i>
-                Personnel
-            </a>
-        </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-biometrie" role="tab">
+            <i class="ri-fingerprint-line"></i>
+            Biométrie
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-cliniques" role="tab">
-                <i class="ri-hospital-line"></i>
-                Cliniques
-            </a>
-        </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-personnel" role="tab">
+            <i class="ri-user-settings-line"></i>
+            Personnel
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-pharmacies" role="tab">
-                <i class="ri-medicine-bottle-line"></i>
-                Pharmacies partenaires
-            </a>
-        </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-cliniques" role="tab">
+            <i class="ri-hospital-line"></i>
+            Cliniques
+        </a>
+    </li>
 
-        {% if config_etablissement.module_prise_en_charge_actif or request.user.is_admin %}
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-entreprise" role="tab">
-                <i class="ri-building-4-line"></i>
-                Prise en Charge Entreprise
-                {% if not config_etablissement.module_prise_en_charge_actif %}
-                    <span class="tab-inactive-dot" title="Module non activé"></span>
-                {% endif %}
-            </a>
-        </li>
-        {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-pharmacies" role="tab">
+            <i class="ri-medicine-bottle-line"></i>
+            Pharmacies partenaires
+        </a>
+    </li>
 
-    </ul>
+    {% if config_etablissement.module_prise_en_charge_actif or request.user.is_admin %}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-entreprise" role="tab">
+            <i class="ri-building-4-line"></i>
+            Prise en Charge Entreprise
 
-    <div class="tab-content">
+            {% if not config_etablissement.module_prise_en_charge_actif %}
+                <span class="tab-inactive-dot" title="Module non activé"></span>
+            {% endif %}
+        </a>
+    </li>
+    {% endif %}
 
-        <div class="tab-pane fade show active" id="tab-general" role="tabpanel">
+</ul>
 
-            <div class="row g-3 mb-4">
+<div class="tab-content">
 
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:configuration_etablissement' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-dark">
-                                <i class="ri-hospital-line"></i>
-                            </div>
-                            <h5>Établissement</h5>
-                            <p>Identité, coordonnées, informations administratives et paramètres.</p>
-                            <span class="param-link">
-                                Voir la configuration
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
+    <div class="tab-pane fade show active" id="tab-general" role="tabpanel">
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:configuration_etablissement' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-dark">
+                            <i class="ri-hospital-line"></i>
                         </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_villes' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-success">
-                                <i class="ri-map-pin-2-line"></i>
-                            </div>
-                            <h5>Villes</h5>
-                            <p>Référentiel des villes utilisées dans SANITA.</p>
-                            <span class="param-link">
-                                Voir les villes
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_sites' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-warning">
-                                <i class="ri-map-pin-user-line"></i>
-                            </div>
-                            <h5>Sites</h5>
-                            <p>Sites, implantations et différents lieux d'activité.</p>
-                            <span class="param-link">
-                                Voir les sites
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_specialites' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-purple">
-                                <i class="ri-stethoscope-line"></i>
-                            </div>
-                            <h5>Spécialités</h5>
-                            <p>Spécialités médicales et domaines de prise en charge.</p>
-                            <span class="param-link">
-                                Gérer les spécialités
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_unites_medicales' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-teal">
-                                <i class="ri-hospital-line"></i>
-                            </div>
-                            <h5>Unités médicales</h5>
-                            <p>Infirmeries, laboratoires, pharmacies, urgences et autres unités.</p>
-                            <span class="param-link">
-                                Gérer les unités
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
+                        <h5>Établissement</h5>
+                        <p>Identité, coordonnées, informations administratives et paramètres.</p>
+                        <span class="param-link">
+                            Voir la configuration
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
             </div>
 
-            <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_villes' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-success">
+                            <i class="ri-map-pin-2-line"></i>
+                        </div>
+                        <h5>Villes</h5>
+                        <p>Référentiel des villes utilisées dans SANITA.</p>
+                        <span class="param-link">
+                            Voir les villes
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
 
-                <div class="col-xl-6">
-                    <div class="param-config">
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_sites' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-warning">
+                            <i class="ri-map-pin-user-line"></i>
+                        </div>
+                        <h5>Sites</h5>
+                        <p>Sites, implantations et différents lieux d'activité.</p>
+                        <span class="param-link">
+                            Voir les sites
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
 
-                        <div class="param-config-title">
-                            <h5>Établissement configuré</h5>
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_specialites' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-purple">
+                            <i class="ri-stethoscope-line"></i>
+                        </div>
+                        <h5>Spécialités</h5>
+                        <p>Spécialités médicales et domaines de prise en charge.</p>
+                        <span class="param-link">
+                            Gérer les spécialités
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
 
-                            {% if config_etablissement %}
-                                {% if config_etablissement.actif %}
-                                    <span class="badge bg-success-subtle text-success">Actif</span>
-                                {% else %}
-                                    <span class="badge bg-danger-subtle text-danger">Inactif</span>
-                                {% endif %}
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_unites_medicales' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-teal">
+                            <i class="ri-hospital-line"></i>
+                        </div>
+                        <h5>Unités médicales</h5>
+                        <p>Infirmeries, laboratoires, pharmacies, urgences et autres unités.</p>
+                        <span class="param-link">
+                            Gérer les unités
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-6">
+                <div class="param-config">
+
+                    <div class="param-config-title">
+                        <h5>Établissement configuré</h5>
+
+                        {% if config_etablissement %}
+                            {% if config_etablissement.actif %}
+                                <span class="badge bg-success-subtle text-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger">Inactif</span>
                             {% endif %}
+                        {% endif %}
+                    </div>
+
+                    {% if config_etablissement %}
+
+                        <div class="param-config-row">
+                            <span class="param-config-label">Nom</span>
+                            <span class="param-config-value">{{ config_etablissement.nom_etablissement }}</span>
                         </div>
 
-                        {% if config_etablissement %}
+                        <div class="param-config-row">
+                            <span class="param-config-label">Code</span>
+                            <span class="param-config-value">{{ config_etablissement.code_etablissement }}</span>
+                        </div>
 
-                            <div class="param-config-row">
-                                <span class="param-config-label">Nom</span>
-                                <span class="param-config-value">
-                                    {{ config_etablissement.nom_etablissement }}
-                                </span>
-                            </div>
+                        <div class="param-config-row">
+                            <span class="param-config-label">Type</span>
+                            <span class="param-config-value">{{ config_etablissement.get_type_etablissement_display }}</span>
+                        </div>
 
-                            <div class="param-config-row">
-                                <span class="param-config-label">Code</span>
-                                <span class="param-config-value">
-                                    {{ config_etablissement.code_etablissement }}
-                                </span>
-                            </div>
+                        <div class="param-config-row">
+                            <span class="param-config-label">Ville</span>
+                            <span class="param-config-value">{{ config_etablissement.ville|default:"—" }}</span>
+                        </div>
 
-                            <div class="param-config-row">
-                                <span class="param-config-label">Type</span>
-                                <span class="param-config-value">
-                                    {{ config_etablissement.get_type_etablissement_display }}
-                                </span>
-                            </div>
+                        <div class="param-config-row">
+                            <span class="param-config-label">Téléphone</span>
+                            <span class="param-config-value">{{ config_etablissement.telephone|default:"—" }}</span>
+                        </div>
 
-                            <div class="param-config-row">
-                                <span class="param-config-label">Ville</span>
-                                <span class="param-config-value">
-                                    {{ config_etablissement.ville|default:"—" }}
-                                </span>
-                            </div>
+                        <div class="param-config-row">
+                            <span class="param-config-label">Email</span>
+                            <span class="param-config-value">{{ config_etablissement.email|default:"—" }}</span>
+                        </div>
 
-                            <div class="param-config-row">
-                                <span class="param-config-label">Téléphone</span>
-                                <span class="param-config-value">
-                                    {{ config_etablissement.telephone|default:"—" }}
-                                </span>
-                            </div>
+                    {% else %}
 
-                            <div class="param-config-row">
-                                <span class="param-config-label">Email</span>
-                                <span class="param-config-value">
-                                    {{ config_etablissement.email|default:"—" }}
-                                </span>
-                            </div>
-
-                        {% else %}
-
-                            <div class="text-center py-4">
-                                <i class="ri-hospital-line fs-32 text-muted"></i>
-
-                                <p class="text-muted mt-2 mb-3">
-                                    Aucune configuration d'établissement.
-                                </p>
-
-                                <a
-                                    href="{% url 'parametrage_general:modifier_configuration_etablissement' %}"
-                                    class="btn btn-primary btn-sm"
-                                >
-                                    <i class="ri-add-line me-1"></i>
-                                    Configurer l'établissement
-                                </a>
-                            </div>
-
-                        {% endif %}
-
-                    </div>
-                </div>
-
-                <div class="col-xl-6">
-                    <div class="param-config">
-
-                        <div class="param-config-title">
-                            <h5>Spécialités de l'établissement</h5>
-
-                            <a
-                                href="{% url 'parametrage_general:liste_specialites' %}"
-                                class="btn btn-sm btn-soft-primary"
-                            >
-                                Gérer
+                        <div class="text-center py-4">
+                            <i class="ri-hospital-line fs-32 text-muted"></i>
+                            <p class="text-muted mt-2 mb-3">Aucune configuration d'établissement.</p>
+                            <a href="{% url 'parametrage_general:modifier_configuration_etablissement' %}" class="btn btn-primary btn-sm">
+                                <i class="ri-add-line me-1"></i>
+                                Configurer l'établissement
                             </a>
                         </div>
 
-                        {% if config_etablissement %}
+                    {% endif %}
 
-                            <div class="param-specialites">
-
-                                {% for specialite in config_etablissement.specialites.all %}
-
-                                    {% if specialite.actif %}
-                                        <span class="param-specialite">
-                                            <i class="{{ specialite.icone|default:'ri-stethoscope-line' }}"></i>
-                                            {{ specialite.nom }}
-                                        </span>
-                                    {% endif %}
-
-                                {% empty %}
-
-                                    <p class="text-muted fs-13 mb-0">
-                                        Aucune spécialité associée à cet établissement.
-                                    </p>
-
-                                {% endfor %}
-
-                            </div>
-
-                        {% else %}
-
-                            <p class="text-muted fs-13 mb-0">
-                                Configurez d'abord l'établissement pour associer ses spécialités.
-                            </p>
-
-                        {% endif %}
-
-                    </div>
                 </div>
-
             </div>
 
-            <div class="row g-3">
+            <div class="col-xl-6">
+                <div class="param-config">
 
-                <div class="col-12">
-                    <div class="param-config">
+                    <div class="param-config-title">
+                        <h5>Spécialités de l'établissement</h5>
+                        <a href="{% url 'parametrage_general:liste_specialites' %}" class="btn btn-sm btn-soft-primary">
+                            Gérer
+                        </a>
+                    </div>
 
-                        <div class="param-config-title">
-                            <h5>Unités médicales de l'établissement</h5>
+                    {% if config_etablissement %}
 
-                            <a
-                                href="{% url 'parametrage_general:liste_unites_medicales' %}"
-                                class="btn btn-sm btn-soft-primary"
-                            >
-                                Gérer
-                            </a>
+                        <div class="param-specialites">
+                            {% for specialite in config_etablissement.specialites.all %}
+                                {% if specialite.actif %}
+                                    <span class="param-specialite">
+                                        <i class="{{ specialite.icone|default:'ri-stethoscope-line' }}"></i>
+                                        {{ specialite.nom }}
+                                    </span>
+                                {% endif %}
+                            {% empty %}
+                                <p class="text-muted fs-13 mb-0">Aucune spécialité associée à cet établissement.</p>
+                            {% endfor %}
                         </div>
 
-                        {% if unites_medicales %}
+                    {% else %}
 
-                            <div class="row g-2">
+                        <p class="text-muted fs-13 mb-0">
+                            Configurez d'abord l'établissement pour associer ses spécialités.
+                        </p>
 
-                                {% for unite in unites_medicales %}
+                    {% endif %}
 
-                                    <div class="col-xl-4 col-md-6">
-                                        <div class="param-unite">
+                </div>
+            </div>
 
-                                            <div class="param-unite-info">
+        </div>
 
-                                                <div class="param-unite-icon">
-                                                    {% if unite.type_unite == 'laboratoire' %}
-                                                        <i class="ri-flask-line"></i>
-                                                    {% elif unite.type_unite == 'pharmacie' %}
-                                                        <i class="ri-medicine-bottle-line"></i>
-                                                    {% elif unite.type_unite == 'imagerie' %}
-                                                        <i class="ri-scan-line"></i>
-                                                    {% elif unite.type_unite == 'urgences' %}
-                                                        <i class="ri-alarm-warning-line"></i>
-                                                    {% elif unite.type_unite == 'hospitalisation' %}
-                                                        <i class="ri-hotel-bed-line"></i>
-                                                    {% elif unite.type_unite == 'consultation' %}
-                                                        <i class="ri-stethoscope-line"></i>
-                                                    {% else %}
-                                                        <i class="ri-hospital-line"></i>
-                                                    {% endif %}
-                                                </div>
+        <div class="row g-3">
 
-                                                <div>
-                                                    <div class="param-unite-name">
-                                                        {{ unite.nom }}
-                                                    </div>
+            <div class="col-12">
+                <div class="param-config">
 
-                                                    {% if unite.site %}
-                                                        <div class="param-unite-site">
-                                                            {{ unite.site.nom_site }}
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
+                    <div class="param-config-title">
+                        <h5>Unités médicales de l'établissement</h5>
+                        <a href="{% url 'parametrage_general:liste_unites_medicales' %}" class="btn btn-sm btn-soft-primary">
+                            Gérer
+                        </a>
+                    </div>
+
+                    {% if unites_medicales %}
+
+                        <div class="row g-2">
+
+                            {% for unite in unites_medicales %}
+
+                                <div class="col-xl-4 col-md-6">
+
+                                    <div class="param-unite">
+
+                                        <div class="param-unite-info">
+
+                                            <div class="param-unite-icon">
+
+                                                {% if unite.type_unite == 'laboratoire' %}
+                                                    <i class="ri-flask-line"></i>
+                                                {% elif unite.type_unite == 'pharmacie' %}
+                                                    <i class="ri-medicine-bottle-line"></i>
+                                                {% elif unite.type_unite == 'imagerie' %}
+                                                    <i class="ri-scan-line"></i>
+                                                {% elif unite.type_unite == 'urgences' %}
+                                                    <i class="ri-alarm-warning-line"></i>
+                                                {% elif unite.type_unite == 'hospitalisation' %}
+                                                    <i class="ri-hotel-bed-line"></i>
+                                                {% elif unite.type_unite == 'consultation' %}
+                                                    <i class="ri-stethoscope-line"></i>
+                                                {% else %}
+                                                    <i class="ri-hospital-line"></i>
+                                                {% endif %}
 
                                             </div>
 
-                                            <span class="param-unite-type">
-                                                {{ unite.get_type_unite_display }}
-                                            </span>
+                                            <div>
+                                                <div class="param-unite-name">{{ unite.nom }}</div>
+
+                                                {% if unite.site %}
+                                                    <div class="param-unite-site">{{ unite.site.nom_site }}</div>
+                                                {% endif %}
+                                            </div>
 
                                         </div>
+
+                                        <span class="param-unite-type">
+                                            {{ unite.get_type_unite_display }}
+                                        </span>
+
                                     </div>
 
-                                {% endfor %}
+                                </div>
 
-                            </div>
+                            {% endfor %}
 
-                        {% else %}
+                        </div>
 
-                            <div class="text-center py-4">
-                                <i class="ri-hospital-line fs-32 text-muted"></i>
+                    {% else %}
 
-                                <p class="text-muted mt-2 mb-3">
-                                    Aucune unité médicale configurée.
-                                </p>
+                        <div class="text-center py-4">
+                            <i class="ri-hospital-line fs-32 text-muted"></i>
+                            <p class="text-muted mt-2 mb-3">Aucune unité médicale configurée.</p>
 
-                                <a
-                                    href="{% url 'parametrage_general:liste_unites_medicales' %}"
-                                    class="btn btn-primary btn-sm"
-                                >
-                                    <i class="ri-add-line me-1"></i>
-                                    Ajouter une unité médicale
-                                </a>
-                            </div>
+                            <a href="{% url 'parametrage_general:liste_unites_medicales' %}" class="btn btn-primary btn-sm">
+                                <i class="ri-add-line me-1"></i>
+                                Ajouter une unité médicale
+                            </a>
+                        </div>
 
-                        {% endif %}
+                    {% endif %}
 
-                    </div>
                 </div>
-
             </div>
 
         </div>
-
-        <div class="tab-pane fade" id="tab-actes" role="tabpanel">
-
-            <div class="row g-3">
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-primary mt-3">
-                            <i class="ri-price-tag-2-line"></i>
-                        </div>
-
-                        <h5>Actes médicaux &amp; tarifs</h5>
-                        <p>Nomenclature des actes et leur tarification.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-red mt-3">
-                            <i class="ri-stethoscope-line"></i>
-                        </div>
-
-                        <h5>Types de consultation</h5>
-                        <p>Consultation générale, spécialisée, urgence et autres types.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-slate mt-3">
-                            <i class="ri-file-list-3-line"></i>
-                        </div>
-
-                        <h5>Motifs de consultation</h5>
-                        <p>Référentiel des motifs de venue et de consultation.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-purple mt-3">
-                            <i class="ri-capsule-fill"></i>
-                        </div>
-
-                        <h5>Posologie</h5>
-                        <p>Référentiel des posologies et prescriptions types.</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="tab-pane fade" id="tab-examens" role="tabpanel">
-
-            <div class="row g-3">
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-blue mt-3">
-                            <i class="ri-flask-line"></i>
-                        </div>
-
-                        <h5>Examens &amp; tarifs</h5>
-                        <p>Nomenclature des examens et tarification.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-info mt-3">
-                            <i class="ri-price-tag-line"></i>
-                        </div>
-
-                        <h5>Catégories d'examen</h5>
-                        <p>Regroupement des examens par catégorie.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-secondary mt-3">
-                            <i class="ri-list-check-2"></i>
-                        </div>
-
-                        <h5>Natures d'examen</h5>
-                        <p>Biologique, radiologique, imagerie et autres examens.</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="tab-pane fade" id="tab-hospitalisation" role="tabpanel">
-
-            <div class="row g-3">
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-dark mt-3">
-                            <i class="ri-hotel-bed-line"></i>
-                        </div>
-
-                        <h5>Configuration</h5>
-                        <p>Paramètres généraux de l'hospitalisation.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-success mt-3">
-                            <i class="ri-door-line"></i>
-                        </div>
-
-                        <h5>Chambres &amp; lits</h5>
-                        <p>Gestion des chambres, lits et unités d'hospitalisation.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-info mt-3">
-                            <i class="ri-nurse-line"></i>
-                        </div>
-
-                        <h5>Soins</h5>
-                        <p>Paramétrage des soins infirmiers et hospitaliers.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-amber mt-3">
-                            <i class="ri-restaurant-line"></i>
-                        </div>
-
-                        <h5>Types de régime</h5>
-                        <p>Régimes alimentaires des patients hospitalisés.</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="tab-pane fade" id="tab-personnel" role="tabpanel">
-
-            <div class="param-section-title">
-                <span class="bar"></span>
-                <span>Organisation</span>
-            </div>
-
-            <div class="row g-3 mb-4">
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_directions' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-dark">
-                                <i class="ri-organization-chart"></i>
-                            </div>
-
-                            <h5>Directions</h5>
-                            <p>Directions et niveaux organisationnels.</p>
-
-                            <span class="param-link">
-                                Voir
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_departements' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-danger">
-                                <i class="ri-building-line"></i>
-                            </div>
-
-                            <h5>Départements</h5>
-                            <p>Départements et unités organisationnelles.</p>
-
-                            <span class="param-link">
-                                Voir
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_services' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-info">
-                                <i class="ri-tools-line"></i>
-                            </div>
-
-                            <h5>Services</h5>
-                            <p>Services et unités de travail.</p>
-
-                            <span class="param-link">
-                                Voir
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_fonctions' %}" class="text-decoration-none">
-                        <div class="param-card">
-                            <div class="param-card-icon ic-secondary">
-                                <i class="ri-briefcase-4-line"></i>
-                            </div>
-
-                            <h5>Fonctions</h5>
-                            <p>Fonctions et postes du personnel.</p>
-
-                            <span class="param-link">
-                                Voir
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
-            </div>
-
-            <div class="param-section-title">
-                <span class="bar"></span>
-                <span>Ressources humaines</span>
-            </div>
-
-            <div class="row g-3">
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-teal mt-3">
-                            <i class="ri-user-settings-line"></i>
-                        </div>
-
-                        <h5>Paramétrage personnel</h5>
-                        <p>Grades, catégories, contrats et statuts du personnel.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-purple mt-3">
-                            <i class="ri-stethoscope-line"></i>
-                        </div>
-
-                        <h5>Profils médicaux</h5>
-                        <p>Médecins, infirmiers, spécialistes et autres professionnels de santé.</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="tab-pane fade" id="tab-cliniques" role="tabpanel">
-
-            <div class="row g-3">
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-green mt-3">
-                            <i class="ri-hospital-line"></i>
-                        </div>
-
-                        <h5>Établissements partenaires</h5>
-                        <p>Cliniques, hôpitaux et structures de santé partenaires.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-blue mt-3">
-                            <i class="ri-share-forward-line"></i>
-                        </div>
-
-                        <h5>Orientations</h5>
-                        <p>Structures de référence et parcours d'orientation des patients.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-info mt-3">
-                            <i class="ri-file-list-3-line"></i>
-                        </div>
-
-                        <h5>Conventions médicales</h5>
-                        <p>Paramétrage des relations avec les structures partenaires.</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="tab-pane fade" id="tab-pharmacies" role="tabpanel">
-
-            <div class="row g-3">
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-amber mt-3">
-                            <i class="ri-medicine-bottle-line"></i>
-                        </div>
-
-                        <h5>Pharmacies partenaires</h5>
-                        <p>Référencement des pharmacies externes partenaires.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-green mt-3">
-                            <i class="ri-capsule-line"></i>
-                        </div>
-
-                        <h5>Convention pharmacie</h5>
-                        <p>Conditions et paramètres des conventions avec les pharmacies.</p>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-primary mt-3">
-                            <i class="ri-shopping-bag-3-line"></i>
-                        </div>
-
-                        <h5>Dispensation</h5>
-                        <p>Paramètres liés à la délivrance des médicaments.</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        {% if config_etablissement.module_prise_en_charge_actif or request.user.is_admin %}
-
-        <div class="tab-pane fade" id="tab-entreprise" role="tabpanel">
-
-            {% if not config_etablissement.module_prise_en_charge_actif %}
-
-            <div class="param-notice-inactive">
-                <i class="ri-error-warning-line"></i>
-
-                <div>
-                    Le module Prise en charge entreprise n'est pas activé pour cet établissement.
-                    Vous accédez à cette configuration en tant qu'administrateur.
-
-                    <a href="{% url 'parametrage_general:configuration_etablissement' %}">
-                        Activer le module
-                    </a>
-                </div>
-            </div>
-
-            {% endif %}
-
-            <div class="param-section-title">
-                <span class="bar"></span>
-                <span>Entreprises</span>
-            </div>
-
-            <div class="row g-3">
-
-                <div class="col-xl-4 col-md-6">
-                    <a href="{% url 'parametrage_general:liste_societes' %}" class="text-decoration-none">
-                        <div class="param-card">
-
-                            <div class="param-card-icon ic-primary">
-                                <i class="ri-building-4-line"></i>
-                            </div>
-
-                            <h5>Sociétés</h5>
-
-                            <p>
-                                Entreprises clientes, sociétés affiliées et organisations partenaires.
-                            </p>
-
-                            <span class="param-link">
-                                Voir les sociétés
-                                <i class="ri-arrow-right-line"></i>
-                            </span>
-
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-dark mt-3">
-                            <i class="ri-qr-code-line"></i>
-                        </div>
-
-                        <h5>Cartes sanitaires</h5>
-
-                        <p>
-                            Paramétrage des cartes sanitaires et identification des bénéficiaires.
-                        </p>
-
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <div class="param-card-soon">
-
-                        <span class="param-badge-soon">Bientôt disponible</span>
-
-                        <div class="param-card-icon ic-teal mt-3">
-                            <i class="ri-file-shield-2-line"></i>
-                        </div>
-
-                        <h5>Prise en charge</h5>
-
-                        <p>
-                            Règles de couverture et paramètres de prise en charge des bénéficiaires.
-                        </p>
-
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        {% endif %}
 
     </div>
+
+    <div class="tab-pane fade" id="tab-actes" role="tabpanel">
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Actes médicaux &amp; consultations</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_categories_actes' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-slate">
+                            <i class="ri-price-tag-3-line"></i>
+                        </div>
+                        <h5>Catégories d'actes</h5>
+                        <p>Classification des actes médicaux par catégorie.</p>
+                        <span class="param-link">
+                            Gérer les catégories
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_actes_medicaux' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-primary">
+                            <i class="ri-stethoscope-line"></i>
+                        </div>
+                        <h5>Actes médicaux</h5>
+                        <p>Nomenclature des actes réalisés dans SANITA.</p>
+                        <span class="param-link">
+                            Gérer les actes
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_tarifs_actes' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-success">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <h5>Tarifs des actes</h5>
+                        <p>Tarification des actes selon les établissements et les périodes.</p>
+                        <span class="param-link">
+                            Gérer les tarifs
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_types_consultation' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-red">
+                            <i class="ri-stethoscope-line"></i>
+                        </div>
+                        <h5>Types de consultation</h5>
+                        <p>Consultation générale, spécialisée, pédiatrique, contrôle et autres types.</p>
+                        <span class="param-link">
+                            Gérer les types
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_tarifs_consultation' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-success">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <h5>Tarifs des consultations</h5>
+                        <p>Tarification des consultations selon les établissements et les périodes.</p>
+                        <span class="param-link">
+                            Gérer les tarifs
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_motifs_consultation' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-slate">
+                            <i class="ri-file-list-3-line"></i>
+                        </div>
+                        <h5>Motifs de consultation</h5>
+                        <p>Référentiel des motifs de venue et de consultation.</p>
+                        <span class="param-link">
+                            Gérer les motifs
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Prescription &amp; médicaments</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_posologies' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-purple">
+                            <i class="ri-capsule-fill"></i>
+                        </div>
+                        <h5>Posologies</h5>
+                        <p>Référentiel des posologies utilisées dans les prescriptions.</p>
+                        <span class="param-link">
+                            Gérer les posologies
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_dosages' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-blue">
+                            <i class="ri-test-tube-line"></i>
+                        </div>
+                        <h5>Dosages</h5>
+                        <p>Référentiel des dosages et concentrations des médicaments.</p>
+                        <span class="param-link">
+                            Gérer les dosages
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_formes' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-teal">
+                            <i class="ri-capsule-line"></i>
+                        </div>
+                        <h5>Formes pharmaceutiques</h5>
+                        <p>Comprimés, gélules, sirops, injections, pommades et autres formes.</p>
+                        <span class="param-link">
+                            Gérer les formes
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_voies_administration' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-amber">
+                            <i class="ri-syringe-line"></i>
+                        </div>
+                        <h5>Voies d'administration</h5>
+                        <p>Voies orale, injectable, cutanée, ophtalmique et autres voies d'administration.</p>
+                        <span class="param-link">
+                            Gérer les voies
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="tab-examens" role="tabpanel">
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Examens &amp; diagnostic</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_categories_examens' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-slate">
+                            <i class="ri-price-tag-3-line"></i>
+                        </div>
+                        <h5>Catégories d'examens</h5>
+                        <p>Laboratoire, imagerie, exploration et autres domaines diagnostiques.</p>
+                        <span class="param-link">
+                            Gérer les catégories
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_types_examens' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-info">
+                            <i class="ri-list-check-2"></i>
+                        </div>
+                        <h5>Types d'examens</h5>
+                        <p>Classification des examens par type et domaine diagnostique.</p>
+                        <span class="param-link">
+                            Gérer les types
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_examens' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-blue">
+                            <i class="ri-flask-line"></i>
+                        </div>
+                        <h5>Examens médicaux</h5>
+                        <p>Nomenclature des examens disponibles dans SANITA.</p>
+                        <span class="param-link">
+                            Gérer les examens
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_tarifs_examens' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-success">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <h5>Tarifs des examens</h5>
+                        <p>Tarification des examens selon les établissements et les périodes.</p>
+                        <span class="param-link">
+                            Gérer les tarifs
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="tab-hospitalisation" role="tabpanel">
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Hospitalisation</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_types_sejours' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-dark">
+                            <i class="ri-file-list-3-line"></i>
+                        </div>
+                        <h5>Types de séjour</h5>
+                        <p>Définissez les différents types de séjour proposés aux patients hospitalisés.</p>
+                        <span class="param-link">
+                            Gérer les types
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_types_chambres' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-teal">
+                            <i class="ri-door-line"></i>
+                        </div>
+                        <h5>Types de chambre</h5>
+                        <p>Configurez les catégories de chambres et leur capacité d'accueil.</p>
+                        <span class="param-link">
+                            Gérer les types
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_chambres' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-blue">
+                            <i class="ri-hotel-bed-line"></i>
+                        </div>
+                        <h5>Chambres</h5>
+                        <p>Gérez les chambres, leur unité médicale, leur capacité et leur localisation.</p>
+                        <span class="param-link">
+                            Gérer les chambres
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_lits' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-success">
+                            <i class="ri-hotel-bed-fill"></i>
+                        </div>
+                        <h5>Lits</h5>
+                        <p>Gérez les lits rattachés aux chambres et leur état de disponibilité.</p>
+                        <span class="param-link">
+                            Gérer les lits
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_types_soins' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-info">
+                            <i class="ri-nurse-line"></i>
+                        </div>
+                        <h5>Types de soins</h5>
+                        <p>Référentiel des soins infirmiers et hospitaliers pouvant être réalisés.</p>
+                        <span class="param-link">
+                            Gérer les soins
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_regimes_alimentaires' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-warning">
+                            <i class="ri-restaurant-line"></i>
+                        </div>
+                        <h5>Régimes alimentaires</h5>
+                        <p>Configurez les différents régimes alimentaires applicables aux patients.</p>
+                        <span class="param-link">
+                            Gérer les régimes
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_motifs_hospitalisation' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-red">
+                            <i class="ri-file-warning-line"></i>
+                        </div>
+                        <h5>Motifs d'hospitalisation</h5>
+                        <p>Référentiel des motifs justifiant l'admission et l'hospitalisation.</p>
+                        <span class="param-link">
+                            Gérer les motifs
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_types_sortie' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-purple">
+                            <i class="ri-logout-box-r-line"></i>
+                        </div>
+                        <h5>Types de sortie</h5>
+                        <p>Définissez les différents types de sortie d'hospitalisation.</p>
+                        <span class="param-link">
+                            Gérer les sorties
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_tarifs_sejours' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-success">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <h5>Tarifs de séjour</h5>
+                        <p>Configurez les tarifs d'hospitalisation selon le séjour, la chambre et la période.</p>
+                        <span class="param-link">
+                            Gérer les tarifs
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="tab-biometrie" role="tabpanel">
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Biométrie &amp; identité numérique</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-3 col-md-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-teal">
+                            <i class="ri-fingerprint-line"></i>
+                        </div>
+                        <h5>Empreintes digitales</h5>
+                        <p>Enregistrez et gérez les empreintes digitales des patients et ayants droit.</p>
+                        <span class="param-link">
+                            Gérer les empreintes
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-blue">
+                            <i class="ri-qr-code-line"></i>
+                        </div>
+                        <h5>QR Codes</h5>
+                        <p>Générez et gérez les QR Codes uniques des patients et ayants droit.</p>
+                        <span class="param-link">
+                            Gérer les QR Codes
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-purple">
+                            <i class="ri-shield-keyhole-line"></i>
+                        </div>
+                        <h5>Paramètres biométriques</h5>
+                        <p>Configurez les paramètres liés à l'identification biométrique dans SANITA.</p>
+                        <span class="param-link">
+                            Configurer
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-slate">
+                            <i class="ri-history-line"></i>
+                        </div>
+                        <h5>Historique biométrique</h5>
+                        <p>Consultez l'historique des enregistrements et vérifications biométriques.</p>
+                        <span class="param-link">
+                            Voir l'historique
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="tab-personnel" role="tabpanel">
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Organisation</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_directions' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-dark">
+                            <i class="ri-organization-chart"></i>
+                        </div>
+                        <h5>Directions</h5>
+                        <p>Directions et niveaux organisationnels.</p>
+                        <span class="param-link">
+                            Voir
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_departements' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-danger">
+                            <i class="ri-building-line"></i>
+                        </div>
+                        <h5>Départements</h5>
+                        <p>Départements et unités organisationnelles.</p>
+                        <span class="param-link">
+                            Voir
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_services' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-info">
+                            <i class="ri-tools-line"></i>
+                        </div>
+                        <h5>Services</h5>
+                        <p>Services et unités de travail.</p>
+                        <span class="param-link">
+                            Voir
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a href="{% url 'parametrage_general:liste_fonctions' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-secondary">
+                            <i class="ri-briefcase-4-line"></i>
+                        </div>
+                        <h5>Fonctions</h5>
+                        <p>Fonctions et postes du personnel.</p>
+                        <span class="param-link">
+                            Voir
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Ressources humaines</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-3 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-teal mt-3">
+                        <i class="ri-user-settings-line"></i>
+                    </div>
+                    <h5>Paramétrage personnel</h5>
+                    <p>Grades, catégories, contrats et statuts du personnel.</p>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-purple mt-3">
+                        <i class="ri-stethoscope-line"></i>
+                    </div>
+                    <h5>Profils médicaux</h5>
+                    <p>Médecins, infirmiers, spécialistes et autres professionnels de santé.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="tab-cliniques" role="tabpanel">
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Structures partenaires</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-green mt-3">
+                        <i class="ri-hospital-line"></i>
+                    </div>
+                    <h5>Établissements partenaires</h5>
+                    <p>Cliniques, hôpitaux et structures de santé partenaires.</p>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-blue mt-3">
+                        <i class="ri-share-forward-line"></i>
+                    </div>
+                    <h5>Orientations</h5>
+                    <p>Structures de référence et parcours d'orientation des patients.</p>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-info mt-3">
+                        <i class="ri-file-list-3-line"></i>
+                    </div>
+                    <h5>Conventions médicales</h5>
+                    <p>Paramétrage des relations avec les structures partenaires.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="tab-pharmacies" role="tabpanel">
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Pharmacies partenaires</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-amber mt-3">
+                        <i class="ri-medicine-bottle-line"></i>
+                    </div>
+                    <h5>Pharmacies partenaires</h5>
+                    <p>Référencement des pharmacies externes partenaires.</p>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-green mt-3">
+                        <i class="ri-capsule-line"></i>
+                    </div>
+                    <h5>Convention pharmacie</h5>
+                    <p>Conditions et paramètres des conventions avec les pharmacies.</p>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-primary mt-3">
+                        <i class="ri-shopping-bag-3-line"></i>
+                    </div>
+                    <h5>Dispensation</h5>
+                    <p>Paramètres liés à la délivrance des médicaments.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    {% if config_etablissement.module_prise_en_charge_actif or request.user.is_admin %}
+    <div class="tab-pane fade" id="tab-entreprise" role="tabpanel">
+
+        {% if not config_etablissement.module_prise_en_charge_actif %}
+        <div class="param-notice-inactive">
+            <i class="ri-error-warning-line"></i>
+            <div>
+                Le module Prise en charge entreprise n'est pas activé pour cet établissement.
+                Vous accédez à cette configuration en tant qu'administrateur.
+                <a href="{% url 'parametrage_general:configuration_etablissement' %}">
+                    Activer le module
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="param-section-title">
+            <span class="bar"></span>
+            <span>Entreprises</span>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-xl-4 col-md-6">
+                <a href="{% url 'parametrage_general:liste_societes' %}" class="text-decoration-none">
+                    <div class="param-card">
+                        <div class="param-card-icon ic-primary">
+                            <i class="ri-building-4-line"></i>
+                        </div>
+                        <h5>Sociétés</h5>
+                        <p>Entreprises clientes, sociétés affiliées et organisations partenaires.</p>
+                        <span class="param-link">
+                            Voir les sociétés
+                            <i class="ri-arrow-right-line"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-dark mt-3">
+                        <i class="ri-qr-code-line"></i>
+                    </div>
+                    <h5>Cartes sanitaires</h5>
+                    <p>Paramétrage des cartes sanitaires et identification des bénéficiaires.</p>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="param-card-soon">
+                    <span class="param-badge-soon">Bientôt disponible</span>
+                    <div class="param-card-icon ic-teal mt-3">
+                        <i class="ri-file-shield-2-line"></i>
+                    </div>
+                    <h5>Prise en charge</h5>
+                    <p>Règles de couverture et paramètres de prise en charge des bénéficiaires.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
 
 </div>
 
 {% endblock %}
+
