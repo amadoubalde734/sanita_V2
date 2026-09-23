@@ -186,13 +186,13 @@ class ChambreForm(forms.ModelForm):
         etablissement_qs = (
             ConfigurationEtablissement.objects
             .filter(actif=True)
-            .order_by('nom')
+            .order_by('nom_etablissement')
         )
 
         unite_qs = (
             UniteMedicale.objects
             .filter(actif=True)
-            .select_related('service')
+            .select_related('site')
             .order_by('nom')
         )
 
@@ -210,7 +210,7 @@ class ChambreForm(forms.ModelForm):
                         Q(actif=True) |
                         Q(pk=self.instance.etablissement_id)
                     )
-                    .order_by('nom')
+                    .order_by('nom_etablissement')
                 )
 
             if self.instance.unite_id:
@@ -220,7 +220,7 @@ class ChambreForm(forms.ModelForm):
                         Q(actif=True) |
                         Q(pk=self.instance.unite_id)
                     )
-                    .select_related('service')
+                    .select_related('site')
                     .order_by('nom')
                 )
 
@@ -318,7 +318,7 @@ class LitForm(forms.ModelForm):
                 'type_chambre',
             )
             .order_by(
-                'etablissement__nom',
+                'etablissement__nom_etablissement',
                 'unite__nom',
                 'code',
             )
@@ -548,7 +548,7 @@ class TarifSejourForm(forms.ModelForm):
         self.fields['etablissement'].queryset = (
             ConfigurationEtablissement.objects
             .filter(actif=True)
-            .order_by('nom')
+            .order_by('nom_etablissement')
         )
 
         self.fields['type_sejour'].queryset = (
