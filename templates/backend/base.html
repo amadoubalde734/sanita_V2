@@ -1,53 +1,53 @@
 {% load static %}
 <!doctype html>
-<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+<html lang="fr" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Administration{% endblock %} · SANITA</title>
+    <meta name="description" content="SANITA : gestion médicale et pharmaceutique de l'établissement.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="{% static 'backend/assets/images/favicon.ico' %}">
 
-    <meta charset="utf-8" />
-    <title>SANITA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-    <meta content="Themesbrand" name="author" />
-    <link rel="shortcut icon" href="{% static 'backend/assets/images/favicon.ico' %}" />
-
-    <link href="{% static 'backend/assets/libs/jsvectormap/jsvectormap.min.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'backend/assets/libs/swiper/swiper-bundle.min.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'backend/assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'backend/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'backend/assets/css/app.min.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'backend/assets/css/custom.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- Socle du thème -->
+    <link href="{% static 'backend/assets/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'backend/assets/css/icons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'backend/assets/css/app.min.css' %}" rel="stylesheet">
+    <link href="{% static 'backend/assets/css/custom.min.css' %}" rel="stylesheet">
 
     <script src="{% static 'backend/assets/js/layout.js' %}"></script>
 
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
-
+    <!-- Personnalisation SANITA (menu latéral) -->
     <style>
         [data-sidebar="dark"] {
             --vz-vertical-menu-bg: #0b3d3a;
             --vz-vertical-menu-bg-rgb: 11, 61, 58;
-            --vz-vertical-menu-item-color: rgba(255, 255, 255, 0.65);
+            --vz-vertical-menu-item-color: rgba(255, 255, 255, .65);
             --vz-vertical-menu-item-hover-color: #ffffff;
             --vz-vertical-menu-item-active-color: #ffffff;
-            --vz-vertical-menu-sub-item-color: rgba(255, 255, 255, 0.55);
-            --vz-vertical-menu-title-color: rgba(255, 255, 255, 0.45);
-            --vz-vertical-menu-border-color: rgba(255, 255, 255, 0.08);
+            --vz-vertical-menu-sub-item-color: rgba(255, 255, 255, .55);
+            --vz-vertical-menu-title-color: rgba(255, 255, 255, .45);
+            --vz-vertical-menu-border-color: rgba(255, 255, 255, .08);
         }
+
         .app-menu.navbar-menu,
         .navbar-brand-box {
-            background: linear-gradient(180deg, #0b3d3a 0%, #12766e 100%) !important;
+            background: #0b3d3a;
         }
+
         .app-menu .nav-link.active,
         .app-menu .nav-link:hover {
-            color: #ffffff !important;
+            color: #ffffff;
         }
+
         #page-topbar {
             z-index: 1001;
         }
     </style>
 
+    {# Feuilles propres à une page : DataTables, cartes, carrousels… #}
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
@@ -62,22 +62,22 @@
         {% endblock %}
 
         <div class="main-content">
-
             {% block content %}
-            <div class="page-content">
-                <div class="container-fluid">
-                    {% block inner_content %}{% endblock %}
+                <div class="page-content">
+                    <div class="container-fluid">
+                        {% block inner_content %}{% endblock %}
+                    </div>
                 </div>
-            </div>
             {% endblock %}
-
         </div>
 
     </div>
 
     {% include 'backend/includes/footer.html' %}
-    {% comment %} {% include 'backend/includes/theme_customiser.html' %} {% endcomment %}
     {% include 'backend/includes/foot.html' %}
+
+    {# Scripts propres à une page, chargés après Bootstrap et le thème #}
+    {% block extra_js %}{% endblock %}
 
 </body>
 </html>

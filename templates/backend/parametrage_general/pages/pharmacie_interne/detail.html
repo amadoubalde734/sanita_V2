@@ -1,0 +1,1052 @@
+{% extends "backend/parametrage_general/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+
+    .pharmacie-details-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --soft: #f8fafc;
+        --success: #198754;
+        --danger: #dc3545;
+        --info: #0d6efd;
+    }
+
+    .pharmacie-details-page .page-header {
+        margin-bottom: 24px;
+    }
+
+    .pharmacie-details-page .page-header h4 {
+        color: var(--teal-900);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .pharmacie-details-page .page-subtitle {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .detail-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .detail-card-header {
+        padding: 17px 20px;
+        border-bottom: 1px solid var(--border);
+        background: var(--soft);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .detail-card-header h5 {
+        margin: 0;
+        color: var(--teal-900);
+        font-weight: 700;
+    }
+
+    .detail-card-body {
+        padding: 20px;
+    }
+
+    .pharmacie-identity {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .pharmacie-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 14px;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        flex-shrink: 0;
+    }
+
+    .pharmacie-title {
+        font-size: 21px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 4px;
+    }
+
+    .pharmacie-code {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border-radius: 30px;
+        padding: 6px 11px;
+        font-size: 11px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: #eaf7ef;
+        color: #16834d;
+    }
+
+    .status-inactive {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .feature-active {
+        background: #eaf2ff;
+        color: #0d6efd;
+    }
+
+    .feature-inactive {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .detail-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f2f4;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .3px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font-size: 14px;
+        color: var(--ink);
+        font-weight: 500;
+    }
+
+    .detail-value.empty {
+        color: var(--muted);
+        font-style: italic;
+    }
+
+    .feature-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+        height: 100%;
+    }
+
+    .feature-card-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 5px;
+    }
+
+    .feature-card-description {
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 10px;
+    }
+
+    .description-box {
+        background: var(--soft);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 15px;
+        color: #4b5563;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .action-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .pharmacie-identity {
+            align-items: flex-start;
+        }
+
+        .detail-card-body {
+            padding: 15px;
+        }
+
+    }
+
+</style>
+
+
+<div class="pharmacie-details-page">
+
+    <!-- ========================================================
+         EN-TÊTE
+    ========================================================= -->
+
+    <div class="page-header">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <div class="pharmacie-identity">
+
+                <div class="pharmacie-icon">
+                    <i class="ri-hospital-line"></i>
+                </div>
+
+                <div>
+
+                    <h4 class="pharmacie-title">
+                        {{ pharmacie.nom }}
+                    </h4>
+
+                    <div class="pharmacie-code">
+                        Code : {{ pharmacie.code }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="action-toolbar">
+
+                <a href="{% url 'parametrage_general:liste_pharmacies_internes' %}"
+                   class="btn btn-light">
+
+                    <i class="ri-arrow-left-line me-1"></i>
+
+                    Retour à la liste
+
+                </a>
+
+
+                <button type="button"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#pharmacieInterneModal">
+
+                    <i class="ri-edit-line me-1"></i>
+
+                    Modifier
+
+                </button>
+
+
+                {% if pharmacie.actif %}
+
+                    <a href="{% url 'parametrage_general:toggle_pharmacie_interne' pharmacie.pk %}"
+                       class="btn btn-outline-warning">
+
+                        <i class="ri-toggle-line me-1"></i>
+
+                        Désactiver
+
+                    </a>
+
+                {% else %}
+
+                    <a href="{% url 'parametrage_general:toggle_pharmacie_interne' pharmacie.pk %}"
+                       class="btn btn-outline-success">
+
+                        <i class="ri-toggle-fill me-1"></i>
+
+                        Activer
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         IDENTIFICATION / ÉTAT
+    ========================================================= -->
+
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <h5>
+                <i class="ri-information-line me-1"></i>
+                Informations générales
+            </h5>
+
+            {% if pharmacie.actif %}
+
+                <span class="status-badge status-active">
+                    <i class="ri-checkbox-circle-fill"></i>
+                    Active
+                </span>
+
+            {% else %}
+
+                <span class="status-badge status-inactive">
+                    <i class="ri-close-circle-fill"></i>
+                    Inactive
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="detail-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Nom de la pharmacie
+                        </div>
+
+                        <div class="detail-value">
+                            {{ pharmacie.nom }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Code pharmacie
+                        </div>
+
+                        <div class="detail-value">
+                            {{ pharmacie.code }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            État
+                        </div>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.actif %}
+
+                                <span class="status-badge status-active">
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-inactive">
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         RATTACHEMENT
+    ========================================================= -->
+
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <h5>
+                <i class="ri-link-m me-1"></i>
+                Rattachement
+            </h5>
+
+        </div>
+
+
+        <div class="detail-card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Site
+                        </div>
+
+                        {% if pharmacie.site %}
+
+                            <div class="detail-value">
+                                {{ pharmacie.site.nom_site }}
+                            </div>
+
+                        {% else %}
+
+                            <div class="detail-value empty">
+                                Non renseigné
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Unité médicale
+                        </div>
+
+                        {% if pharmacie.unite_medicale %}
+
+                            <div class="detail-value">
+
+                                {{ pharmacie.unite_medicale.nom }}
+
+                                <div class="small text-muted mt-1">
+
+                                    {{ pharmacie.unite_medicale.get_type_unite_display }}
+
+                                </div>
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="detail-value empty">
+                                Aucune unité médicale rattachée
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         COORDONNÉES
+    ========================================================= -->
+
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <h5>
+                <i class="ri-map-pin-line me-1"></i>
+                Localisation et coordonnées
+            </h5>
+
+        </div>
+
+
+        <div class="detail-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Localisation
+                        </div>
+
+                        <div class="detail-value {% if not pharmacie.localisation %}empty{% endif %}">
+
+                            {{ pharmacie.localisation|default:"Non renseignée" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Téléphone
+                        </div>
+
+                        <div class="detail-value {% if not pharmacie.telephone %}empty{% endif %}">
+
+                            {{ pharmacie.telephone|default:"Non renseigné" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Adresse e-mail
+                        </div>
+
+                        <div class="detail-value {% if not pharmacie.email %}empty{% endif %}">
+
+                            {{ pharmacie.email|default:"Non renseignée" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         RESPONSABLE
+    ========================================================= -->
+
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <h5>
+                <i class="ri-user-star-line me-1"></i>
+                Responsable de la pharmacie
+            </h5>
+
+        </div>
+
+
+        <div class="detail-card-body">
+
+            <div class="row">
+
+                <div class="col-md-3">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Nom
+                        </div>
+
+                        <div class="detail-value {% if not pharmacie.nom_responsable %}empty{% endif %}">
+
+                            {{ pharmacie.nom_responsable|default:"Non renseigné" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Fonction
+                        </div>
+
+                        <div class="detail-value {% if not pharmacie.fonction_responsable %}empty{% endif %}">
+
+                            {{ pharmacie.fonction_responsable|default:"Non renseignée" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Téléphone
+                        </div>
+
+                        <div class="detail-value {% if not pharmacie.telephone_responsable %}empty{% endif %}">
+
+                            {{ pharmacie.telephone_responsable|default:"Non renseigné" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            E-mail
+                        </div>
+
+                        <div class="detail-value {% if not pharmacie.email_responsable %}empty{% endif %}">
+
+                            {{ pharmacie.email_responsable|default:"Non renseigné" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         FONCTIONNALITÉS
+    ========================================================= -->
+
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <h5>
+                <i class="ri-settings-3-line me-1"></i>
+                Fonctionnalités
+            </h5>
+
+        </div>
+
+
+        <div class="detail-card-body">
+
+            <div class="row g-3">
+
+                <!-- Stock -->
+
+                <div class="col-md-6">
+
+                    <div class="feature-card">
+
+                        <div class="feature-card-title">
+                            Gestion du stock
+                        </div>
+
+                        <div class="feature-card-description">
+                            Gestion des médicaments et des mouvements de stock.
+                        </div>
+
+                        {% if pharmacie.gestion_stock_active %}
+
+                            <span class="status-badge feature-active">
+                                <i class="ri-checkbox-circle-line"></i>
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge feature-inactive">
+                                <i class="ri-close-circle-line"></i>
+                                Inactive
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Lots -->
+
+                <div class="col-md-6">
+
+                    <div class="feature-card">
+
+                        <div class="feature-card-title">
+                            Gestion des lots
+                        </div>
+
+                        <div class="feature-card-description">
+                            Traçabilité des lots de médicaments.
+                        </div>
+
+                        {% if pharmacie.gestion_lots_active %}
+
+                            <span class="status-badge feature-active">
+                                <i class="ri-checkbox-circle-line"></i>
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge feature-inactive">
+                                <i class="ri-close-circle-line"></i>
+                                Inactive
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Péremptions -->
+
+                <div class="col-md-6">
+
+                    <div class="feature-card">
+
+                        <div class="feature-card-title">
+                            Gestion des péremptions
+                        </div>
+
+                        <div class="feature-card-description">
+                            Suivi des dates d'expiration.
+                        </div>
+
+                        {% if pharmacie.gestion_peremption_active %}
+
+                            <span class="status-badge feature-active">
+                                <i class="ri-checkbox-circle-line"></i>
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge feature-inactive">
+                                <i class="ri-close-circle-line"></i>
+                                Inactive
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Inventaires -->
+
+                <div class="col-md-6">
+
+                    <div class="feature-card">
+
+                        <div class="feature-card-title">
+                            Gestion des inventaires
+                        </div>
+
+                        <div class="feature-card-description">
+                            Inventaires physiques et régularisation des écarts.
+                        </div>
+
+                        {% if pharmacie.gestion_inventaire_active %}
+
+                            <span class="status-badge feature-active">
+                                <i class="ri-checkbox-circle-line"></i>
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge feature-inactive">
+                                <i class="ri-close-circle-line"></i>
+                                Inactive
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Transferts -->
+
+                <div class="col-md-6">
+
+                    <div class="feature-card">
+
+                        <div class="feature-card-title">
+                            Gestion des transferts
+                        </div>
+
+                        <div class="feature-card-description">
+                            Transfert des médicaments entre stocks.
+                        </div>
+
+                        {% if pharmacie.gestion_transfert_active %}
+
+                            <span class="status-badge feature-active">
+                                <i class="ri-checkbox-circle-line"></i>
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge feature-inactive">
+                                <i class="ri-close-circle-line"></i>
+                                Inactive
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Dispensation -->
+
+                <div class="col-md-6">
+
+                    <div class="feature-card">
+
+                        <div class="feature-card-title">
+                            Gestion de la dispensation
+                        </div>
+
+                        <div class="feature-card-description">
+                            Dispensation des médicaments dans le cadre de la prise en charge.
+                        </div>
+
+                        {% if pharmacie.gestion_dispensation_active %}
+
+                            <span class="status-badge feature-active">
+                                <i class="ri-checkbox-circle-line"></i>
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge feature-inactive">
+                                <i class="ri-close-circle-line"></i>
+                                Inactive
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         DESCRIPTION / OBSERVATIONS
+    ========================================================= -->
+
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <h5>
+                <i class="ri-file-text-line me-1"></i>
+                Informations complémentaires
+            </h5>
+
+        </div>
+
+
+        <div class="detail-card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <div class="detail-label">
+                        Description
+                    </div>
+
+                    <div class="description-box">
+
+                        {% if pharmacie.description %}
+
+                            {{ pharmacie.description|linebreaksbr }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Aucune description renseignée.
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="detail-label">
+                        Observations
+                    </div>
+
+                    <div class="description-box">
+
+                        {% if pharmacie.observations %}
+
+                            {{ pharmacie.observations|linebreaksbr }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Aucune observation renseignée.
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         INFORMATIONS TECHNIQUES
+    ========================================================= -->
+
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <h5>
+                <i class="ri-time-line me-1"></i>
+                Informations système
+            </h5>
+
+        </div>
+
+
+        <div class="detail-card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Date de création
+                        </div>
+
+                        <div class="detail-value">
+
+                            {{ pharmacie.created_at|date:"d/m/Y H:i" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="detail-item">
+
+                        <div class="detail-label">
+                            Dernière modification
+                        </div>
+
+                        <div class="detail-value">
+
+                            {{ pharmacie.updated_at|date:"d/m/Y H:i" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

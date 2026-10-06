@@ -50,3 +50,10 @@ from .hospitalisation import (
     TarifSejour,
 )
 
+from .cliniques import EtablissementPartenaire
+
+from .pharmacies import Pharmacie
+from .pharmacies_internes import PharmacieInterne
+from .pharmacie_partenaire import PharmaciePartenaire
+from .catalogue_pharmacies_partenaires import CatalogueMedicamentPharmaciePartenaire
+from .tarifs_pharmacies_partenaires import TarifMedicamentPharmaciePartenaire

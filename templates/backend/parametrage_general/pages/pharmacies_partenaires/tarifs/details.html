@@ -1,0 +1,1293 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+<div class="tarif-partenaire-details-page">
+
+    <style>
+        .tarif-partenaire-details-page {
+            --teal-900: #0b3d3a;
+            --teal-700: #0f5c56;
+            --teal-500: #12766e;
+            --teal-100: #e6f5f2;
+            --ink: #17212b;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --success: #198754;
+            --warning: #d39e00;
+            --danger: #dc3545;
+            --info: #0d6efd;
+
+            color: var(--ink);
+        }
+
+        /* ============================================================
+           HEADER
+        ============================================================ */
+
+        .tarif-partenaire-details-page .page-header {
+            background: linear-gradient(
+                135deg,
+                var(--teal-900),
+                var(--teal-700)
+            );
+            border-radius: 16px;
+            padding: 24px 26px;
+            color: #fff;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(15, 92, 86, 0.15);
+        }
+
+        .tarif-partenaire-details-page .page-header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .tarif-partenaire-details-page .page-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .tarif-partenaire-details-page .page-title-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 20px;
+        }
+
+        .tarif-partenaire-details-page .page-subtitle {
+            margin: 7px 0 0 58px;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 0.86rem;
+        }
+
+        .tarif-partenaire-details-page .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tarif-partenaire-details-page .btn-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 9px;
+            padding: 9px 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .tarif-partenaire-details-page .btn-back {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+        }
+
+        .tarif-partenaire-details-page .btn-back:hover {
+            background: rgba(255, 255, 255, 0.20);
+            color: #fff;
+        }
+
+        .tarif-partenaire-details-page .btn-edit {
+            color: var(--teal-900);
+            background: #fff;
+            border: 1px solid #fff;
+        }
+
+        .tarif-partenaire-details-page .btn-edit:hover {
+            background: #f5f7f8;
+            color: var(--teal-900);
+        }
+
+        /* ============================================================
+           MAIN GRID
+        ============================================================ */
+
+        .tarif-partenaire-details-page .details-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(300px, .8fr);
+            gap: 20px;
+        }
+
+        .tarif-partenaire-details-page .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+        }
+
+        .tarif-partenaire-details-page .card-header {
+            padding: 16px 18px;
+            background: var(--surface-soft);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tarif-partenaire-details-page .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            color: var(--teal-900);
+            font-size: .92rem;
+            font-weight: 700;
+        }
+
+        .tarif-partenaire-details-page .card-body {
+            padding: 20px;
+        }
+
+        /* ============================================================
+           MEDICAMENT
+        ============================================================ */
+
+        .tarif-partenaire-details-page .medicament-summary {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tarif-partenaire-details-page .medicament-icon {
+            width: 54px;
+            height: 54px;
+            flex: 0 0 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: var(--teal-100);
+            color: var(--teal-700);
+            font-size: 23px;
+        }
+
+        .tarif-partenaire-details-page .medicament-name {
+            font-size: 1.12rem;
+            font-weight: 750;
+            color: var(--teal-900);
+            margin-bottom: 4px;
+        }
+
+        .tarif-partenaire-details-page .medicament-code {
+            color: var(--muted);
+            font-size: .77rem;
+        }
+
+        /* ============================================================
+           INFORMATION GRID
+        ============================================================ */
+
+        .tarif-partenaire-details-page .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px 20px;
+        }
+
+        .tarif-partenaire-details-page .info-item {
+            min-width: 0;
+        }
+
+        .tarif-partenaire-details-page .info-label {
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: .025em;
+        }
+
+        .tarif-partenaire-details-page .info-value {
+            color: #27313a;
+            font-size: .85rem;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .tarif-partenaire-details-page .info-value-light {
+            font-weight: 500;
+        }
+
+        .tarif-partenaire-details-page .reference {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 7px;
+            background: #f8fafc;
+            border: 1px solid #edf0f2;
+            font-family: monospace;
+            font-size: .78rem;
+        }
+
+        /* ============================================================
+           PRIX
+        ============================================================ */
+
+        .tarif-partenaire-details-page .price-box {
+            background: linear-gradient(
+                135deg,
+                var(--teal-100),
+                #f5fbfa
+            );
+            border: 1px solid #cfe9e5;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .tarif-partenaire-details-page .price-label {
+            color: var(--teal-700);
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            margin-bottom: 7px;
+        }
+
+        .tarif-partenaire-details-page .price-value {
+            color: var(--teal-900);
+            font-size: 1.65rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .tarif-partenaire-details-page .price-currency {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--teal-700);
+            margin-left: 4px;
+        }
+
+        /* ============================================================
+           STATUT
+        ============================================================ */
+
+        .tarif-partenaire-details-page .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: .72rem;
+            font-weight: 700;
+        }
+
+        .tarif-partenaire-details-page .status-active {
+            color: #147a43;
+            background: #e8f7ee;
+        }
+
+        .tarif-partenaire-details-page .status-inactive {
+            color: #6b7280;
+            background: #f1f3f5;
+        }
+
+        .tarif-partenaire-details-page .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* ============================================================
+           PHARMACIE
+        ============================================================ */
+
+        .tarif-partenaire-details-page .pharmacie-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .tarif-partenaire-details-page .pharmacie-icon {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            background: #f1f7f6;
+            color: var(--teal-700);
+            font-size: 18px;
+        }
+
+        .tarif-partenaire-details-page .pharmacie-name {
+            font-size: .85rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .tarif-partenaire-details-page .pharmacie-code {
+            color: var(--muted);
+            font-size: .72rem;
+            margin-top: 2px;
+        }
+
+        /* ============================================================
+           COMMENTAIRE
+        ============================================================ */
+
+        .tarif-partenaire-details-page .commentaire {
+            padding: 13px 14px;
+            border-radius: 10px;
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+            color: #4b5563;
+            font-size: .82rem;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        /* ============================================================
+           DATES / AUDIT
+        ============================================================ */
+
+        .tarif-partenaire-details-page .audit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+        }
+
+        .tarif-partenaire-details-page .audit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .tarif-partenaire-details-page .audit-icon {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: var(--teal-100);
+            color: var(--teal-700);
+        }
+
+        .tarif-partenaire-details-page .audit-label {
+            color: var(--muted);
+            font-size: .7rem;
+            margin-bottom: 2px;
+        }
+
+        .tarif-partenaire-details-page .audit-value {
+            color: #374151;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        /* ============================================================
+           ACTIONS BAS DE PAGE
+        ============================================================ */
+
+        .tarif-partenaire-details-page .bottom-actions {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 16px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .tarif-partenaire-details-page .bottom-left,
+        .tarif-partenaire-details-page .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tarif-partenaire-details-page .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 9px;
+            padding: 8px 13px;
+            font-size: .8rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .tarif-partenaire-details-page .btn-action-edit {
+            background: var(--teal-700);
+            color: #fff;
+            border: 1px solid var(--teal-700);
+        }
+
+        .tarif-partenaire-details-page .btn-action-edit:hover {
+            background: var(--teal-900);
+            color: #fff;
+        }
+
+        .tarif-partenaire-details-page .btn-action-toggle {
+            background: #fff8e1;
+            color: #9a7200;
+            border: 1px solid #f2df9e;
+        }
+
+        .tarif-partenaire-details-page .btn-action-toggle:hover {
+            background: #fff2c5;
+            color: #806000;
+        }
+
+        .tarif-partenaire-details-page .btn-action-back {
+            background: #fff;
+            color: #4b5563;
+            border: 1px solid var(--border);
+        }
+
+        .tarif-partenaire-details-page .btn-action-back:hover {
+            background: var(--surface-soft);
+            color: #374151;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+        ============================================================ */
+
+        @media (max-width: 992px) {
+
+            .tarif-partenaire-details-page .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 768px) {
+
+            .tarif-partenaire-details-page .page-header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .tarif-partenaire-details-page .page-subtitle {
+                margin-left: 0;
+            }
+
+            .tarif-partenaire-details-page .header-actions {
+                justify-content: flex-start;
+            }
+
+            .tarif-partenaire-details-page .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tarif-partenaire-details-page .bottom-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .tarif-partenaire-details-page .bottom-left,
+            .tarif-partenaire-details-page .bottom-right {
+                justify-content: stretch;
+            }
+
+            .tarif-partenaire-details-page .btn-action {
+                justify-content: center;
+                flex: 1;
+            }
+
+        }
+    </style>
+
+
+    <!-- ============================================================
+         EN-TÊTE
+    ============================================================ -->
+
+    <div class="page-header">
+
+        <div class="page-header-content">
+
+            <div>
+
+                <h1 class="page-title">
+
+                    <span class="page-title-icon">
+                        <i class="ri-price-tag-3-line"></i>
+                    </span>
+
+                    <span>
+                        Détails du tarif
+                    </span>
+
+                </h1>
+
+                <p class="page-subtitle">
+                    Consultation des informations tarifaires du médicament
+                    auprès de la pharmacie partenaire.
+                </p>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <a
+                    href="{% url 'parametrage_general:liste_tarifs_medicaments_pharmacies_partenaires' %}"
+                    class="btn-header btn-back"
+                >
+                    <i class="ri-arrow-left-line"></i>
+                    Retour
+                </a>
+
+
+                <a
+                    href="{% url 'parametrage_general:liste_tarifs_medicaments_pharmacies_partenaires' %}?modifier={{ tarif.pk }}"
+                    class="btn-header btn-edit"
+                >
+                    <i class="ri-edit-line"></i>
+                    Modifier
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         CONTENU
+    ============================================================ -->
+
+    <div class="details-grid">
+
+
+        <!-- ========================================================
+             COLONNE PRINCIPALE
+        ========================================================= -->
+
+        <div>
+
+
+            <!-- MÉDICAMENT -->
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2 class="card-title">
+
+                        <i class="ri-capsule-line"></i>
+
+                        Médicament concerné
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="medicament-summary">
+
+                        <div class="medicament-icon">
+                            <i class="ri-capsule-line"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="medicament-name">
+                                {{ tarif.catalogue.medicament.nom }}
+                            </div>
+
+                            <div class="medicament-code">
+
+                                {% if tarif.catalogue.medicament.code %}
+                                    Code :
+                                    {{ tarif.catalogue.medicament.code }}
+                                {% endif %}
+
+                                {% if tarif.catalogue.medicament.code_cip %}
+                                    · CIP :
+                                    {{ tarif.catalogue.medicament.code_cip }}
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-grid">
+
+                        <!-- FAMILLE -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Famille
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.medicament.famille %}
+                                    {{ tarif.catalogue.medicament.famille }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FORME -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Forme
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.medicament.forme %}
+                                    {{ tarif.catalogue.medicament.forme }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DOSAGE -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Dosage
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.medicament.dosage %}
+                                    {{ tarif.catalogue.medicament.dosage }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- UNITE -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Unité
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.medicament.unite %}
+                                    {{ tarif.catalogue.medicament.unite }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- NOM COMMERCIAL -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Nom commercial partenaire
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.nom_commercial %}
+                                    {{ tarif.catalogue.nom_commercial }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- REFERENCE INTERNE -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Référence interne
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.reference_interne %}
+                                    {{ tarif.catalogue.reference_interne }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CONDITIONNEMENT -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Conditionnement
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.conditionnement %}
+                                    {{ tarif.catalogue.conditionnement }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- UNITE DE VENTE -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Unité de vente
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.unite_vente %}
+                                    {{ tarif.catalogue.unite_vente }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- TARIFICATION -->
+            <div class="card mt-3">
+
+                <div class="card-header">
+
+                    <h2 class="card-title">
+
+                        <i class="ri-money-dollar-circle-line"></i>
+
+                        Informations tarifaires
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="price-box">
+
+                        <div class="price-label">
+                            Prix appliqué par la pharmacie partenaire
+                        </div>
+
+                        <div class="price-value">
+
+                            {{ tarif.prix|floatformat:2 }}
+
+                            <span class="price-currency">
+                                {{ tarif.devise }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-grid">
+
+                        <!-- REFERENCE TARIFAIRE -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Référence tarifaire
+                            </div>
+
+                            <div class="info-value">
+
+                                <span class="reference">
+                                    {{ tarif.reference }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- MOTIF -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Motif
+                            </div>
+
+                            <div class="info-value">
+
+                                {{ tarif.get_motif_display }}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DEBUT -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Début de validité
+                            </div>
+
+                            <div class="info-value">
+
+                                {{ tarif.date_debut|date:"d/m/Y" }}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FIN -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Fin de validité
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.date_fin %}
+                                    {{ tarif.date_fin|date:"d/m/Y" }}
+                                {% else %}
+                                    Sans date de fin
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUT -->
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Statut
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.actif %}
+
+                                    <span class="status-badge status-active">
+                                        <span class="status-dot"></span>
+                                        Tarif actif
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-inactive">
+                                        <span class="status-dot"></span>
+                                        Tarif inactif
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- COMMENTAIRE -->
+            {% if tarif.commentaire %}
+
+                <div class="card mt-3">
+
+                    <div class="card-header">
+
+                        <h2 class="card-title">
+
+                            <i class="ri-chat-3-line"></i>
+
+                            Commentaire
+
+                        </h2>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="commentaire">
+                            {{ tarif.commentaire }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ========================================================
+             COLONNE LATERALE
+        ========================================================= -->
+
+        <div>
+
+
+            <!-- PHARMACIE -->
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2 class="card-title">
+
+                        <i class="ri-store-2-line"></i>
+
+                        Pharmacie partenaire
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="pharmacie-box">
+
+                        <div class="pharmacie-icon">
+                            <i class="ri-store-2-line"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="pharmacie-name">
+                                {{ tarif.catalogue.pharmacie.nom }}
+                            </div>
+
+                            <div class="pharmacie-code">
+                                Code :
+                                {{ tarif.catalogue.pharmacie.code }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CATALOGUE -->
+            <div class="card mt-3">
+
+                <div class="card-header">
+
+                    <h2 class="card-title">
+
+                        <i class="ri-book-2-line"></i>
+
+                        Catalogue partenaire
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Disponibilité
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.disponible %}
+
+                                    <span class="status-badge status-active">
+                                        <span class="status-dot"></span>
+                                        Disponible
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-inactive">
+                                        <span class="status-dot"></span>
+                                        Indisponible
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Dispensation
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.dispensation_active %}
+
+                                    <span class="status-badge status-active">
+                                        <span class="status-dot"></span>
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-inactive">
+                                        <span class="status-dot"></span>
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Ordonnance
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.accepte_ordonnance %}
+                                    Requise
+                                {% else %}
+                                    Non requise
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <div class="info-label">
+                                Catalogue actif
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if tarif.catalogue.actif %}
+
+                                    <span class="status-badge status-active">
+                                        <span class="status-dot"></span>
+                                        Actif
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-inactive">
+                                        <span class="status-dot"></span>
+                                        Inactif
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- AUDIT -->
+            <div class="card mt-3">
+
+                <div class="card-header">
+
+                    <h2 class="card-title">
+
+                        <i class="ri-history-line"></i>
+
+                        Traçabilité
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="audit-list">
+
+                        <div class="audit-item">
+
+                            <div class="audit-icon">
+                                <i class="ri-add-circle-line"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="audit-label">
+                                    Créé le
+                                </div>
+
+                                <div class="audit-value">
+                                    {{ tarif.date_creation|date:"d/m/Y à H:i" }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="audit-item">
+
+                            <div class="audit-icon">
+                                <i class="ri-edit-line"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="audit-label">
+                                    Dernière modification
+                                </div>
+
+                                <div class="audit-value">
+                                    {{ tarif.date_modification|date:"d/m/Y à H:i" }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         ACTIONS
+    ============================================================ -->
+
+    <div class="bottom-actions">
+
+        <div class="bottom-left">
+
+            <a
+                href="{% url 'parametrage_general:liste_tarifs_medicaments_pharmacies_partenaires' %}"
+                class="btn-action btn-action-back"
+            >
+                <i class="ri-arrow-left-line"></i>
+                Retour à la liste
+            </a>
+
+        </div>
+
+
+        <div class="bottom-right">
+
+            <a
+                href="{% url 'parametrage_general:liste_tarifs_medicaments_pharmacies_partenaires' %}?modifier={{ tarif.pk }}"
+                class="btn-action btn-action-edit"
+            >
+                <i class="ri-edit-line"></i>
+                Modifier le tarif
+            </a>
+
+
+            <a
+                href="{% url 'parametrage_general:toggle_tarif_medicament_pharmacie_partenaire' tarif.pk %}"
+                class="btn-action btn-action-toggle"
+            >
+
+                {% if tarif.actif %}
+
+                    <i class="ri-pause-circle-line"></i>
+                    Désactiver
+
+                {% else %}
+
+                    <i class="ri-play-circle-line"></i>
+                    Activer
+
+                {% endif %}
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

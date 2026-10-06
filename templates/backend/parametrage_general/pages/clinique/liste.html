@@ -1,0 +1,1130 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    /* ============================================================
+       VARIABLES
+    ============================================================ */
+    .cliniques-page,
+    #partenaireModal,
+    #deletePartenaireModal {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    /* ============================================================
+       EN-TÊTE
+    ============================================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--teal-900), var(--teal-700));
+        border-radius: 14px;
+        padding: 22px 24px;
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
+    .page-header h4 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        margin: 5px 0 0;
+        opacity: .85;
+    }
+
+    /* ============================================================
+       STATISTIQUES
+    ============================================================ */
+    .stat-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        background: #fff;
+        height: 100%;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .stat-value {
+        color: var(--ink);
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    /* ============================================================
+       CARTE DE CONTENU
+    ============================================================ */
+    .content-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* ============================================================
+       TABLEAU
+    ============================================================ */
+    .cliniques-page .table th {
+        background: #f8fafc;
+        color: var(--teal-900);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .cliniques-page .table td {
+        vertical-align: middle;
+    }
+
+    .partner-type {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    /* ============================================================
+       BADGES
+    ============================================================ */
+    .badge-status {
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-active    { background: #d1e7dd; color: #0f5132; }
+    .badge-inactive  { background: #f8d7da; color: #842029; }
+    .badge-suspended { background: #fff3cd; color: #664d03; }
+
+    /* ============================================================
+       BOUTONS D'ACTION
+    ============================================================ */
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        background: #fff;
+        text-decoration: none;
+        margin-right: 4px;
+    }
+
+    .action-btn:hover {
+        background: var(--teal-100);
+    }
+
+    .empty-state {
+        padding: 45px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    /* ============================================================
+       MODALES
+    ============================================================ */
+    #partenaireModal,
+    #deletePartenaireModal {
+        z-index: 1060;
+    }
+
+    #partenaireModal .modal-dialog {
+        width: calc(100% - 30px);
+        max-width: 1200px;
+        margin: 15px auto;
+    }
+
+    #partenaireModal .modal-content {
+        border: 0;
+        border-radius: 14px;
+        overflow: hidden;
+        max-height: calc(100vh - 30px);
+    }
+
+    /* Le <form> doit se comporter comme un conteneur flex
+       pour que le body défile et que le footer reste visible */
+    #partenaireForm {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        flex: 1 1 auto;
+    }
+
+    #partenaireModal .modal-header,
+    #deletePartenaireModal .modal-header {
+        background: var(--teal-900);
+        color: #fff;
+        padding: 16px 22px;
+    }
+
+    #partenaireModal .modal-title {
+        font-weight: 700;
+    }
+
+    #partenaireModal .btn-close,
+    #deletePartenaireModal .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 1;
+    }
+
+    #partenaireModal .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    #partenaireModal .modal-footer {
+        background: #fff;
+        border-top: 1px solid var(--border);
+        padding: 14px 22px;
+        flex-shrink: 0;
+    }
+
+    /* ---------- Sections ---------- */
+    #partenaireModal .section-title {
+        color: var(--teal-900);
+        font-size: 14px;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 9px;
+        margin-bottom: 16px;
+    }
+
+    #partenaireModal .section-title i {
+        font-size: 16px;
+    }
+
+    /* ---------- Champs ---------- */
+    #partenaireModal .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    #partenaireModal .form-control,
+    #partenaireModal .form-select {
+        width: 100%;
+        min-height: 38px;
+        border-color: #d1d5db;
+        border-radius: 8px;
+    }
+
+    #partenaireModal .form-control:focus,
+    #partenaireModal .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 .2rem rgba(18, 118, 110, .12);
+    }
+
+    #partenaireModal textarea.form-control {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    #partenaireModal select[multiple] {
+        min-height: 145px;
+        padding: 8px;
+    }
+
+    #partenaireModal select[multiple] option {
+        padding: 7px 9px;
+    }
+
+    /* ---------- Cases à cocher ---------- */
+    #partenaireModal .form-check {
+        min-height: 48px;
+        padding: 12px 15px 12px 40px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+    }
+
+    #partenaireModal .form-check-input {
+        margin-top: 0;
+        cursor: pointer;
+    }
+
+    #partenaireModal .form-check-label {
+        font-weight: 500;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    #partenaireModal .form-text {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    #partenaireModal .field-error {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 991.98px) {
+        #partenaireModal .modal-dialog {
+            width: calc(100% - 20px);
+            max-width: none;
+            margin: 10px auto;
+        }
+
+        #partenaireModal .modal-content {
+            max-height: calc(100vh - 20px);
+        }
+
+        #partenaireModal .modal-body {
+            padding: 20px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 15px;
+            padding: 18px;
+        }
+
+        .page-header .btn {
+            width: 100%;
+        }
+
+        #partenaireModal .modal-dialog {
+            width: calc(100% - 10px);
+            margin: 5px auto;
+        }
+
+        #partenaireModal .modal-content {
+            max-height: calc(100vh - 10px);
+            border-radius: 10px;
+        }
+
+        #partenaireModal .modal-header,
+        #partenaireModal .modal-footer {
+            padding: 12px 16px;
+        }
+
+        #partenaireModal .modal-body {
+            padding: 16px;
+        }
+    }
+</style>
+
+
+<div class="cliniques-page">
+
+    <!-- ============================================================
+         EN-TÊTE
+    ============================================================ -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h4>
+                <i class="ri-hospital-line me-2"></i>
+                Établissements partenaires
+            </h4>
+            <p>Gestion des établissements de santé partenaires de SANITA.</p>
+        </div>
+
+        <button type="button"
+                class="btn btn-light"
+                data-bs-toggle="modal"
+                data-bs-target="#partenaireModal">
+            <i class="ri-add-line me-1"></i>
+            Nouvel établissement
+        </button>
+    </div>
+
+
+    <!-- ============================================================
+         STATISTIQUES
+    ============================================================ -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">{{ total_partenaires }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Actifs</div>
+                <div class="stat-value text-success">{{ partenaires_actifs }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Inactifs</div>
+                <div class="stat-value text-danger">{{ partenaires_inactifs }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Suspendus</div>
+                <div class="stat-value text-warning">{{ partenaires_suspendus }}</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================================
+         LISTE
+    ============================================================ -->
+    <div class="content-card">
+
+        <!-- ---------- Recherche / filtres ---------- -->
+        <div class="content-card-header">
+            <form method="get">
+                <div class="row g-2 align-items-center">
+
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-search-line"></i></span>
+                            <input type="text"
+                                   name="q"
+                                   value="{{ recherche }}"
+                                   class="form-control"
+                                   placeholder="Rechercher par nom, code, téléphone, email ou ville...">
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="type_partenaire" class="form-select">
+                            <option value="">Tous les types</option>
+                            {% for value, label in types_partenaire %}
+                                <option value="{{ value }}" {% if type_partenaire_selectionne == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="statut_partenaire" class="form-select">
+                            <option value="">Tous les statuts</option>
+                            {% for value, label in statuts_partenaire %}
+                                <option value="{{ value }}" {% if statut_partenaire_selectionne == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary w-100" title="Rechercher">
+                            <i class="ri-search-line"></i>
+                        </button>
+                    </div>
+
+                    <div class="col-md-1">
+                        <a href="{% url 'parametrage_general:liste_etablissements_partenaires' %}"
+                           class="btn btn-light w-100"
+                           title="Réinitialiser">
+                            <i class="ri-refresh-line"></i>
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+
+        <!-- ---------- Tableau ---------- -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Établissement</th>
+                        <th>Type</th>
+                        <th>Localisation</th>
+                        <th>Contact</th>
+                        <th>Spécialités</th>
+                        <th>Partenariat</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for partenaire in etablissements_partenaires %}
+                        <tr>
+                            <!-- Code -->
+                            <td><strong>{{ partenaire.code }}</strong></td>
+
+                            <!-- Nom -->
+                            <td>
+                                <div class="fw-semibold">{{ partenaire.nom }}</div>
+                                {% if partenaire.nom_contact %}
+                                    <div class="partner-type">Contact : {{ partenaire.nom_contact }}</div>
+                                {% endif %}
+                            </td>
+
+                            <!-- Type -->
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {{ partenaire.get_type_partenaire_display }}
+                                </span>
+                            </td>
+
+                            <!-- Localisation -->
+                            <td>
+                                {% if partenaire.ville %}
+                                    <div>
+                                        <i class="ri-map-pin-line me-1 text-muted"></i>
+                                        {{ partenaire.ville.libelle }}
+                                    </div>
+                                {% endif %}
+                                {% if partenaire.quartier %}
+                                    <small class="text-muted">{{ partenaire.quartier }}</small>
+                                {% endif %}
+                                {% if not partenaire.ville and not partenaire.quartier %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Contact -->
+                            <td>
+                                {% if partenaire.telephone %}
+                                    <div>
+                                        <i class="ri-phone-line me-1 text-muted"></i>
+                                        {{ partenaire.telephone }}
+                                    </div>
+                                {% endif %}
+                                {% if partenaire.email %}
+                                    <small class="text-muted">{{ partenaire.email }}</small>
+                                {% endif %}
+                                {% if not partenaire.telephone and not partenaire.email %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Spécialités -->
+                            <td>
+                                {% with specialites=partenaire.specialites.all %}
+                                    {% for specialite in specialites|slice:":3" %}
+                                        <span class="badge bg-light text-dark border mb-1">{{ specialite.nom }}</span>
+                                    {% empty %}
+                                        <span class="text-muted">—</span>
+                                    {% endfor %}
+                                    {% if specialites|length > 3 %}
+                                        <span class="text-muted small">+{{ specialites|length|add:"-3" }}</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+
+                            <!-- Partenariat -->
+                            <td>
+                                {% if partenaire.accepte_orientation %}
+                                    <span class="badge-status badge-active">Orientation acceptée</span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border">Orientation non acceptée</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Statut -->
+                            <td>
+                                {% if partenaire.statut_partenaire == 'actif' %}
+                                    <span class="badge-status badge-active">Actif</span>
+                                {% elif partenaire.statut_partenaire == 'inactif' %}
+                                    <span class="badge-status badge-inactive">Inactif</span>
+                                {% else %}
+                                    <span class="badge-status badge-suspended">Suspendu</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="text-end text-nowrap">
+
+                                <!-- Modifier -->
+                                <button type="button"
+                                        class="action-btn"
+                                        title="Modifier"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#partenaireModal"
+                                        data-id="{{ partenaire.pk }}"
+                                        data-nom="{{ partenaire.nom }}"
+                                        data-code="{{ partenaire.code }}"
+                                        data-type="{{ partenaire.type_partenaire }}"
+                                        data-pays="{{ partenaire.pays|default_if_none:'' }}"
+                                        data-ville="{{ partenaire.ville_id|default_if_none:'' }}"
+                                        data-quartier="{{ partenaire.quartier|default_if_none:'' }}"
+                                        data-adresse="{{ partenaire.adresse|default_if_none:'' }}"
+                                        data-telephone="{{ partenaire.telephone|default_if_none:'' }}"
+                                        data-telephone-secondaire="{{ partenaire.telephone_secondaire|default_if_none:'' }}"
+                                        data-email="{{ partenaire.email|default_if_none:'' }}"
+                                        data-site-web="{{ partenaire.site_web|default_if_none:'' }}"
+                                        data-nom-contact="{{ partenaire.nom_contact|default_if_none:'' }}"
+                                        data-fonction-contact="{{ partenaire.fonction_contact|default_if_none:'' }}"
+                                        data-telephone-contact="{{ partenaire.telephone_contact|default_if_none:'' }}"
+                                        data-email-contact="{{ partenaire.email_contact|default_if_none:'' }}"
+                                        data-numero-agrement="{{ partenaire.numero_agrement|default_if_none:'' }}"
+                                        data-numero-autorisation="{{ partenaire.numero_autorisation|default_if_none:'' }}"
+                                        data-numero-fiscal="{{ partenaire.numero_fiscal|default_if_none:'' }}"
+                                        data-registre-commerce="{{ partenaire.registre_commerce|default_if_none:'' }}"
+                                        data-description="{{ partenaire.description|default_if_none:'' }}"
+                                        data-statut="{{ partenaire.statut_partenaire }}"
+                                        data-date-debut="{{ partenaire.date_debut_partenariat|date:'Y-m-d' }}"
+                                        data-date-fin="{{ partenaire.date_fin_partenariat|date:'Y-m-d' }}"
+                                        data-accepte-orientation="{{ partenaire.accepte_orientation|yesno:'true,false' }}"
+                                        data-actif="{{ partenaire.actif|yesno:'true,false' }}"
+                                        data-specialites="{% for s in partenaire.specialites.all %}{{ s.pk }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                                    <i class="ri-edit-line text-primary"></i>
+                                </button>
+
+                                <!-- Activer / désactiver -->
+                                <a href="{% url 'parametrage_general:toggle_etablissement_partenaire' partenaire.pk %}"
+                                   class="action-btn"
+                                   title="{% if partenaire.actif %}Désactiver{% else %}Activer{% endif %}">
+                                    {% if partenaire.actif %}
+                                        <i class="ri-toggle-line text-warning"></i>
+                                    {% else %}
+                                        <i class="ri-checkbox-circle-line text-success"></i>
+                                    {% endif %}
+                                </a>
+
+                                <!-- Supprimer -->
+                                <button type="button"
+                                        class="action-btn"
+                                        title="Supprimer"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deletePartenaireModal"
+                                        data-id="{{ partenaire.pk }}"
+                                        data-nom="{{ partenaire.nom }}">
+                                    <i class="ri-delete-bin-line text-danger"></i>
+                                </button>
+
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9">
+                                <div class="empty-state">
+                                    <i class="ri-hospital-line fs-1 d-block mb-2"></i>
+                                    Aucun établissement partenaire trouvé.
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODALE AJOUT / MODIFICATION
+============================================================ -->
+<div class="modal fade"
+     id="partenaireModal"
+     tabindex="-1"
+     aria-labelledby="partenaireModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="partenaireModalLabel">Nouvel établissement partenaire</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <form method="post"
+                  id="partenaireForm"
+                  action="{% if form_action %}{{ form_action }}{% else %}{% url 'parametrage_general:ajouter_etablissement_partenaire' %}{% endif %}"
+                  novalidate>
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <!-- ================= IDENTIFICATION ================= -->
+                    <div class="section-title">
+                        <i class="ri-hospital-line me-1"></i>
+                        Identification de l'établissement
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.nom.id_for_label }}" class="form-label">Nom de l'établissement</label>
+                            {{ form.nom }}
+                            {% for error in form.nom.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="{{ form.code.id_for_label }}" class="form-label">Code partenaire</label>
+                            {{ form.code }}
+                            {% for error in form.code.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="{{ form.type_partenaire.id_for_label }}" class="form-label">Type de structure</label>
+                            {{ form.type_partenaire }}
+                            {% for error in form.type_partenaire.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ================= LOCALISATION ================= -->
+                    <div class="section-title">
+                        <i class="ri-map-pin-line me-1"></i>
+                        Localisation
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="{{ form.pays.id_for_label }}" class="form-label">Pays</label>
+                            {{ form.pays }}
+                            {% for error in form.pays.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.ville.id_for_label }}" class="form-label">Ville</label>
+                            {{ form.ville }}
+                            {% for error in form.ville.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.quartier.id_for_label }}" class="form-label">Quartier</label>
+                            {{ form.quartier }}
+                            {% for error in form.quartier.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.adresse.id_for_label }}" class="form-label">Adresse</label>
+                            {{ form.adresse }}
+                            {% for error in form.adresse.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ================= COORDONNÉES ================= -->
+                    <div class="section-title">
+                        <i class="ri-phone-line me-1"></i>
+                        Coordonnées
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="{{ form.telephone.id_for_label }}" class="form-label">Téléphone</label>
+                            {{ form.telephone }}
+                            {% for error in form.telephone.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.telephone_secondaire.id_for_label }}" class="form-label">Téléphone secondaire</label>
+                            {{ form.telephone_secondaire }}
+                            {% for error in form.telephone_secondaire.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Adresse e-mail</label>
+                            {{ form.email }}
+                            {% for error in form.email.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.site_web.id_for_label }}" class="form-label">Site web</label>
+                            {{ form.site_web }}
+                            {% for error in form.site_web.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ================= CONTACT PRINCIPAL ================= -->
+                    <div class="section-title">
+                        <i class="ri-user-line me-1"></i>
+                        Contact principal
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.nom_contact.id_for_label }}" class="form-label">Nom du contact</label>
+                            {{ form.nom_contact }}
+                            {% for error in form.nom_contact.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.fonction_contact.id_for_label }}" class="form-label">Fonction</label>
+                            {{ form.fonction_contact }}
+                            {% for error in form.fonction_contact.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.telephone_contact.id_for_label }}" class="form-label">Téléphone du contact</label>
+                            {{ form.telephone_contact }}
+                            {% for error in form.telephone_contact.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.email_contact.id_for_label }}" class="form-label">E-mail du contact</label>
+                            {{ form.email_contact }}
+                            {% for error in form.email_contact.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ================= ADMINISTRATIF ================= -->
+                    <div class="section-title">
+                        <i class="ri-file-text-line me-1"></i>
+                        Informations administratives
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.numero_agrement.id_for_label }}" class="form-label">Numéro d'agrément</label>
+                            {{ form.numero_agrement }}
+                            {% for error in form.numero_agrement.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.numero_autorisation.id_for_label }}" class="form-label">Numéro d'autorisation</label>
+                            {{ form.numero_autorisation }}
+                            {% for error in form.numero_autorisation.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.numero_fiscal.id_for_label }}" class="form-label">Numéro fiscal</label>
+                            {{ form.numero_fiscal }}
+                            {% for error in form.numero_fiscal.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.registre_commerce.id_for_label }}" class="form-label">Registre de commerce</label>
+                            {{ form.registre_commerce }}
+                            {% for error in form.registre_commerce.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ================= SPÉCIALITÉS ================= -->
+                    <div class="section-title">
+                        <i class="ri-stethoscope-line me-1"></i>
+                        Spécialités
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label for="{{ form.specialites.id_for_label }}" class="form-label">Spécialités proposées</label>
+                            {{ form.specialites }}
+                            {% for error in form.specialites.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                            <div class="form-text">
+                                Maintenez la touche <strong>Ctrl</strong> enfoncée pour sélectionner plusieurs spécialités.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PARTENARIAT ================= -->
+                    <div class="section-title">
+                        <i class="ri-handshake-line me-1"></i>
+                        Paramètres du partenariat
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="{{ form.statut_partenaire.id_for_label }}" class="form-label">Statut du partenariat</label>
+                            {{ form.statut_partenaire }}
+                            {% for error in form.statut_partenaire.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.date_debut_partenariat.id_for_label }}" class="form-label">Date de début</label>
+                            {{ form.date_debut_partenariat }}
+                            {% for error in form.date_debut_partenariat.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.date_fin_partenariat.id_for_label }}" class="form-label">Date de fin</label>
+                            {{ form.date_fin_partenariat }}
+                            {% for error in form.date_fin_partenariat.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.accepte_orientation }}
+                                <label class="form-check-label ms-2" for="{{ form.accepte_orientation.id_for_label }}">
+                                    Accepte les orientations SANITA
+                                </label>
+                            </div>
+                            {% for error in form.accepte_orientation.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.actif }}
+                                <label class="form-check-label ms-2" for="{{ form.actif.id_for_label }}">
+                                    Établissement actif
+                                </label>
+                            </div>
+                            {% for error in form.actif.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ================= DESCRIPTION ================= -->
+                    <div class="section-title">
+                        <i class="ri-information-line me-1"></i>
+                        Informations complémentaires
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% for error in form.description.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line me-1"></i>
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODALE SUPPRESSION
+============================================================ -->
+<div class="modal fade"
+     id="deletePartenaireModal"
+     tabindex="-1"
+     aria-labelledby="deletePartenaireModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePartenaireModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <form method="post" id="deletePartenaireForm" action="">
+                {% csrf_token %}
+
+                <div class="modal-body">
+                    <p class="mb-0">
+                        Voulez-vous vraiment supprimer l'établissement partenaire
+                        <strong id="deletePartenaireName"></strong> ?
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="ri-delete-bin-line me-1"></i>
+                        Supprimer
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* ------------------------------------------------------------
+       URLS (le « 0 » est remplacé par l'identifiant réel)
+    ------------------------------------------------------------ */
+    const URL_AJOUT = "{% url 'parametrage_general:ajouter_etablissement_partenaire' %}";
+    const URL_MODIF = "{% url 'parametrage_general:modifier_etablissement_partenaire' 0 %}";
+    const URL_SUPPR = "{% url 'parametrage_general:supprimer_etablissement_partenaire' 0 %}";
+
+    // Fonctionne que l'id soit en fin d'URL (.../modifier/0/)
+    // ou au milieu (.../0/modifier/)
+    function urlAvecId(url, id) {
+        return url.replace(/\/0\//, '/' + id + '/');
+    }
+
+    /* ------------------------------------------------------------
+       ÉLÉMENTS
+    ------------------------------------------------------------ */
+    const modalEl  = document.getElementById('partenaireModal');
+    const form     = document.getElementById('partenaireForm');
+    const titreEl  = modalEl ? modalEl.querySelector('.modal-title') : null;
+
+    const delModalEl = document.getElementById('deletePartenaireModal');
+    const delForm    = document.getElementById('deletePartenaireForm');
+    const delNameEl  = document.getElementById('deletePartenaireName');
+
+    /* ------------------------------------------------------------
+       OUTILS
+    ------------------------------------------------------------ */
+    function getField(name) {
+        return form ? form.querySelector('[name="' + name + '"]') : null;
+    }
+
+    function setValue(name, value) {
+        const field = getField(name);
+        if (field) {
+            field.value = value || '';
+        } else {
+            console.warn('Champ absent du formulaire :', name);
+        }
+    }
+
+    function setChecked(name, checked) {
+        const field = getField(name);
+        if (field) {
+            field.checked = !!checked;
+        }
+    }
+
+    function setMultiple(name, values) {
+        const field = getField(name);
+        if (!field) return;
+        Array.from(field.options).forEach(function (option) {
+            option.selected = values.includes(String(option.value));
+        });
+    }
+
+    // Champ du formulaire  ->  attribut data-* du bouton « Modifier »
+    const CHAMPS = {
+        nom:                    'nom',
+        code:                   'code',
+        type_partenaire:        'type',
+        pays:                   'pays',
+        ville:                  'ville',
+        quartier:               'quartier',
+        adresse:                'adresse',
+        telephone:              'telephone',
+        telephone_secondaire:   'telephone-secondaire',
+        email:                  'email',
+        site_web:               'site-web',
+        nom_contact:            'nom-contact',
+        fonction_contact:       'fonction-contact',
+        telephone_contact:      'telephone-contact',
+        email_contact:          'email-contact',
+        numero_agrement:        'numero-agrement',
+        numero_autorisation:    'numero-autorisation',
+        numero_fiscal:          'numero-fiscal',
+        registre_commerce:      'registre-commerce',
+        description:            'description',
+        statut_partenaire:      'statut',
+        date_debut_partenariat: 'date-debut',
+        date_fin_partenariat:   'date-fin'
+    };
+
+    /* ------------------------------------------------------------
+       MODALE AJOUT / MODIFICATION
+    ------------------------------------------------------------ */
+    if (modalEl && form) {
+
+        modalEl.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+            // Ouverture automatique après une erreur serveur :
+            // on conserve les valeurs saisies et les messages d'erreur.
+            if (!button) return;
+
+            /* ---------- Nouvel établissement ---------- */
+            if (!button.hasAttribute('data-id')) {
+                form.reset();
+                form.action = URL_AJOUT;
+
+                Object.keys(CHAMPS).forEach(function (name) { setValue(name, ''); });
+                setValue('statut_partenaire', 'actif');
+                setMultiple('specialites', []);
+                setChecked('actif', true);
+                setChecked('accepte_orientation', true);
+
+                form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+
+                if (titreEl) titreEl.textContent = 'Nouvel établissement partenaire';
+                return;
+            }
+
+            /* ---------- Modification ---------- */
+            const id = button.getAttribute('data-id');
+            form.action = urlAvecId(URL_MODIF, id);
+
+            Object.entries(CHAMPS).forEach(function ([name, data]) {
+                setValue(name, button.getAttribute('data-' + data));
+            });
+
+            const specialites = (button.getAttribute('data-specialites') || '')
+                .split(',')
+                .filter(Boolean);
+            setMultiple('specialites', specialites);
+
+            setChecked('accepte_orientation', button.getAttribute('data-accepte-orientation') === 'true');
+            setChecked('actif', button.getAttribute('data-actif') === 'true');
+
+            form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+
+            if (titreEl) titreEl.textContent = "Modifier l'établissement partenaire";
+        });
+
+        // Réouverture automatique si le serveur a renvoyé des erreurs
+        {% if ouvrir_modal %}
+            if (titreEl && form.action.indexOf('modifier') !== -1) {
+                titreEl.textContent = "Modifier l'établissement partenaire";
+            }
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        {% endif %}
+    }
+
+    /* ------------------------------------------------------------
+       MODALE SUPPRESSION
+    ------------------------------------------------------------ */
+    if (delModalEl && delForm) {
+
+        delModalEl.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (!button) return;
+
+            if (delNameEl) {
+                delNameEl.textContent = button.getAttribute('data-nom') || '';
+            }
+
+            delForm.action = urlAvecId(URL_SUPPR, button.getAttribute('data-id'));
+        });
+    }
+
+});
+</script>
+
+{% endblock %}

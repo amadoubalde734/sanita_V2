@@ -1,0 +1,1549 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+<style>
+    /* ============================================================
+       VARIABLES
+    ============================================================ */
+    .pharmacie-details-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+
+        --ink: #17212b;
+        --muted: #6c757d;
+        --border: #e9ecef;
+        --soft: #f8fafb;
+        --white: #ffffff;
+    }
+
+    /* ============================================================
+       EN-TÊTE
+    ============================================================ */
+    .pharmacie-details-page .page-header {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px 22px;
+        margin-bottom: 20px;
+    }
+
+    .pharmacie-details-page .breadcrumb {
+        margin-bottom: 8px;
+    }
+
+    .pharmacie-details-page .breadcrumb a {
+        color: var(--teal-700);
+        text-decoration: none;
+    }
+
+    .pharmacie-details-page .breadcrumb a:hover {
+        color: var(--teal-900);
+    }
+
+    .page-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .page-title-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 24px;
+    }
+
+    .page-title h4 {
+        margin: 0;
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .page-title p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    /* ============================================================
+       ACTIONS EN-TÊTE
+    ============================================================ */
+    .page-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn-back,
+    .btn-edit,
+    .btn-delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border-radius: 8px;
+        padding: 8px 13px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all .2s ease;
+    }
+
+    .btn-back {
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: #495057;
+    }
+
+    .btn-back:hover {
+        color: var(--teal-700);
+        border-color: var(--teal-500);
+        background: var(--teal-100);
+    }
+
+    .btn-edit {
+        border: 1px solid var(--teal-700);
+        background: var(--teal-700);
+        color: var(--white);
+    }
+
+    .btn-edit:hover {
+        border-color: var(--teal-900);
+        background: var(--teal-900);
+        color: var(--white);
+    }
+
+    .btn-delete {
+        border: 1px solid #dc3545;
+        background: var(--white);
+        color: #dc3545;
+    }
+
+    .btn-delete:hover {
+        background: #dc3545;
+        color: var(--white);
+    }
+
+    /* ============================================================
+       CARTES
+    ============================================================ */
+    .detail-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .detail-card-header {
+        padding: 15px 18px;
+        border-bottom: 1px solid var(--border);
+        background: var(--soft);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .detail-card-header i {
+        color: var(--teal-700);
+        font-size: 19px;
+    }
+
+    .detail-card-header h5 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .detail-card-body {
+        padding: 20px;
+    }
+
+    /* ============================================================
+       IDENTIFICATION
+    ============================================================ */
+    .pharmacie-identite {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 10px;
+    }
+
+    .pharmacie-logo {
+        width: 76px;
+        height: 76px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        object-fit: cover;
+        background: var(--soft);
+    }
+
+    .pharmacie-logo-placeholder {
+        width: 76px;
+        height: 76px;
+        border-radius: 14px;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+    }
+
+    .pharmacie-identite h3 {
+        margin: 0 0 6px;
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .code-pharmacie {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 9px;
+        border-radius: 6px;
+        background: #f1f3f5;
+        color: #495057;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* ============================================================
+       ÉLÉMENTS D'INFORMATION
+    ============================================================ */
+    .detail-item {
+        margin-bottom: 18px;
+    }
+
+    .detail-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-label {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    .detail-value.empty,
+    .detail-value .empty {
+        color: #adb5bd;
+        font-style: italic;
+        font-weight: 400;
+    }
+
+    /* ============================================================
+       BADGES
+    ============================================================ */
+    .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: #e9f7ef;
+        color: #198754;
+    }
+
+    .badge-warning {
+        background: #fff4e5;
+        color: #b76e00;
+    }
+
+    .badge-danger {
+        background: #fdecec;
+        color: #dc3545;
+    }
+
+    .badge-secondary {
+        background: #f1f3f5;
+        color: #6c757d;
+    }
+
+    .badge-info {
+        background: #eaf3ff;
+        color: #0d6efd;
+    }
+
+    /* ============================================================
+       FONCTIONNALITÉS
+    ============================================================ */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .feature-item {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        background: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .feature-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .feature-name i {
+        color: var(--teal-700);
+        font-size: 17px;
+    }
+
+    /* ============================================================
+       INFO BOX
+    ============================================================ */
+    .info-box {
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: var(--soft);
+        border: 1px solid var(--border);
+        color: #495057;
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 768px) {
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pharmacie-identite {
+            align-items: flex-start;
+        }
+
+        .page-actions {
+            width: 100%;
+        }
+
+        .page-actions a,
+        .page-actions button {
+            flex: 1;
+        }
+    }
+</style>
+
+
+<div class="pharmacie-details-page">
+
+    <!-- ============================================================
+         EN-TÊTE
+    ============================================================ -->
+    <div class="page-header">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+
+                <div class="breadcrumb">
+                    <a href="{% url 'parametrage_general:liste_pharmacies_partenaires' %}">
+                        Pharmacies partenaires
+                    </a>
+
+                    <span class="text-muted mx-1">/</span>
+
+                    <span class="text-muted">
+                        Détails
+                    </span>
+                </div>
+
+                <div class="page-title">
+
+                    <div class="page-title-icon">
+                        <i class="ri-handshake-line"></i>
+                    </div>
+
+                    <div>
+                        <h4>Détails de la pharmacie partenaire</h4>
+
+                        <p>
+                            Consultation des informations et du paramétrage du partenariat SANITA.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ====================================================
+                 ACTIONS
+            ===================================================== -->
+            <div class="page-actions">
+
+                <!-- RETOUR -->
+                <a
+                    href="{% url 'parametrage_general:liste_pharmacies_partenaires' %}"
+                    class="btn-back"
+                >
+                    <i class="ri-arrow-left-line"></i>
+                    Retour à la liste
+                </a>
+
+
+                <!-- MODIFIER -->
+                <a
+                    href="{% url 'parametrage_general:modifier_pharmacie_partenaire' pharmacie.pk %}"
+                    class="btn-edit"
+                >
+                    <i class="ri-edit-line"></i>
+                    Modifier
+                </a>
+
+
+                <!-- SUPPRIMER -->
+                <button
+                    type="button"
+                    class="btn-delete"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalSuppressionPharmacie"
+                >
+                    <i class="ri-delete-bin-line"></i>
+                    Supprimer
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row">
+
+        <!-- ========================================================
+             COLONNE PRINCIPALE
+        ========================================================= -->
+        <div class="col-xl-8">
+
+
+            <!-- IDENTIFICATION -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-store-2-line"></i>
+                    <h5>Identification de la pharmacie</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="pharmacie-identite">
+
+                        {% if pharmacie.logo %}
+
+                            <img
+                                src="{{ pharmacie.logo.url }}"
+                                alt="{{ pharmacie.nom }}"
+                                class="pharmacie-logo"
+                            >
+
+                        {% else %}
+
+                            <div class="pharmacie-logo-placeholder">
+                                <i class="ri-capsule-line"></i>
+                            </div>
+
+                        {% endif %}
+
+
+                        <div>
+
+                            <h3>
+                                {{ pharmacie.nom }}
+                            </h3>
+
+                            <span class="code-pharmacie">
+                                <i class="ri-barcode-line me-1"></i>
+                                {{ pharmacie.code }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOCALISATION ET COORDONNÉES -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-map-pin-line"></i>
+                    <h5>Localisation et coordonnées</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Pays
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.pays %}
+                                        {{ pharmacie.pays }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Ville
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.ville %}
+                                        {{ pharmacie.ville.libelle }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseignée
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Quartier
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.quartier %}
+                                        {{ pharmacie.quartier }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Téléphone
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.telephone %}
+                                        {{ pharmacie.telephone }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Téléphone secondaire
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.telephone_secondaire %}
+                                        {{ pharmacie.telephone_secondaire }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Adresse e-mail
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.email %}
+                                        {{ pharmacie.email }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseignée
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Adresse
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.adresse %}
+                                        {{ pharmacie.adresse|linebreaksbr }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseignée
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {% if pharmacie.site_web %}
+
+                            <div class="col-12">
+
+                                <div class="detail-item">
+
+                                    <span class="detail-label">
+                                        Site web
+                                    </span>
+
+                                    <div class="detail-value">
+                                        {{ pharmacie.site_web }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESPONSABLE -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-user-star-line"></i>
+                    <h5>Responsable de la pharmacie</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Nom du responsable
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.nom_responsable %}
+                                        {{ pharmacie.nom_responsable }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Fonction
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.fonction_responsable %}
+                                        {{ pharmacie.fonction_responsable }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseignée
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Numéro d'ordre
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.numero_ordre_responsable %}
+                                        {{ pharmacie.numero_ordre_responsable }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Téléphone
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.telephone_responsable %}
+                                        {{ pharmacie.telephone_responsable }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    E-mail
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.email_responsable %}
+                                        {{ pharmacie.email_responsable }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseignée
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- INFORMATIONS RÉGLEMENTAIRES -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-shield-check-line"></i>
+                    <h5>Informations réglementaires</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Numéro d'agrément
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.numero_agrement %}
+                                        {{ pharmacie.numero_agrement }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Numéro d'autorisation
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.numero_autorisation %}
+                                        {{ pharmacie.numero_autorisation }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <div class="detail-item">
+
+                                    <span class="detail-label">
+                                        Numéro fiscal
+                                    </span>
+
+                                    <div class="detail-value">
+
+                                        {% if pharmacie.numero_fiscal %}
+                                            {{ pharmacie.numero_fiscal }}
+                                        {% else %}
+                                            <span class="empty">
+                                                Non renseigné
+                                            </span>
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Registre de commerce
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.registre_commerce %}
+                                        {{ pharmacie.registre_commerce }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Identifiant administratif
+                                </span>
+
+                                <div class="detail-value">
+
+                                    {% if pharmacie.identifiant_administratif %}
+                                        {{ pharmacie.identifiant_administratif }}
+                                    {% else %}
+                                        <span class="empty">
+                                            Non renseigné
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DESCRIPTION / OBSERVATIONS -->
+            {% if pharmacie.description or pharmacie.observations %}
+
+                <div class="detail-card">
+
+                    <div class="detail-card-header">
+                        <i class="ri-file-text-line"></i>
+                        <h5>Description et observations</h5>
+                    </div>
+
+                    <div class="detail-card-body">
+
+                        {% if pharmacie.description %}
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Description
+                                </span>
+
+                                <div class="info-box">
+                                    {{ pharmacie.description }}
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if pharmacie.observations %}
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Observations
+                                </span>
+
+                                <div class="info-box">
+                                    {{ pharmacie.observations }}
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ========================================================
+             COLONNE LATÉRALE
+        ========================================================= -->
+        <div class="col-xl-4">
+
+
+            <!-- PARTENARIAT SANITA -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-links-line"></i>
+                    <h5>Partenariat SANITA</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Statut du partenariat
+                        </span>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.statut_partenariat == 'active' %}
+
+                                <span class="badge-soft badge-success">
+                                    <i class="ri-checkbox-circle-line"></i>
+                                    Partenariat actif
+                                </span>
+
+                            {% elif pharmacie.statut_partenariat == 'suspendue' %}
+
+                                <span class="badge-soft badge-warning">
+                                    <i class="ri-pause-circle-line"></i>
+                                    Partenariat suspendu
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    <i class="ri-close-circle-line"></i>
+                                    Partenariat inactif
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            État dans SANITA
+                        </span>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.actif %}
+
+                                <span class="badge-soft badge-success">
+                                    <i class="ri-checkbox-circle-line"></i>
+                                    Pharmacie active
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    <i class="ri-close-circle-line"></i>
+                                    Pharmacie inactive
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Date de début
+                        </span>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.date_debut_partenariat %}
+                                {{ pharmacie.date_debut_partenariat|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="empty">
+                                    Non renseignée
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Date de fin
+                        </span>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.date_fin_partenariat %}
+                                {{ pharmacie.date_fin_partenariat|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="empty">
+                                    Non renseignée
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ORDONNANCES SANITA -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-file-prescription-line"></i>
+                    <h5>Ordonnances SANITA</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Réception des ordonnances
+                        </span>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.accepte_ordonnances_sanita %}
+
+                                <span class="badge-soft badge-success">
+                                    <i class="ri-check-line"></i>
+                                    Ordonnances acceptées
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    <i class="ri-close-line"></i>
+                                    Ordonnances non acceptées
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Traitement des ordonnances
+                        </span>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.gestion_ordonnance_active %}
+
+                                <span class="badge-soft badge-success">
+                                    <i class="ri-file-list-3-line"></i>
+                                    Activé
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    <i class="ri-close-line"></i>
+                                    Désactivé
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Dispensation
+                        </span>
+
+                        <div class="detail-value">
+
+                            {% if pharmacie.gestion_dispensation_active %}
+
+                                <span class="badge-soft badge-success">
+                                    <i class="ri-medicine-bottle-line"></i>
+                                    Activée
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    <i class="ri-close-line"></i>
+                                    Désactivée
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FONCTIONNALITÉS -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-settings-3-line"></i>
+                    <h5>Fonctionnalités</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="feature-grid">
+
+                        <!-- Catalogue -->
+                        <div class="feature-item">
+
+                            <div class="feature-name">
+                                <i class="ri-book-2-line"></i>
+                                Catalogue
+                            </div>
+
+                            {% if pharmacie.gestion_catalogue_active %}
+
+                                <span class="badge-soft badge-success">
+                                    Actif
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    Inactif
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Tarifs -->
+                        <div class="feature-item">
+
+                            <div class="feature-name">
+                                <i class="ri-price-tag-3-line"></i>
+                                Tarifs
+                            </div>
+
+                            {% if pharmacie.gestion_tarifs_active %}
+
+                                <span class="badge-soft badge-success">
+                                    Actif
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    Inactif
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Stock -->
+                        <div class="feature-item">
+
+                            <div class="feature-name">
+                                <i class="ri-archive-line"></i>
+                                Stock
+                            </div>
+
+                            {% if pharmacie.gestion_stock_active %}
+
+                                <span class="badge-soft badge-success">
+                                    Actif
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    Inactif
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Ordonnance -->
+                        <div class="feature-item">
+
+                            <div class="feature-name">
+                                <i class="ri-file-prescription-line"></i>
+                                Ordonnance
+                            </div>
+
+                            {% if pharmacie.gestion_ordonnance_active %}
+
+                                <span class="badge-soft badge-success">
+                                    Actif
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    Inactif
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Dispensation -->
+                        <div class="feature-item">
+
+                            <div class="feature-name">
+                                <i class="ri-capsule-line"></i>
+                                Dispensation
+                            </div>
+
+                            {% if pharmacie.gestion_dispensation_active %}
+
+                                <span class="badge-soft badge-success">
+                                    Actif
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge-soft badge-secondary">
+                                    Inactif
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- INTÉGRATION SANITA -->
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+                    <i class="ri-information-line"></i>
+                    <h5>Intégration SANITA</h5>
+                </div>
+
+                <div class="detail-card-body">
+
+                    <div class="info-box">
+                        Cette pharmacie partenaire peut être intégrée aux flux SANITA selon les fonctionnalités activées dans son paramétrage.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================================================================
+     MODAL CONFIRMATION SUPPRESSION
+================================================================ -->
+<div
+    class="modal fade"
+    id="modalSuppressionPharmacie"
+    tabindex="-1"
+    aria-labelledby="modalSuppressionPharmacieLabel"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="modalSuppressionPharmacieLabel"
+                >
+                    Confirmer la suppression
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div class="d-flex align-items-start gap-3">
+
+                    <div class="text-danger fs-3">
+                        <i class="ri-error-warning-line"></i>
+                    </div>
+
+                    <div>
+
+                        <p class="mb-2">
+                            Voulez-vous vraiment supprimer cette pharmacie partenaire ?
+                        </p>
+
+                        <strong>
+                            {{ pharmacie.nom }}
+                        </strong>
+
+                        <p class="text-muted small mt-2 mb-0">
+                            Cette action est irréversible.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                >
+                    Annuler
+                </button>
+
+
+                <form
+                    method="post"
+                    action="{% url 'parametrage_general:supprimer_pharmacie_partenaire' pharmacie.pk %}"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
+                        <i class="ri-delete-bin-line me-1"></i>
+                        Supprimer
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1701 @@
+{% extends "backend/parametrage_general/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    /* ============================================================
+       TOKENS (identiques aux pages Médicaments)
+       ============================================================ */
+    .med {
+        --brand-900: #0b3d3a;
+        --brand-700: #0f5c56;
+        --brand-600: #12766e;
+        --brand-100: #d6ece8;
+        --brand-50:  #eef7f5;
+
+        --ink-900: #111827;
+        --ink-700: #374151;
+        --ink-500: #6b7280;
+        --ink-400: #9ca3af;
+
+        --line:       #e5e7eb;
+        --line-soft:  #f1f2f4;
+        --field-line: #d5dae0;
+        --surface:    #ffffff;
+        --canvas:     #f7f9f9;
+
+        --ok-bg: #e9f6ef;
+        --ok-fg: #146c43;
+
+        --off-bg: #f3f4f6;
+        --off-fg: #4b5563;
+
+        --warn-bg: #fdf6e3;
+        --warn-fg: #9a6700;
+
+        --err-bg: #fef3f2;
+        --err-fg: #b42318;
+
+        --radius-lg: 14px;
+        --radius-md: 8px;
+        --radius-sm: 6px;
+
+        color: var(--ink-900);
+        font-size: 14px;
+    }
+
+    .med *,
+    .med *::before,
+    .med *::after {
+        box-sizing: border-box;
+    }
+
+    .med a:focus-visible,
+    .med button:focus-visible,
+    .med input:focus-visible,
+    .med select:focus-visible {
+        outline: 2px solid var(--brand-600);
+        outline-offset: 2px;
+    }
+
+    .med-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* ============================================================
+       BOUTONS
+       ============================================================ */
+    .med-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        background: none;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+    }
+
+    .med-btn i {
+        font-size: 17px;
+    }
+
+    .med-btn--primary {
+        background: var(--brand-700);
+        color: #fff;
+    }
+
+    .med-btn--primary:hover {
+        background: var(--brand-900);
+        color: #fff;
+    }
+
+    .med-btn--primary[disabled] {
+        opacity: .7;
+        cursor: progress;
+    }
+
+    .med-btn--ghost {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink-700);
+    }
+
+    .med-btn--ghost:hover {
+        border-color: #cfd4da;
+        color: var(--ink-900);
+    }
+
+    .med-kbd {
+        padding: 1px 6px;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        background: var(--surface);
+        font-family: inherit;
+        font-size: 11.5px;
+        color: var(--ink-500);
+    }
+
+    /* ============================================================
+       EN-TÊTE
+       ============================================================ */
+    .med-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 22px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .med-head__main {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .med-head__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 24px;
+    }
+
+    .med-head__crumb {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .med-head__crumb a {
+        color: var(--ink-500);
+        text-decoration: none;
+    }
+
+    .med-head__crumb a:hover {
+        color: var(--brand-700);
+        text-decoration: underline;
+    }
+
+    .med-head__crumb [aria-current] {
+        color: var(--ink-700);
+    }
+
+    .med-head h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -.015em;
+        line-height: 1.25;
+    }
+
+    .med-head p {
+        max-width: 64ch;
+        margin: 6px 0 0;
+        color: var(--ink-500);
+        line-height: 1.5;
+    }
+
+    .med-head__actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       SYNTHÈSE
+       ============================================================ */
+    .med-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .med-stat {
+        display: block;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        color: inherit;
+        text-decoration: none;
+        transition: border-color .15s ease, background-color .15s ease;
+    }
+
+    a.med-stat:hover {
+        border-color: #cfd4da;
+        color: inherit;
+    }
+
+    .med-stat[aria-current="true"] {
+        border-color: var(--brand-600);
+        background: var(--brand-50);
+    }
+
+    .med-stat__label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .med-stat__label i {
+        font-size: 16px;
+    }
+
+    .med-stat__value {
+        margin-top: 6px;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -.01em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .med-stat--total .med-stat__label i { color: var(--brand-700); }
+    .med-stat--on    .med-stat__label i { color: var(--ok-fg); }
+    .med-stat--off   .med-stat__label i { color: var(--ink-400); }
+    .med-stat--meds  .med-stat__label i { color: var(--warn-fg); }
+
+    /* ============================================================
+       PANNEAU ET FILTRES
+       ============================================================ */
+    .med-panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .med-toolbar {
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--canvas);
+    }
+
+    .med-toolbar__grid {
+        display: grid;
+        grid-template-columns: minmax(240px, 1fr) 200px auto;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .med-control {
+        position: relative;
+    }
+
+    .med-control__icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 17px;
+        color: var(--ink-400);
+        pointer-events: none;
+    }
+
+    .med-control__hint {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .med-toolbar input,
+    .med-toolbar select {
+        display: block;
+        width: 100%;
+        min-height: 40px;
+        padding: 8px 12px;
+        border: 1px solid var(--field-line);
+        border-radius: var(--radius-md);
+        background-color: var(--surface);
+        color: var(--ink-900);
+        font-size: 14px;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .med-toolbar input[type="search"] {
+        padding-left: 38px;
+        padding-right: 40px;
+    }
+
+    .med-toolbar select,
+    .med-modal select {
+        appearance: none;
+        padding-right: 36px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+    }
+
+    .med-toolbar input:hover,
+    .med-toolbar select:hover {
+        border-color: #b9c0c8;
+    }
+
+    .med-toolbar input:focus,
+    .med-toolbar select:focus {
+        outline: none;
+        border-color: var(--brand-600);
+        box-shadow: 0 0 0 3px rgba(18, 118, 110, .15);
+    }
+
+    .med-toolbar__meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .med-toolbar__meta strong {
+        color: var(--ink-900);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .med-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .med-chip {
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--brand-100);
+        color: var(--brand-900);
+        font-size: 12.5px;
+        font-weight: 600;
+    }
+
+    .med-link {
+        color: var(--brand-700);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .med-link:hover {
+        text-decoration: underline;
+    }
+
+    /* ============================================================
+       TABLEAU
+       ============================================================ */
+    .med-table-wrap {
+        overflow-x: auto;
+    }
+
+    .med-table {
+        width: 100%;
+        min-width: 820px;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .med-table thead th {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-500);
+        font-size: 12.5px;
+        font-weight: 600;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .med-table .end {
+        text-align: right;
+    }
+
+    .med-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line-soft);
+        color: var(--ink-700);
+        font-size: 13.5px;
+        vertical-align: middle;
+    }
+
+    .med-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .med-table tbody tr:hover {
+        background: #fafbfb;
+    }
+
+    .med-table tbody tr.is-inactive td {
+        color: var(--ink-400);
+    }
+
+    .med-table tbody tr.is-inactive .fam-name {
+        color: var(--ink-500);
+    }
+
+    .med-dash {
+        color: var(--ink-400);
+    }
+
+    /* Famille */
+    .fam-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .fam-prefix {
+        flex: none;
+        display: grid;
+        place-items: center;
+        min-width: 52px;
+        height: 40px;
+        padding: 0 8px;
+        border: 1px dashed #a9d3cc;
+        border-radius: var(--radius-md);
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: .04em;
+    }
+
+    .is-inactive .fam-prefix {
+        border-color: var(--line);
+        background: var(--off-bg);
+        color: var(--ink-500);
+    }
+
+    .fam-name {
+        display: block;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--ink-900);
+    }
+
+    .fam-example {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        color: var(--ink-500);
+    }
+
+    .fam-desc {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        max-width: 48ch;
+        line-height: 1.45;
+    }
+
+    .fam-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    a.fam-count:hover {
+        background: var(--brand-100);
+        color: var(--brand-900);
+    }
+
+    .fam-count--zero {
+        background: var(--off-bg);
+        color: var(--ink-500);
+    }
+
+    /* Statut */
+    .med-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .med-status::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .med-status--on  { background: var(--ok-bg);  color: var(--ok-fg); }
+    .med-status--off { background: var(--off-bg); color: var(--off-fg); }
+
+    /* Actions */
+    .med-row-actions {
+        display: inline-flex;
+        gap: 2px;
+    }
+
+    .med-row-actions form {
+        margin: 0;
+    }
+
+    .med-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--ink-500);
+        font-size: 17px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color .15s ease, color .15s ease;
+    }
+
+    .med-icon-btn:hover {
+        background: var(--brand-50);
+        color: var(--brand-700);
+    }
+
+    .med-icon-btn--danger:hover {
+        background: var(--err-bg);
+        color: var(--err-fg);
+    }
+
+    .med-icon-btn--success:hover {
+        background: var(--ok-bg);
+        color: var(--ok-fg);
+    }
+
+    /* ============================================================
+       ÉTAT VIDE
+       ============================================================ */
+    .med-empty {
+        padding: 64px 20px;
+        text-align: center;
+    }
+
+    .med-empty__icon {
+        display: grid;
+        place-items: center;
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 14px;
+        border-radius: 14px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 26px;
+    }
+
+    .med-empty h2 {
+        margin: 0 0 6px;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .med-empty p {
+        max-width: 46ch;
+        margin: 0 auto 18px;
+        color: var(--ink-500);
+    }
+
+    .med-empty__actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* ============================================================
+       MODALE
+       ============================================================ */
+    .med-modal .modal-dialog {
+        max-width: 640px;
+    }
+
+    .med-modal .modal-content {
+        border: 0;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 24px 48px -16px rgba(11, 61, 58, .35);
+        overflow: hidden;
+    }
+
+    .med-modal__head {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--line-soft);
+    }
+
+    .med-modal__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 20px;
+    }
+
+    .med-modal__head h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -.01em;
+    }
+
+    .med-modal__head p {
+        margin: 3px 0 0;
+        font-size: 13.5px;
+        color: var(--ink-500);
+    }
+
+    .med-modal__head .btn-close {
+        margin-left: auto;
+    }
+
+    .med-modal__body {
+        max-height: calc(100vh - 220px);
+        overflow-y: auto;
+        padding: 20px 24px 24px;
+    }
+
+    .med-modal__foot {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 14px 24px;
+        border-top: 1px solid var(--line);
+        background: var(--canvas);
+    }
+
+    .med-fields {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 18px 16px;
+    }
+
+    .med-field--full {
+        grid-column: 1 / -1;
+    }
+
+    .med-label {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-bottom: 6px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--ink-700);
+    }
+
+    .med-req {
+        color: var(--err-fg);
+    }
+
+    .med-opt {
+        margin-left: 4px;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--ink-400);
+    }
+
+    .med-modal .med-field input:not([type="checkbox"]),
+    .med-modal .med-field textarea {
+        display: block;
+        width: 100%;
+        min-height: 42px;
+        padding: 9px 12px;
+        border: 1px solid var(--field-line);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        color: var(--ink-900);
+        font-size: 14px;
+        line-height: 1.4;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .med-modal .med-field textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .med-modal .med-field input:hover,
+    .med-modal .med-field textarea:hover {
+        border-color: #b9c0c8;
+    }
+
+    .med-modal .med-field input:focus,
+    .med-modal .med-field textarea:focus {
+        outline: none;
+        border-color: var(--brand-600);
+        box-shadow: 0 0 0 3px rgba(18, 118, 110, .15);
+    }
+
+    .fam-code-input input {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .med-help {
+        margin: 6px 0 0;
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: var(--ink-500);
+    }
+
+    .med-error {
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        margin: 6px 0 0;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--err-fg);
+    }
+
+    .med-field.has-error input,
+    .med-field.has-error textarea {
+        border-color: var(--err-fg) !important;
+        background: #fffbfa !important;
+    }
+
+    .med-form-alert {
+        display: flex;
+        gap: 10px;
+        padding: 12px 14px;
+        margin-bottom: 18px;
+        border: 1px solid #f5c2bd;
+        border-left: 4px solid var(--err-fg);
+        border-radius: var(--radius-md);
+        background: var(--err-bg);
+        color: var(--err-fg);
+        font-size: 13.5px;
+    }
+
+    /* Aperçu de la référence générée */
+    .fam-preview {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+        background: var(--brand-900);
+        color: #cfe7e3;
+        font-size: 13px;
+    }
+
+    .fam-preview__ref {
+        flex: none;
+        padding: 6px 10px;
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, .1);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: .06em;
+    }
+
+    .fam-preview__ref.is-empty {
+        color: rgba(255, 255, 255, .45);
+    }
+
+    .fam-preview p {
+        margin: 0;
+        line-height: 1.45;
+    }
+
+    .fam-warning {
+        display: none;
+        gap: 8px;
+        padding: 10px 12px;
+        margin-top: 10px;
+        border-radius: var(--radius-md);
+        background: var(--warn-bg);
+        color: var(--warn-fg);
+        font-size: 12.5px;
+        line-height: 1.45;
+    }
+
+    .fam-warning.is-visible {
+        display: flex;
+    }
+
+    /* Interrupteur actif */
+    .fam-switch {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+    }
+
+    .fam-switch strong {
+        display: block;
+        font-size: 13.5px;
+        color: var(--ink-900);
+    }
+
+    .fam-switch span {
+        display: block;
+        margin-top: 2px;
+        font-size: 12.5px;
+        color: var(--ink-500);
+        line-height: 1.45;
+    }
+
+    .fam-switch .form-check-input {
+        width: 2.4em;
+        height: 1.3em;
+        margin: 2px 0 0;
+        cursor: pointer;
+    }
+
+    .fam-switch .form-check-input:checked {
+        background-color: var(--brand-600);
+        border-color: var(--brand-600);
+    }
+
+    .fam-switch .form-check-input:focus {
+        box-shadow: 0 0 0 3px rgba(18, 118, 110, .15);
+        border-color: var(--brand-600);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1100px) {
+        .med-summary {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .med-head__icon,
+        .med-control__hint {
+            display: none;
+        }
+
+        .med-head__actions,
+        .med-head__actions .med-btn {
+            width: 100%;
+        }
+
+        .med-toolbar__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .med-toolbar__grid .med-btn {
+            width: 100%;
+        }
+
+        .med-table {
+            min-width: 0;
+        }
+
+        .med-table thead {
+            display: none;
+        }
+
+        .med-table,
+        .med-table tbody,
+        .med-table tr,
+        .med-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .med-table tbody tr {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .med-table tbody td {
+            padding: 0;
+            border: 0;
+        }
+
+        .med-table td[data-label]::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--ink-500);
+        }
+
+        .med-table .cell-main,
+        .med-table .cell-desc {
+            grid-column: 1 / -1;
+        }
+
+        .med-table .cell-actions {
+            grid-column: 1 / -1;
+            padding-top: 10px;
+            border-top: 1px solid var(--line-soft);
+            text-align: left;
+        }
+
+        .med-fields {
+            grid-template-columns: 1fr;
+        }
+
+        .med-modal__head,
+        .med-modal__body,
+        .med-modal__foot {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        .med-modal__foot {
+            flex-direction: column-reverse;
+        }
+
+        .med-modal__foot .med-btn {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .med * {
+            transition: none !important;
+        }
+    }
+</style>
+
+
+<div class="med">
+
+    <!-- ========================================================
+         EN-TÊTE
+         ======================================================== -->
+    <header class="med-head">
+
+        <div class="med-head__main">
+            <span class="med-head__icon" aria-hidden="true">
+                <i class="ri-folder-3-line"></i>
+            </span>
+
+            <div>
+                <nav class="med-head__crumb" aria-label="Fil d'Ariane">
+                    <a href="{% url 'stock:medicament_list' %}">Médicaments</a>
+                    <span aria-hidden="true">/</span>
+                    <span aria-current="page">Familles</span>
+                </nav>
+
+                <h1>Familles de médicaments</h1>
+
+                <p>
+                    Regroupez les médicaments par famille thérapeutique. Le code de
+                    chaque famille sert de préfixe aux références SANITA.
+                </p>
+            </div>
+        </div>
+
+        <div class="med-head__actions">
+            <a href="{% url 'stock:medicament_list' %}" class="med-btn med-btn--ghost">
+                <i class="ri-capsule-line" aria-hidden="true"></i>
+                Voir les médicaments
+            </a>
+
+            <button type="button"
+                    class="med-btn med-btn--primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#familleModal">
+                <i class="ri-add-line" aria-hidden="true"></i>
+                Nouvelle famille
+            </button>
+        </div>
+
+    </header>
+
+
+    <!-- ========================================================
+         SYNTHÈSE
+         ======================================================== -->
+    <nav class="med-summary" aria-label="Synthèse des familles">
+
+        <a href="{% url 'stock:famille_list' %}"
+           class="med-stat med-stat--total"
+           {% if not actif_selectionne and not recherche %}aria-current="true"{% endif %}>
+            <span class="med-stat__label">
+                <i class="ri-folder-3-line" aria-hidden="true"></i>
+                Familles
+            </span>
+            <span class="med-stat__value">{{ total_familles|default:0 }}</span>
+        </a>
+
+        <a href="?actif=1"
+           class="med-stat med-stat--on"
+           {% if actif_selectionne == "1" %}aria-current="true"{% endif %}>
+            <span class="med-stat__label">
+                <i class="ri-checkbox-circle-line" aria-hidden="true"></i>
+                Actives
+            </span>
+            <span class="med-stat__value">{{ familles_actives|default:0 }}</span>
+        </a>
+
+        <a href="?actif=0"
+           class="med-stat med-stat--off"
+           {% if actif_selectionne == "0" %}aria-current="true"{% endif %}>
+            <span class="med-stat__label">
+                <i class="ri-pause-circle-line" aria-hidden="true"></i>
+                Inactives
+            </span>
+            <span class="med-stat__value">{{ familles_inactives|default:0 }}</span>
+        </a>
+
+        <a href="{% url 'stock:medicament_list' %}" class="med-stat med-stat--meds">
+            <span class="med-stat__label">
+                <i class="ri-capsule-line" aria-hidden="true"></i>
+                Médicaments rattachés
+            </span>
+            <span class="med-stat__value">{{ total_medicaments|default:0 }}</span>
+        </a>
+
+    </nav>
+
+
+    <!-- ========================================================
+         LISTE
+         ======================================================== -->
+    <section class="med-panel" aria-label="Liste des familles">
+
+        <!-- FILTRES -->
+        <div class="med-toolbar">
+            <form method="get" action="{% url 'stock:famille_list' %}" role="search" id="fam-filters">
+
+                <div class="med-toolbar__grid">
+
+                    <div class="med-control">
+                        <i class="ri-search-line med-control__icon" aria-hidden="true"></i>
+                        <label for="fam-q" class="visually-hidden">Rechercher une famille</label>
+                        <input
+                            id="fam-q"
+                            type="search"
+                            name="q"
+                            value="{{ recherche|default:'' }}"
+                            placeholder="Code, nom ou description"
+                            autocomplete="off"
+                            aria-keyshortcuts="/"
+                        >
+                        <span class="med-control__hint" aria-hidden="true"><kbd class="med-kbd">/</kbd></span>
+                    </div>
+
+                    <div>
+                        <label for="fam-actif" class="visually-hidden">Statut</label>
+                        <select id="fam-actif" name="actif" data-autosubmit>
+                            <option value="">Tous les statuts</option>
+                            <option value="1" {% if actif_selectionne == "1" %}selected{% endif %}>Actives</option>
+                            <option value="0" {% if actif_selectionne == "0" %}selected{% endif %}>Inactives</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="med-btn med-btn--primary">
+                        <i class="ri-search-line" aria-hidden="true"></i>
+                        Rechercher
+                    </button>
+
+                </div>
+
+                <div class="med-toolbar__meta">
+                    <span aria-live="polite">
+                        <strong>{{ familles|length }}</strong>
+                        famille{{ familles|length|pluralize }}
+                    </span>
+
+                    {% if recherche or actif_selectionne %}
+                        <div class="med-chips">
+                            {% if recherche %}
+                                <span class="med-chip">« {{ recherche }} »</span>
+                            {% endif %}
+                            {% if actif_selectionne == "1" %}
+                                <span class="med-chip">Actives</span>
+                            {% elif actif_selectionne == "0" %}
+                                <span class="med-chip">Inactives</span>
+                            {% endif %}
+                            <a href="{% url 'stock:famille_list' %}" class="med-link">Effacer les filtres</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </form>
+        </div>
+
+
+        {% if familles %}
+
+            <div class="med-table-wrap">
+                <table class="med-table">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Famille</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Médicaments</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col" class="end"><span class="visually-hidden">Actions</span></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for famille in familles %}
+                            <tr class="{% if not famille.actif %}is-inactive{% endif %}">
+
+                                <!-- FAMILLE -->
+                                <td class="cell-main">
+                                    <div class="fam-cell">
+                                        <span class="fam-prefix med-mono" title="Préfixe des références">
+                                            {{ famille.code }}
+                                        </span>
+                                        <div>
+                                            <span class="fam-name">{{ famille.nom }}</span>
+                                            <span class="fam-example">
+                                                Références <span class="med-mono">{{ famille.code }}-00001</span>, …
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- DESCRIPTION -->
+                                <td class="cell-desc" data-label="Description">
+                                    {% if famille.description %}
+                                        <span class="fam-desc" title="{{ famille.description }}">
+                                            {{ famille.description }}
+                                        </span>
+                                    {% else %}
+                                        <span class="med-dash">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- MÉDICAMENTS -->
+                                <td data-label="Médicaments">
+                                    {% if famille.nombre_medicaments %}
+                                        <a href="{% url 'stock:medicament_list' %}?famille={{ famille.pk }}"
+                                           class="fam-count"
+                                           title="Voir les médicaments de cette famille">
+                                            <i class="ri-capsule-line" aria-hidden="true"></i>
+                                            {{ famille.nombre_medicaments }}
+                                            médicament{{ famille.nombre_medicaments|pluralize }}
+                                        </a>
+                                    {% else %}
+                                        <span class="fam-count fam-count--zero">Aucun</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- STATUT -->
+                                <td data-label="Statut">
+                                    {% if famille.actif %}
+                                        <span class="med-status med-status--on">Active</span>
+                                    {% else %}
+                                        <span class="med-status med-status--off">Inactive</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- ACTIONS -->
+                                <td class="end cell-actions">
+                                    <div class="med-row-actions">
+
+                                        <button type="button"
+                                                class="med-icon-btn"
+                                                title="Modifier"
+                                                aria-label="Modifier la famille {{ famille.nom }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#familleModal"
+                                                data-id="{{ famille.pk }}"
+                                                data-code="{{ famille.code }}"
+                                                data-nom="{{ famille.nom }}"
+                                                data-description="{{ famille.description|default_if_none:'' }}"
+                                                data-actif="{{ famille.actif|yesno:'true,false' }}"
+                                                data-medicaments="{{ famille.nombre_medicaments|default:0 }}">
+                                            <i class="ri-pencil-line" aria-hidden="true"></i>
+                                        </button>
+
+                                        <form method="post"
+                                              action="{% url 'stock:famille_toggle' famille.pk %}"
+                                              data-confirm="{% if famille.actif %}Désactiver la famille « {{ famille.nom }} » ? Elle ne sera plus proposée lors de la création d'un médicament.{% else %}Réactiver la famille « {{ famille.nom }} » ?{% endif %}">
+                                            {% csrf_token %}
+
+                                            {% if famille.actif %}
+                                                <button type="submit"
+                                                        class="med-icon-btn med-icon-btn--danger"
+                                                        title="Désactiver"
+                                                        aria-label="Désactiver la famille {{ famille.nom }}">
+                                                    <i class="ri-pause-circle-line" aria-hidden="true"></i>
+                                                </button>
+                                            {% else %}
+                                                <button type="submit"
+                                                        class="med-icon-btn med-icon-btn--success"
+                                                        title="Réactiver"
+                                                        aria-label="Réactiver la famille {{ famille.nom }}">
+                                                    <i class="ri-play-circle-line" aria-hidden="true"></i>
+                                                </button>
+                                            {% endif %}
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            <!-- ÉTAT VIDE -->
+            <div class="med-empty">
+
+                <div class="med-empty__icon" aria-hidden="true">
+                    <i class="{% if recherche or actif_selectionne %}ri-search-line{% else %}ri-folder-3-line{% endif %}"></i>
+                </div>
+
+                {% if recherche or actif_selectionne %}
+                    <h2>Aucune famille ne correspond</h2>
+                    <p>Cherchez par code ou par nom, ou effacez les filtres.</p>
+                {% else %}
+                    <h2>Aucune famille pour le moment</h2>
+                    <p>Créez une première famille : son code servira de préfixe aux références des médicaments.</p>
+                {% endif %}
+
+                <div class="med-empty__actions">
+                    {% if recherche or actif_selectionne %}
+                        <a href="{% url 'stock:famille_list' %}" class="med-btn med-btn--ghost">
+                            <i class="ri-close-line" aria-hidden="true"></i>
+                            Effacer les filtres
+                        </a>
+                    {% endif %}
+
+                    <button type="button"
+                            class="med-btn med-btn--primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#familleModal">
+                        <i class="ri-add-line" aria-hidden="true"></i>
+                        Nouvelle famille
+                    </button>
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- ============================================================
+     MODALE AJOUT / MODIFICATION
+     ============================================================ -->
+<div class="modal fade med med-modal"
+     id="familleModal"
+     tabindex="-1"
+     aria-labelledby="familleModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <form method="post"
+                  id="familleForm"
+                  action="{% if form.instance.pk %}{% url 'stock:famille_update' form.instance.pk %}{% else %}{% url 'stock:famille_create' %}{% endif %}"
+                  novalidate>
+
+                {% csrf_token %}
+
+                <div class="med-modal__head">
+                    <span class="med-modal__icon" aria-hidden="true">
+                        <i class="ri-folder-3-line"></i>
+                    </span>
+
+                    <div>
+                        <h2 id="familleModalLabel">
+                            {% if form.instance.pk %}Modifier la famille{% else %}Nouvelle famille{% endif %}
+                        </h2>
+                        <p>Le code choisi préfixera les références des médicaments de cette famille.</p>
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+
+
+                <div class="med-modal__body">
+
+                    {% if form.non_field_errors %}
+                        <div class="med-form-alert" role="alert" data-server-error>
+                            <i class="ri-error-warning-line" aria-hidden="true"></i>
+                            <div>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="med-fields">
+
+                        <!-- CODE -->
+                        <div class="med-field fam-code-input{% if form.code.errors %} has-error{% endif %}">
+                            <label class="med-label" for="{{ form.code.id_for_label }}">
+                                Code <span class="med-req" aria-hidden="true">*</span>
+                            </label>
+
+                            {{ form.code }}
+
+                            {% if form.code.help_text %}
+                                <p class="med-help">{{ form.code.help_text }}</p>
+                            {% endif %}
+
+                            {% for error in form.code.errors %}
+                                <p class="med-error" data-server-error>
+                                    <i class="ri-error-warning-fill" aria-hidden="true"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- NOM -->
+                        <div class="med-field{% if form.nom.errors %} has-error{% endif %}">
+                            <label class="med-label" for="{{ form.nom.id_for_label }}">
+                                Nom de la famille <span class="med-req" aria-hidden="true">*</span>
+                            </label>
+
+                            {{ form.nom }}
+
+                            {% for error in form.nom.errors %}
+                                <p class="med-error" data-server-error>
+                                    <i class="ri-error-warning-fill" aria-hidden="true"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- APERÇU DE LA RÉFÉRENCE -->
+                        <div class="med-field--full">
+                            <div class="fam-preview" aria-live="polite">
+                                <span class="fam-preview__ref med-mono is-empty" id="fam-preview-ref">———-00001</span>
+                                <p>
+                                    Exemple de référence générée pour un médicament de cette famille.
+                                    Le numéro est attribué automatiquement par SANITA.
+                                </p>
+                            </div>
+
+                            <div class="fam-warning" id="fam-code-warning" role="note">
+                                <i class="ri-alert-line" aria-hidden="true"></i>
+                                <span id="fam-code-warning-text"></span>
+                            </div>
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <div class="med-field med-field--full{% if form.description.errors %} has-error{% endif %}">
+                            <label class="med-label" for="{{ form.description.id_for_label }}">
+                                Description <span class="med-opt">facultatif</span>
+                            </label>
+
+                            {{ form.description }}
+
+                            {% for error in form.description.errors %}
+                                <p class="med-error" data-server-error>
+                                    <i class="ri-error-warning-fill" aria-hidden="true"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- ACTIF -->
+                        <div class="med-field--full">
+                            <label class="fam-switch" for="{{ form.actif.id_for_label }}">
+                                <div>
+                                    <strong>Famille active</strong>
+                                    <span>Une famille inactive n'est plus proposée lors de la création d'un médicament.</span>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    {{ form.actif }}
+                                </div>
+                            </label>
+
+                            {% for error in form.actif.errors %}
+                                <p class="med-error" data-server-error>
+                                    <i class="ri-error-warning-fill" aria-hidden="true"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="med-modal__foot">
+                    <button type="button" class="med-btn med-btn--ghost" data-bs-dismiss="modal">
+                        Annuler
+                    </button>
+
+                    <button type="submit" class="med-btn med-btn--primary" id="familleSubmitBtn">
+                        <i class="ri-check-line" aria-hidden="true"></i>
+                        <span>{% if form.instance.pk %}Enregistrer les modifications{% else %}Créer la famille{% endif %}</span>
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     COMPORTEMENTS
+     ============================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var URL_AJOUT = "{% url 'stock:famille_create' %}";
+        var URL_MODIF = "{% url 'stock:famille_update' 0 %}";
+
+        function urlAvecId(url, id) {
+            return url.replace(/\/0\/?$/, '/' + id + '/');
+        }
+
+        /* ========================================================
+           FILTRES
+           ======================================================== */
+        var filters = document.getElementById('fam-filters');
+        var search  = document.getElementById('fam-q');
+
+        if (filters) {
+            filters.querySelectorAll('[data-autosubmit]').forEach(function (select) {
+                select.addEventListener('change', function () {
+                    filters.requestSubmit ? filters.requestSubmit() : filters.submit();
+                });
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+            var tag = (event.target.tagName || '').toLowerCase();
+            var typing = tag === 'input' || tag === 'textarea' || tag === 'select' || event.target.isContentEditable;
+            var modalOpen = document.querySelector('.modal.show');
+
+            if (event.key === '/' && !typing && !modalOpen && search) {
+                event.preventDefault();
+                search.focus();
+                search.select();
+            }
+        });
+
+        /* ========================================================
+           CONFIRMATION ACTIVER / DÉSACTIVER
+           ======================================================== */
+        document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+            f.addEventListener('submit', function (event) {
+                if (!window.confirm(f.getAttribute('data-confirm'))) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        /* ========================================================
+           MODALE
+           ======================================================== */
+        var modalEl   = document.getElementById('familleModal');
+        var form      = document.getElementById('familleForm');
+        var titreEl   = document.getElementById('familleModalLabel');
+        var submitBtn = document.getElementById('familleSubmitBtn');
+        var submitTxt = submitBtn ? submitBtn.querySelector('span') : null;
+
+        var previewRef  = document.getElementById('fam-preview-ref');
+        var warning     = document.getElementById('fam-code-warning');
+        var warningText = document.getElementById('fam-code-warning-text');
+
+        if (!modalEl || !form) {
+            return;
+        }
+
+        var codeField = form.querySelector('[name="code"]');
+        var nbMedicaments = 0;
+        var codeInitial = '';
+
+        function field(name) {
+            return form.querySelector('[name="' + name + '"]');
+        }
+
+        function setValue(name, value) {
+            var el = field(name);
+            if (el) {
+                el.value = value || '';
+            }
+        }
+
+        function setChecked(name, checked) {
+            var el = field(name);
+            if (el) {
+                el.checked = !!checked;
+            }
+        }
+
+        function setMode(edition) {
+            titreEl.textContent = edition ? 'Modifier la famille' : 'Nouvelle famille';
+            if (submitTxt) {
+                submitTxt.textContent = edition ? 'Enregistrer les modifications' : 'Créer la famille';
+            }
+        }
+
+        function effacerErreurs() {
+            form.querySelectorAll('[data-server-error]').forEach(function (el) {
+                el.remove();
+            });
+            form.querySelectorAll('.has-error').forEach(function (el) {
+                el.classList.remove('has-error');
+            });
+            form.querySelectorAll('[aria-invalid]').forEach(function (el) {
+                el.removeAttribute('aria-invalid');
+            });
+        }
+
+        /* Aperçu de la référence et avertissement de changement de code */
+        function majApercu() {
+            if (!codeField) {
+                return;
+            }
+
+            var code = codeField.value.trim().toUpperCase();
+
+            if (previewRef) {
+                previewRef.textContent = (code || '———') + '-00001';
+                previewRef.classList.toggle('is-empty', !code);
+            }
+
+            if (warning) {
+                var change = codeInitial && code !== codeInitial;
+                var show = change && nbMedicaments > 0;
+
+                warning.classList.toggle('is-visible', show);
+
+                if (show && warningText) {
+                    warningText.textContent =
+                        nbMedicaments + ' médicament' + (nbMedicaments > 1 ? 's sont rattachés' : ' est rattaché') +
+                        ' à cette famille avec le préfixe ' + codeInitial +
+                        '. Vérifiez l\'effet de ce changement sur leurs références avant d\'enregistrer.';
+                }
+            }
+        }
+
+        if (codeField) {
+            codeField.setAttribute('autocomplete', 'off');
+            codeField.setAttribute('spellcheck', 'false');
+
+            codeField.addEventListener('input', function () {
+                var pos = codeField.selectionStart;
+                codeField.value = codeField.value.toUpperCase().replace(/\s+/g, '');
+                try { codeField.setSelectionRange(pos, pos); } catch (e) {}
+                majApercu();
+            });
+        }
+
+        /* Erreurs serveur : marquer les champs comme invalides */
+        form.querySelectorAll('.med-field.has-error').forEach(function (f) {
+            var input = f.querySelector('input, textarea, select');
+            if (input) {
+                input.setAttribute('aria-invalid', 'true');
+            }
+        });
+
+        modalEl.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+
+            /* Réouverture automatique après erreur serveur : on garde tout. */
+            if (!button) {
+                majApercu();
+                return;
+            }
+
+            effacerErreurs();
+            form.reset();
+
+            if (!button.hasAttribute('data-id')) {
+                form.action = URL_AJOUT;
+                setValue('code', '');
+                setValue('nom', '');
+                setValue('description', '');
+                setChecked('actif', true);
+                codeInitial = '';
+                nbMedicaments = 0;
+                setMode(false);
+            } else {
+                form.action = urlAvecId(URL_MODIF, button.getAttribute('data-id'));
+                setValue('code', button.getAttribute('data-code'));
+                setValue('nom', button.getAttribute('data-nom'));
+                setValue('description', button.getAttribute('data-description'));
+                setChecked('actif', button.getAttribute('data-actif') === 'true');
+                codeInitial = (button.getAttribute('data-code') || '').toUpperCase();
+                nbMedicaments = parseInt(button.getAttribute('data-medicaments'), 10) || 0;
+                setMode(true);
+            }
+
+            majApercu();
+        });
+
+        modalEl.addEventListener('shown.bs.modal', function () {
+            var cible = form.querySelector('.has-error input, .has-error textarea') || codeField;
+            if (cible) {
+                cible.focus();
+            }
+        });
+
+        /* Blocage du double clic */
+        form.addEventListener('submit', function () {
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="ri-loader-4-line" aria-hidden="true"></i> Enregistrement…';
+            }
+        });
+
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted && submitBtn) {
+                submitBtn.disabled = false;
+            }
+        });
+
+        /* Réouverture après erreur serveur */
+        {% if ouvrir_modal %}
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        {% endif %}
+    });
+})();
+</script>
+
+{% endblock %}

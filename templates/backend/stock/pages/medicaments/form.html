@@ -1,0 +1,1700 @@
+{% extends "backend/parametrage_general/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% with F="backend/stock/pages/medicaments/_field.html" %}
+
+<style>
+    /* ============================================================
+       TOKENS (identiques à la liste et à la fiche)
+       ============================================================ */
+    .med {
+        --brand-900: #0b3d3a;
+        --brand-700: #0f5c56;
+        --brand-600: #12766e;
+        --brand-100: #d6ece8;
+        --brand-50:  #eef7f5;
+
+        --ink-900: #111827;
+        --ink-700: #374151;
+        --ink-500: #6b7280;
+        --ink-400: #9ca3af;
+
+        --line:       #e5e7eb;
+        --line-soft:  #f1f2f4;
+        --field-line: #d5dae0;
+        --surface:    #ffffff;
+        --canvas:     #f7f9f9;
+
+        --ok-bg: #e9f6ef;
+        --ok-fg: #146c43;
+
+        --off-bg: #f3f4f6;
+        --off-fg: #4b5563;
+
+        --err-bg:   #fef3f2;
+        --err-line: #f5c2bd;
+        --err-fg:   #b42318;
+
+        --radius-lg: 14px;
+        --radius-md: 8px;
+        --radius-sm: 6px;
+
+        --ease: cubic-bezier(.2, .7, .3, 1);
+
+        color: var(--ink-900);
+        font-size: 14px;
+    }
+
+    .med *,
+    .med *::before,
+    .med *::after {
+        box-sizing: border-box;
+    }
+
+    .med a:focus-visible,
+    .med button:focus-visible {
+        outline: 2px solid var(--brand-600);
+        outline-offset: 2px;
+    }
+
+    /* ============================================================
+       BOUTONS
+       ============================================================ */
+    .med-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        background: none;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+    }
+
+    .med-btn i {
+        font-size: 17px;
+    }
+
+    .med-btn--primary {
+        background: var(--brand-700);
+        color: #fff;
+    }
+
+    .med-btn--primary:hover {
+        background: var(--brand-900);
+        color: #fff;
+    }
+
+    .med-btn--primary[disabled] {
+        opacity: .7;
+        cursor: progress;
+    }
+
+    .med-btn--ghost {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink-700);
+    }
+
+    .med-btn--ghost:hover {
+        border-color: #cfd4da;
+        color: var(--ink-900);
+    }
+
+    .med-kbd {
+        padding: 1px 6px;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        background: var(--surface);
+        font-family: inherit;
+        font-size: 11.5px;
+        color: var(--ink-500);
+    }
+
+    /* ============================================================
+       EN-TÊTE
+       ============================================================ */
+    .med-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding-bottom: 22px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .med-head__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 24px;
+    }
+
+    .med-head__crumb {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .med-head__crumb a {
+        color: var(--ink-500);
+        text-decoration: none;
+    }
+
+    .med-head__crumb a:hover {
+        color: var(--brand-700);
+        text-decoration: underline;
+    }
+
+    .med-head__crumb [aria-current] {
+        color: var(--ink-700);
+    }
+
+    .med-head__title {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .med-head h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -.015em;
+        line-height: 1.25;
+        word-break: break-word;
+    }
+
+    .med-head p {
+        max-width: 64ch;
+        margin: 6px 0 0;
+        color: var(--ink-500);
+        line-height: 1.5;
+    }
+
+    .med-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .med-status::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .med-status--on  { background: var(--ok-bg);  color: var(--ok-fg); }
+    .med-status--off { background: var(--off-bg); color: var(--off-fg); }
+
+    /* ============================================================
+       MESSAGES ET RÉCAPITULATIF D'ERREURS
+       ============================================================ */
+    .med .alert {
+        border-radius: var(--radius-md);
+        font-size: 14px;
+    }
+
+    .med-errors {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+        border: 1px solid var(--err-line);
+        border-left: 4px solid var(--err-fg);
+        border-radius: var(--radius-md);
+        background: var(--err-bg);
+        color: var(--err-fg);
+    }
+
+    .med-errors:focus {
+        outline: none;
+    }
+
+    .med-errors > i {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .med-errors strong {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .med-errors ul {
+        margin: 6px 0 0;
+        padding-left: 18px;
+    }
+
+    .med-errors a {
+        color: inherit;
+        font-weight: 600;
+    }
+
+    /* ============================================================
+       MISE EN PAGE
+       ============================================================ */
+    .med-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .med-form {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+    }
+
+    /* ============================================================
+       SECTIONS
+       ============================================================ */
+    .med-section {
+        padding: 24px 28px 28px;
+        border-bottom: 1px solid var(--line-soft);
+        scroll-margin-top: 24px;
+    }
+
+    .med-section__head {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .med-section__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 17px;
+    }
+
+    .med-section__head h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .med-section__head p {
+        margin: 3px 0 0;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--ink-500);
+    }
+
+    .med-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 18px;
+    }
+
+    .med-field--full {
+        grid-column: 1 / -1;
+    }
+
+    /* ============================================================
+       CHAMPS
+       ============================================================ */
+    .med-label {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-bottom: 6px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--ink-700);
+    }
+
+    .med-req {
+        color: var(--err-fg);
+    }
+
+    .med-opt {
+        margin-left: 4px;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--ink-400);
+    }
+
+    .med-control {
+        position: relative;
+    }
+
+    .med-field input:not([type="checkbox"]):not([type="radio"]),
+    .med-field select,
+    .med-field textarea {
+        display: block;
+        width: 100%;
+        min-height: 42px;
+        padding: 9px 12px;
+        border: 1px solid var(--field-line);
+        border-radius: var(--radius-md);
+        background-color: var(--surface);
+        color: var(--ink-900);
+        font-size: 14px;
+        line-height: 1.4;
+        transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+    }
+
+    .med-control.has-icon input,
+    .med-control.has-icon select {
+        padding-left: 38px;
+    }
+
+    .med-control.has-suffix input {
+        padding-right: 56px;
+    }
+
+    .med-control__icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 17px;
+        color: var(--ink-400);
+        pointer-events: none;
+    }
+
+    .med-control__suffix {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink-500);
+        pointer-events: none;
+    }
+
+    .med-field select {
+        appearance: none;
+        padding-right: 36px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+    }
+
+    .med-field textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .med-field input::placeholder,
+    .med-field textarea::placeholder {
+        color: var(--ink-400);
+    }
+
+    .med-field input:hover,
+    .med-field select:hover,
+    .med-field textarea:hover {
+        border-color: #b9c0c8;
+    }
+
+    .med-field input:focus,
+    .med-field select:focus,
+    .med-field textarea:focus {
+        outline: none;
+        border-color: var(--brand-600);
+        box-shadow: 0 0 0 3px rgba(18, 118, 110, .15);
+    }
+
+    .med-field input[type="number"] {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .med-help {
+        margin: 6px 0 0;
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: var(--ink-500);
+    }
+
+    .med-help a {
+        color: var(--brand-700);
+        font-weight: 600;
+    }
+
+    .med-error {
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        margin: 6px 0 0;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--err-fg);
+    }
+
+    .med-error i {
+        margin-top: 1px;
+    }
+
+    .med-field.has-error input,
+    .med-field.has-error select,
+    .med-field.has-error textarea {
+        border-color: var(--err-fg);
+        background-color: #fffbfa;
+    }
+
+    .med-field.has-error input:focus,
+    .med-field.has-error select:focus,
+    .med-field.has-error textarea:focus {
+        box-shadow: 0 0 0 3px rgba(180, 35, 24, .12);
+    }
+
+    .med-counter {
+        float: right;
+        margin-left: 12px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .med-counter.is-over {
+        color: var(--err-fg);
+        font-weight: 600;
+    }
+
+    /* ============================================================
+       RÉFÉRENCE AUTOMATIQUE
+       ============================================================ */
+    .med-ref {
+        position: relative;
+    }
+
+    .med-ref input {
+        padding-right: 48px !important;
+        border-style: dashed !important;
+        background: var(--brand-50) !important;
+        color: var(--brand-900) !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-weight: 700;
+        letter-spacing: .04em;
+    }
+
+    .med-ref input[readonly] {
+        cursor: default;
+    }
+
+    .med-ref__btn {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--brand-700);
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    .med-ref__btn:hover {
+        background: var(--brand-100);
+    }
+
+    .med-ref__btn[disabled] {
+        color: var(--ink-400);
+        cursor: not-allowed;
+        background: transparent;
+    }
+
+    .med-ref.is-loading .med-ref__btn i {
+        animation: med-spin .8s linear infinite;
+    }
+
+    .med-ref.is-loading input {
+        opacity: .65;
+    }
+
+    .med-ref-status {
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        min-height: 18px;
+        margin-top: 6px;
+        font-size: 12.5px;
+        line-height: 1.4;
+        color: var(--ink-500);
+    }
+
+    .med-ref-status i {
+        font-size: 14px;
+        margin-top: 1px;
+    }
+
+    .med-ref-status.is-success { color: var(--ok-fg); }
+    .med-ref-status.is-error   { color: var(--err-fg); }
+    .med-ref-status.is-loading { color: var(--brand-700); }
+
+    @keyframes med-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ============================================================
+       BARRE D'ACTIONS
+       ============================================================ */
+    .med-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 28px;
+        border-top: 1px solid var(--line);
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        background: rgba(255, 255, 255, .94);
+        backdrop-filter: blur(8px);
+    }
+
+    .med-actions__note {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .med-actions__buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .med-dirty {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        color: #92400e;
+        font-weight: 600;
+    }
+
+    .med-dirty::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #d97706;
+    }
+
+    .med-form.is-dirty .med-dirty {
+        display: inline-flex;
+    }
+
+    /* ============================================================
+       COLONNE LATÉRALE : ÉTIQUETTE EN DIRECT
+       ============================================================ */
+    .med-aside {
+        position: sticky;
+        top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .med-label-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--radius-lg);
+        background: var(--brand-900);
+        color: #fff;
+        box-shadow: 0 12px 28px -14px rgba(11, 61, 58, .55);
+    }
+
+    .med-label-card__band {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 12px 18px;
+        background: var(--brand-700);
+        font-size: 12px;
+        font-weight: 600;
+        color: #cfe7e3;
+    }
+
+    .med-label-card__band i {
+        font-size: 16px;
+    }
+
+    .med-label-card__body {
+        padding: 18px 18px 20px;
+    }
+
+    .med-label-card__name {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -.01em;
+        word-break: break-word;
+    }
+
+    .med-label-card__name.is-empty,
+    .med-label-card dd.is-empty {
+        color: rgba(255, 255, 255, .45);
+        font-weight: 500;
+    }
+
+    .med-label-card__dose {
+        margin: 6px 0 0;
+        font-size: 14px;
+        color: #cfe7e3;
+    }
+
+    .med-label-card dl {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 8px 14px;
+        margin: 18px 0 0;
+        padding-top: 16px;
+        border-top: 1px dashed rgba(255, 255, 255, .22);
+        font-size: 13px;
+    }
+
+    .med-label-card dt {
+        color: rgba(255, 255, 255, .6);
+        font-weight: 500;
+    }
+
+    .med-label-card dd {
+        margin: 0;
+        text-align: right;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .med-label-card__ref {
+        margin-top: 16px;
+        padding: 10px 12px;
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, .08);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-align: center;
+    }
+
+    .med-label-card__ref.is-empty {
+        color: rgba(255, 255, 255, .45);
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0;
+    }
+
+    /* Progression et navigation */
+    .med-progress {
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+    }
+
+    .med-progress__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink-700);
+    }
+
+    .med-progress__top span:last-child {
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-500);
+        font-weight: 500;
+    }
+
+    .med-progress__bar {
+        height: 6px;
+        border-radius: 999px;
+        background: var(--line-soft);
+        overflow: hidden;
+    }
+
+    .med-progress__bar span {
+        display: block;
+        height: 100%;
+        width: 0;
+        border-radius: inherit;
+        background: var(--brand-600);
+        transition: width .35s var(--ease);
+    }
+
+    .med-nav {
+        list-style: none;
+        margin: 14px 0 0;
+        padding: 0;
+    }
+
+    .med-nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 8px;
+        margin: 0 -8px;
+        border-radius: var(--radius-sm);
+        color: var(--ink-700);
+        font-size: 13.5px;
+        text-decoration: none;
+    }
+
+    .med-nav a:hover {
+        background: var(--canvas);
+        color: var(--ink-900);
+    }
+
+    .med-nav__state {
+        display: grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid var(--field-line);
+        border-radius: 50%;
+        font-size: 12px;
+        color: transparent;
+        transition: background-color .2s ease, border-color .2s ease;
+    }
+
+    .med-nav a[data-state="done"] .med-nav__state {
+        border-color: var(--brand-600);
+        background: var(--brand-600);
+        color: #fff;
+    }
+
+    .med-nav a[data-state="error"] .med-nav__state {
+        border-color: var(--err-fg);
+        background: var(--err-fg);
+        color: #fff;
+    }
+
+    .med-nav a[data-state="error"] {
+        color: var(--err-fg);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1100px) {
+        .med-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .med-aside {
+            position: static;
+            order: -1;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .med-aside > * {
+            flex: 1 1 280px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .med-head__icon {
+            display: none;
+        }
+
+        .med-section {
+            padding: 20px 16px 24px;
+        }
+
+        .med-fields {
+            grid-template-columns: 1fr;
+        }
+
+        .med-progress {
+            display: none;
+        }
+
+        .med-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+            padding: 12px 16px;
+        }
+
+        .med-actions__buttons {
+            flex-direction: column-reverse;
+        }
+
+        .med-actions__buttons .med-btn {
+            width: 100%;
+        }
+
+        .med-kbd-hint {
+            display: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .med * {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+</style>
+
+
+<div class="med">
+
+    <!-- ========================================================
+         EN-TÊTE
+         ======================================================== -->
+    <header class="med-head">
+
+        <span class="med-head__icon" aria-hidden="true">
+            <i class="ri-capsule-line"></i>
+        </span>
+
+        <div>
+            <nav class="med-head__crumb" aria-label="Fil d'Ariane">
+                <a href="{% url 'stock:medicament_list' %}">Médicaments</a>
+                <span aria-hidden="true">/</span>
+
+                {% if medicament %}
+                    <a href="{% url 'stock:medicament_detail' medicament.pk %}">{{ medicament.nom }}</a>
+                    <span aria-hidden="true">/</span>
+                    <span aria-current="page">Modifier</span>
+                {% else %}
+                    <span aria-current="page">Nouveau</span>
+                {% endif %}
+            </nav>
+
+            <div class="med-head__title">
+                <h1>
+                    {% if medicament %}
+                        Modifier {{ medicament.nom }}
+                    {% else %}
+                        Ajouter un médicament
+                    {% endif %}
+                </h1>
+
+                {% if medicament %}
+                    {% if medicament.actif %}
+                        <span class="med-status med-status--on">Actif</span>
+                    {% else %}
+                        <span class="med-status med-status--off">Inactif</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <p>
+                {% if medicament %}
+                    Les modifications s'appliquent au référentiel central et à toutes
+                    les pharmacies qui utilisent ce médicament.
+                {% else %}
+                    Le médicament rejoindra le référentiel central et pourra être utilisé
+                    par les pharmacies et les modules de gestion pharmaceutique.
+                {% endif %}
+            </p>
+        </div>
+
+    </header>
+
+
+    <!-- ========================================================
+         MESSAGES DJANGO
+         ======================================================== -->
+    {% for message in messages %}
+        <div
+            class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show"
+            role="alert"
+        >
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+        </div>
+    {% endfor %}
+
+
+    <form method="post" novalidate id="medicament-form" class="med-layout">
+
+        {% csrf_token %}
+
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+
+
+        <div class="med-main">
+
+            <!-- ====================================================
+                 RÉCAPITULATIF DES ERREURS
+                 ==================================================== -->
+            {% if form.errors %}
+                <div class="med-errors" role="alert" id="form-errors" tabindex="-1">
+                    <i class="ri-error-warning-line" aria-hidden="true"></i>
+                    <div>
+                        <strong>Le médicament n'a pas été enregistré.</strong>
+                        Corrigez les champs signalés puis enregistrez à nouveau.
+
+                        <ul>
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            {% for field in form.visible_fields %}
+                                {% if field.errors %}
+                                    <li>
+                                        <a href="#{{ field.id_for_label }}">{{ field.label }}</a> :
+                                        {{ field.errors.0 }}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+
+
+            <div class="med-form" id="med-form-panel">
+
+                <!-- ================================================
+                     IDENTIFICATION
+                     ================================================ -->
+                <section class="med-section" id="sec-identification" aria-labelledby="sec-identification-title">
+
+                    <div class="med-section__head">
+                        <span class="med-section__icon" aria-hidden="true"><i class="ri-price-tag-3-line"></i></span>
+                        <div>
+                            <h2 id="sec-identification-title">Identification</h2>
+                            <p>Le nom et la référence servent à retrouver le médicament dans toutes les recherches.</p>
+                        </div>
+                    </div>
+
+                    <div class="med-fields">
+
+                        {% include F with field=form.nom %}
+
+                        <!-- RÉFÉRENCE (cas particulier : génération automatique) -->
+                        <div class="med-field{% if form.code.errors %} has-error{% endif %}" data-field="code">
+
+                            <label class="med-label" for="{{ form.code.id_for_label }}">
+                                <span>{{ form.code.label }}</span>
+                                {% if form.code.field.required %}
+                                    <span class="med-req" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+
+                            <div class="med-ref" id="med-ref">
+                                {{ form.code }}
+
+                                {% if medicament %}
+                                    <button type="button" class="med-ref__btn" id="med-ref-copy"
+                                            title="Copier la référence" aria-label="Copier la référence">
+                                        <i class="ri-file-copy-line" aria-hidden="true"></i>
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="med-ref__btn" id="med-ref-refresh"
+                                            title="Régénérer la référence" aria-label="Régénérer la référence">
+                                        <i class="ri-refresh-line" aria-hidden="true"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+
+                            <div class="med-ref-status" id="med-ref-status" aria-live="polite">
+                                {% if medicament %}
+                                    <i class="ri-lock-line" aria-hidden="true"></i>
+                                    Référence interne SANITA conservée.
+                                {% else %}
+                                    <i class="ri-information-line" aria-hidden="true"></i>
+                                    Choisissez une famille pour générer la référence.
+                                {% endif %}
+                            </div>
+
+                            {% if form.code.help_text %}
+                                <p class="med-help">{{ form.code.help_text }}</p>
+                            {% endif %}
+
+                            {% for error in form.code.errors %}
+                                <p class="med-error">
+                                    <i class="ri-error-warning-fill" aria-hidden="true"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- FAMILLE -->
+                        <div class="med-field med-field--full{% if form.famille.errors %} has-error{% endif %}" data-field="famille">
+
+                            <label class="med-label" for="{{ form.famille.id_for_label }}">
+                                <span>{{ form.famille.label }}</span>
+                                {% if form.famille.field.required %}
+                                    <span class="med-req" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+
+                            <div class="med-control has-icon">
+                                <i class="ri-folder-3-line med-control__icon" aria-hidden="true"></i>
+                                {{ form.famille }}
+                            </div>
+
+                            <p class="med-help">
+                                {% if form.famille.help_text %}
+                                    {{ form.famille.help_text }}
+                                {% else %}
+                                    Famille absente ?
+                                    <a href="{% url 'stock:famille_list' %}" target="_blank" rel="noopener">
+                                        Gérer les familles
+                                    </a>
+                                    (nouvel onglet).
+                                {% endif %}
+                            </p>
+
+                            {% for error in form.famille.errors %}
+                                <p class="med-error">
+                                    <i class="ri-error-warning-fill" aria-hidden="true"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </section>
+
+
+                <!-- ================================================
+                     PRÉSENTATION
+                     ================================================ -->
+                <section class="med-section" id="sec-presentation" aria-labelledby="sec-presentation-title">
+
+                    <div class="med-section__head">
+                        <span class="med-section__icon" aria-hidden="true"><i class="ri-medicine-bottle-line"></i></span>
+                        <div>
+                            <h2 id="sec-presentation-title">Présentation</h2>
+                            <p>Forme, dosage et conditionnement, tels qu'ils figurent sur la boîte.</p>
+                        </div>
+                    </div>
+
+                    <div class="med-fields">
+                        {% include F with field=form.forme %}
+                        {% include F with field=form.dosage help="Par exemple : 500 mg, 1 g/10 ml." %}
+                        {% include F with field=form.contenu help="Quantité par boîte ou flacon, par exemple 30." %}
+                        {% include F with field=form.unite help="Unité de comptage du stock : comprimé, flacon, ampoule…" %}
+                    </div>
+                </section>
+
+
+                <!-- ================================================
+                     CODES DE RÉFÉRENCE
+                     ================================================ -->
+                <section class="med-section" id="sec-codes" aria-labelledby="sec-codes-title">
+
+                    <div class="med-section__head">
+                        <span class="med-section__icon" aria-hidden="true"><i class="ri-barcode-line"></i></span>
+                        <div>
+                            <h2 id="sec-codes-title">Codes de référence</h2>
+                            <p>Facultatifs. Ils permettent la lecture par scanner et le rapprochement avec les fournisseurs.</p>
+                        </div>
+                    </div>
+
+                    <div class="med-fields">
+                        {% include F with field=form.code_cip icon="ri-hashtag" %}
+                        {% include F with field=form.code_barre icon="ri-qr-scan-2-line" help="Placez le curseur dans ce champ puis scannez la boîte." %}
+                    </div>
+                </section>
+
+
+                <!-- ================================================
+                     PRIX ET STOCK
+                     ================================================ -->
+                <section class="med-section" id="sec-gestion" aria-labelledby="sec-gestion-title">
+
+                    <div class="med-section__head">
+                        <span class="med-section__icon" aria-hidden="true"><i class="ri-stack-line"></i></span>
+                        <div>
+                            <h2 id="sec-gestion-title">Prix et stock</h2>
+                            <p>Valeurs utilisées pour la valorisation du stock et les alertes de réapprovisionnement.</p>
+                        </div>
+                    </div>
+
+                    <div class="med-fields">
+                        {% include F with field=form.prix_reference suffix=devise %}
+                        {% include F with field=form.dernier_prix_achat suffix=devise %}
+                        {% include F with field=form.seuil icon="ri-alarm-warning-line" help="Une alerte est levée quand le stock passe sous cette quantité." %}
+                    </div>
+                </section>
+
+
+                <!-- ================================================
+                     DESCRIPTION
+                     ================================================ -->
+                <section class="med-section" id="sec-description" aria-labelledby="sec-description-title">
+
+                    <div class="med-section__head">
+                        <span class="med-section__icon" aria-hidden="true"><i class="ri-file-text-line"></i></span>
+                        <div>
+                            <h2 id="sec-description-title">Description</h2>
+                            <p>Informations utiles aux équipes : indications, précautions de conservation, remarques.</p>
+                        </div>
+                    </div>
+
+                    <div class="med-fields">
+                        {% include F with field=form.description full=True %}
+                    </div>
+                </section>
+
+
+                <!-- ================================================
+                     ACTIONS
+                     ================================================ -->
+                <div class="med-actions">
+
+                    <div class="med-actions__note">
+                        <span>Les champs marqués <span class="med-req">*</span> sont obligatoires.</span>
+                        <span class="med-dirty" role="status">Modifications non enregistrées</span>
+                    </div>
+
+                    <div class="med-actions__buttons">
+                        <a
+                            href="{% if medicament %}{% url 'stock:medicament_detail' medicament.pk %}{% else %}{% url 'stock:medicament_list' %}{% endif %}"
+                            class="med-btn med-btn--ghost"
+                        >
+                            Annuler
+                        </a>
+
+                        <button type="submit" class="med-btn med-btn--primary" id="medicament-submit"
+                                aria-keyshortcuts="Control+S Meta+S">
+                            <i class="ri-check-line" aria-hidden="true"></i>
+                            {% if medicament %}
+                                Enregistrer les modifications
+                            {% else %}
+                                Ajouter le médicament
+                            {% endif %}
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- ========================================================
+             COLONNE LATÉRALE
+             ======================================================== -->
+        <aside class="med-aside" aria-label="Aperçu et progression">
+
+            <div class="med-label-card" aria-hidden="true">
+                <div class="med-label-card__band">
+                    <span>Aperçu de la fiche</span>
+                    <i class="ri-capsule-fill"></i>
+                </div>
+
+                <div class="med-label-card__body">
+                    <p class="med-label-card__name" data-preview="nom" data-empty="Nom du médicament">
+                        Nom du médicament
+                    </p>
+                    <p class="med-label-card__dose" data-preview="presentation"></p>
+
+                    <dl>
+                        <dt>Famille</dt>
+                        <dd data-preview="famille" data-empty="—">—</dd>
+
+                        <dt>Conditionnement</dt>
+                        <dd data-preview="conditionnement" data-empty="—">—</dd>
+
+                        <dt>Seuil d'alerte</dt>
+                        <dd data-preview="seuil" data-empty="—">—</dd>
+                    </dl>
+
+                    <div class="med-label-card__ref" data-preview="code" data-empty="Référence en attente">
+                        Référence en attente
+                    </div>
+                </div>
+            </div>
+
+            <div class="med-progress">
+                <div class="med-progress__top">
+                    <span>Champs obligatoires</span>
+                    <span id="med-progress-count">0 / 0</span>
+                </div>
+
+                <div class="med-progress__bar"
+                     role="progressbar" id="med-progress-bar"
+                     aria-label="Champs obligatoires renseignés"
+                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <span></span>
+                </div>
+
+                <ul class="med-nav">
+                    <li><a href="#sec-identification" data-section="sec-identification"><span class="med-nav__state"><i class="ri-check-line"></i></span>Identification</a></li>
+                    <li><a href="#sec-presentation" data-section="sec-presentation"><span class="med-nav__state"><i class="ri-check-line"></i></span>Présentation</a></li>
+                    <li><a href="#sec-codes" data-section="sec-codes"><span class="med-nav__state"><i class="ri-check-line"></i></span>Codes de référence</a></li>
+                    <li><a href="#sec-gestion" data-section="sec-gestion"><span class="med-nav__state"><i class="ri-check-line"></i></span>Prix et stock</a></li>
+                    <li><a href="#sec-description" data-section="sec-description"><span class="med-nav__state"><i class="ri-check-line"></i></span>Description</a></li>
+                </ul>
+
+                <p class="med-help med-kbd-hint" style="margin-top:12px">
+                    <kbd class="med-kbd">Ctrl</kbd> + <kbd class="med-kbd">S</kbd> pour enregistrer.
+                </p>
+            </div>
+
+        </aside>
+
+    </form>
+</div>
+
+{% endwith %}
+
+
+<!-- ============================================================
+     COMPORTEMENTS DU FORMULAIRE
+     ============================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var form   = document.getElementById('medicament-form');
+        var panel  = document.getElementById('med-form-panel');
+        var submit = document.getElementById('medicament-submit');
+
+        if (!form) {
+            return;
+        }
+
+        var isEdit = {% if medicament %}true{% else %}false{% endif %};
+
+        var familleField = document.getElementById('{{ form.famille.id_for_label }}');
+        var codeField    = document.getElementById('{{ form.code.id_for_label }}');
+        var barcodeField = document.getElementById('{{ form.code_barre.id_for_label }}');
+
+        var refWrapper   = document.getElementById('med-ref');
+        var refStatus    = document.getElementById('med-ref-status');
+        var refRefresh   = document.getElementById('med-ref-refresh');
+        var refCopy      = document.getElementById('med-ref-copy');
+
+        var referencePreviewUrl = "{% url 'stock:medicament_reference_preview' %}";
+
+
+        /* ========================================================
+           ACCESSIBILITÉ : aria-invalid et aria-describedby
+           ======================================================== */
+        form.querySelectorAll('.med-field').forEach(function (field, i) {
+            var input = field.querySelector('input, select, textarea');
+            if (!input) {
+                return;
+            }
+
+            var ids = [];
+            field.querySelectorAll('.med-help, .med-error, .med-ref-status').forEach(function (el, j) {
+                if (!el.id) {
+                    el.id = 'med-desc-' + i + '-' + j;
+                }
+                ids.push(el.id);
+            });
+
+            if (ids.length) {
+                input.setAttribute('aria-describedby', ids.join(' '));
+            }
+
+            if (field.classList.contains('has-error')) {
+                input.setAttribute('aria-invalid', 'true');
+            }
+        });
+
+
+        /* ========================================================
+           RÉFÉRENCE AUTOMATIQUE
+           ======================================================== */
+        var refController = null;
+
+        if (codeField) {
+            // La référence est générée (création) ou figée (modification).
+            codeField.readOnly = true;
+        }
+
+        function setRefStatus(message, type, icon) {
+            if (!refStatus) {
+                return;
+            }
+            refStatus.className = 'med-ref-status' + (type ? ' is-' + type : '');
+            refStatus.innerHTML = '<i class="' + icon + '" aria-hidden="true"></i> ';
+            refStatus.appendChild(document.createTextNode(message));
+        }
+
+        function setRefLoading(loading) {
+            if (refWrapper) {
+                refWrapper.classList.toggle('is-loading', loading);
+            }
+            if (refRefresh) {
+                refRefresh.disabled = loading || !(familleField && familleField.value);
+            }
+        }
+
+        function loadReferencePreview() {
+            if (isEdit || !familleField || !codeField) {
+                return;
+            }
+
+            var familleId = familleField.value;
+
+            if (!familleId) {
+                if (refController) {
+                    refController.abort();
+                }
+                codeField.value = '';
+                setRefLoading(false);
+                setRefStatus('Choisissez une famille pour générer la référence.', '', 'ri-information-line');
+                refresh();
+                return;
+            }
+
+            if (refController) {
+                refController.abort();
+            }
+
+            // Contrôleur local : une requête annulée ne doit pas
+            // réinitialiser l'état de la requête suivante.
+            var controller = new AbortController();
+            refController = controller;
+
+            setRefLoading(true);
+            setRefStatus('Génération de la référence…', 'loading', 'ri-loader-4-line');
+
+            var url = referencePreviewUrl
+                + (referencePreviewUrl.indexOf('?') === -1 ? '?' : '&')
+                + 'famille=' + encodeURIComponent(familleId);
+
+            fetch(url, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                signal: controller.signal
+            })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Le serveur a répondu ' + response.status + '. Réessayez.');
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.success) {
+                    throw new Error((data && data.message) || 'Impossible de générer la référence.');
+                }
+                codeField.value = data.reference || '';
+                setRefStatus(data.message || 'Référence générée automatiquement.', 'success', 'ri-checkbox-circle-line');
+            })
+            .catch(function (error) {
+                if (error && error.name === 'AbortError') {
+                    return;
+                }
+                codeField.value = '';
+                setRefStatus(
+                    (error && error.message) || 'Impossible de générer la référence.',
+                    'error',
+                    'ri-error-warning-line'
+                );
+            })
+            .finally(function () {
+                if (refController === controller) {
+                    refController = null;
+                    setRefLoading(false);
+                    refresh();
+                }
+            });
+        }
+
+        if (familleField) {
+            familleField.addEventListener('change', loadReferencePreview);
+        }
+
+        if (refRefresh) {
+            refRefresh.addEventListener('click', loadReferencePreview);
+            refRefresh.disabled = !(familleField && familleField.value);
+        }
+
+        if (refCopy && codeField) {
+            refCopy.addEventListener('click', function () {
+                if (!navigator.clipboard || !codeField.value) {
+                    return;
+                }
+                navigator.clipboard.writeText(codeField.value).then(function () {
+                    setRefStatus('Référence copiée.', 'success', 'ri-checkbox-circle-line');
+                    setTimeout(function () {
+                        setRefStatus('Référence interne SANITA conservée.', '', 'ri-lock-line');
+                    }, 2000);
+                });
+            });
+        }
+
+        // Formulaire renvoyé avec erreurs : famille choisie mais pas de référence.
+        if (!isEdit && familleField && familleField.value && codeField && !codeField.value) {
+            loadReferencePreview();
+        }
+
+
+        /* ========================================================
+           SCANNER : la touche Entrée envoyée par la douchette
+           ne doit pas soumettre le formulaire.
+           ======================================================== */
+        if (barcodeField) {
+            barcodeField.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    barcodeField.select();
+                }
+            });
+        }
+
+
+        /* ========================================================
+           COMPTEUR DE CARACTÈRES (description)
+           ======================================================== */
+        var description = form.querySelector('[name="description"]');
+
+        if (description) {
+            var max = parseInt(description.getAttribute('maxlength'), 10) || 0;
+            var host = description.closest('.med-field');
+            var counter = document.createElement('span');
+            counter.className = 'med-counter med-help';
+            counter.setAttribute('aria-hidden', 'true');
+            host.querySelector('.med-label').appendChild(counter);
+
+            var updateCounter = function () {
+                var n = description.value.length;
+                counter.textContent = max ? n + ' / ' + max : n + ' caractère' + (n > 1 ? 's' : '');
+                counter.classList.toggle('is-over', max && n > max);
+            };
+
+            description.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+
+
+        /* ========================================================
+           APERÇU EN DIRECT ET PROGRESSION
+           ======================================================== */
+        function val(name) {
+            var el = form.querySelector('[name="' + name + '"]');
+            if (!el) {
+                return '';
+            }
+            if (el.tagName === 'SELECT') {
+                return el.value ? el.options[el.selectedIndex].text.trim() : '';
+            }
+            return (el.value || '').trim();
+        }
+
+        function setPreview(key, text) {
+            var el = document.querySelector('[data-preview="' + key + '"]');
+            if (!el) {
+                return;
+            }
+            var empty = el.getAttribute('data-empty') || '';
+            el.textContent = text || empty;
+            el.classList.toggle('is-empty', !text && !!empty);
+        }
+
+        function updatePreview() {
+            setPreview('nom', val('nom'));
+            setPreview('famille', val('famille'));
+            setPreview('code', codeField ? codeField.value.trim() : '');
+
+            setPreview('presentation', [val('forme'), val('dosage')].filter(Boolean).join(', '));
+
+            var contenu = val('contenu');
+            var unite = val('unite');
+            setPreview('conditionnement', contenu ? (contenu + (unite ? ' ' + unite.toLowerCase() : '')) : unite);
+
+            setPreview('seuil', val('seuil'));
+        }
+
+        function isFilled(input) {
+            return !!(input && String(input.value || '').trim());
+        }
+
+        function updateProgress() {
+            var required = Array.prototype.filter.call(
+                form.querySelectorAll('.med-field'),
+                function (f) { return f.querySelector('.med-req'); }
+            );
+
+            var done = required.filter(function (f) {
+                return isFilled(f.querySelector('input, select, textarea'));
+            }).length;
+
+            var total = required.length;
+            var pct = total ? Math.round(done / total * 100) : 100;
+
+            var count = document.getElementById('med-progress-count');
+            var bar = document.getElementById('med-progress-bar');
+
+            if (count) {
+                count.textContent = done + ' / ' + total;
+            }
+            if (bar) {
+                bar.setAttribute('aria-valuenow', pct);
+                bar.firstElementChild.style.width = pct + '%';
+            }
+
+            document.querySelectorAll('.med-nav a').forEach(function (link) {
+                var section = document.getElementById(link.getAttribute('data-section'));
+                if (!section) {
+                    return;
+                }
+
+                var fields = section.querySelectorAll('.med-field');
+                var hasError = section.querySelector('.med-field.has-error');
+                var anyFilled = false;
+                var allRequired = true;
+
+                fields.forEach(function (f) {
+                    var input = f.querySelector('input, select, textarea');
+                    if (isFilled(input)) {
+                        anyFilled = true;
+                    } else if (f.querySelector('.med-req')) {
+                        allRequired = false;
+                    }
+                });
+
+                var state = hasError ? 'error' : (anyFilled && allRequired ? 'done' : 'pending');
+                link.setAttribute('data-state', state);
+            });
+        }
+
+        function refresh() {
+            updatePreview();
+            updateProgress();
+        }
+
+        // Une correction efface l'état d'erreur du champ concerné.
+        function clearError(event) {
+            var field = event.target.closest('.med-field.has-error');
+            if (!field) {
+                return;
+            }
+            field.classList.remove('has-error');
+            event.target.removeAttribute('aria-invalid');
+            field.querySelectorAll('.med-error').forEach(function (e) { e.hidden = true; });
+        }
+
+
+        /* ========================================================
+           MODIFICATIONS NON ENREGISTRÉES
+           ======================================================== */
+        var dirty = false;
+
+        function markDirty(event) {
+            clearError(event);
+            refresh();
+            if (!dirty) {
+                dirty = true;
+                if (panel) {
+                    panel.classList.add('is-dirty');
+                }
+            }
+        }
+
+        form.addEventListener('input', markDirty);
+        form.addEventListener('change', markDirty);
+
+        window.addEventListener('beforeunload', function (event) {
+            if (dirty) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
+        });
+
+        refresh();
+
+
+        /* ========================================================
+           PLACEMENT DU CURSEUR
+           ======================================================== */
+        var errorSummary = document.getElementById('form-errors');
+        var firstError = form.querySelector(
+            '.med-field.has-error input, .med-field.has-error select, .med-field.has-error textarea'
+        );
+
+        if (firstError) {
+            firstError.focus();
+        } else if (errorSummary) {
+            errorSummary.focus();
+        } else {
+            var nom = form.querySelector('[name="nom"]');
+            if (nom && !nom.value) {
+                nom.focus();
+            }
+        }
+
+
+        /* ========================================================
+           ENVOI : raccourci clavier et blocage du double clic
+           ======================================================== */
+        var submitLabel = submit ? submit.innerHTML : '';
+
+        document.addEventListener('keydown', function (event) {
+            if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
+                event.preventDefault();
+                if (submit && !submit.disabled) {
+                    form.requestSubmit ? form.requestSubmit(submit) : form.submit();
+                }
+            }
+        });
+
+        form.addEventListener('submit', function () {
+            dirty = false;
+            if (submit) {
+                submit.disabled = true;
+                submit.innerHTML = '<i class="ri-loader-4-line" aria-hidden="true"></i> Enregistrement…';
+            }
+        });
+
+        // Retour arrière du navigateur (cache bfcache) : réactiver le bouton.
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted && submit) {
+                submit.disabled = false;
+                submit.innerHTML = submitLabel;
+            }
+        });
+    });
+})();
+</script>
+
+{% endblock %}

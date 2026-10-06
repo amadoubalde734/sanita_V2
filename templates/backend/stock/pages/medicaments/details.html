@@ -1,0 +1,1293 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+<style>
+    /* ============================================================
+       TOKENS
+       ============================================================ */
+    .med {
+        --brand-900: #0b3d3a;
+        --brand-700: #0f5c56;
+        --brand-600: #12766e;
+        --brand-50:  #eef7f5;
+
+        --ink-900: #111827;
+        --ink-700: #374151;
+        --ink-500: #6b7280;
+        --ink-400: #9ca3af;
+
+        --line:      #e5e7eb;
+        --line-soft: #f1f2f4;
+        --surface:   #ffffff;
+        --canvas:    #f7f9f9;
+
+        --ok-bg:  #e9f6ef;
+        --ok-fg:  #146c43;
+
+        --off-bg: #f3f4f6;
+        --off-fg: #4b5563;
+
+        --warn-bg: #fdf6e3;
+        --warn-fg: #9a6700;
+
+        --danger: #b42318;
+
+        --radius-lg: 12px;
+        --radius-md: 8px;
+        --radius-sm: 6px;
+
+        color: var(--ink-900);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .med a:focus-visible,
+    .med button:focus-visible {
+        outline: 2px solid var(--brand-600);
+        outline-offset: 2px;
+    }
+
+    /* ============================================================
+       BOUTONS
+       ============================================================ */
+    .med-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid transparent;
+        background: none;
+        cursor: pointer;
+        white-space: nowrap;
+        transition:
+            background-color .15s ease,
+            border-color .15s ease,
+            color .15s ease;
+    }
+
+    .med-btn i {
+        font-size: 17px;
+    }
+
+    .med-btn--primary {
+        background: var(--brand-700);
+        color: #fff;
+    }
+
+    .med-btn--primary:hover {
+        background: var(--brand-900);
+        color: #fff;
+    }
+
+    .med-btn--ghost {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink-700);
+    }
+
+    .med-btn--ghost:hover {
+        border-color: #cfd4da;
+        color: var(--ink-900);
+    }
+
+    .med-btn--danger {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--danger);
+    }
+
+    .med-btn--danger:hover {
+        background: #fef3f2;
+        border-color: #f5c2bd;
+        color: var(--danger);
+    }
+
+    .med-btn--success {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ok-fg);
+    }
+
+    .med-btn--success:hover {
+        background: var(--ok-bg);
+        border-color: #bfe3cf;
+        color: var(--ok-fg);
+    }
+
+    /* ============================================================
+       EN-TÊTE
+       ============================================================ */
+    .med-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .med-head__crumb {
+        font-size: 13px;
+        color: var(--ink-500);
+        margin-bottom: 6px;
+    }
+
+    .med-head__crumb a {
+        color: var(--ink-500);
+        text-decoration: none;
+    }
+
+    .med-head__crumb a:hover {
+        color: var(--brand-700);
+    }
+
+    .med-head__title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .med-head h1 {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -.01em;
+        margin: 0;
+        word-break: break-word;
+    }
+
+    .med-head__meta {
+        margin-top: 6px;
+        font-size: 14px;
+        color: var(--ink-500);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+    }
+
+    .med-head__meta strong {
+        color: var(--ink-700);
+        font-weight: 600;
+    }
+
+    .med-head__actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .med-head__actions form {
+        margin: 0;
+    }
+
+    .med-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .med-status::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .med-status--on {
+        background: var(--ok-bg);
+        color: var(--ok-fg);
+    }
+
+    .med-status--off {
+        background: var(--off-bg);
+        color: var(--off-fg);
+    }
+
+    /* ============================================================
+       MESSAGES
+       ============================================================ */
+    .med .alert {
+        border-radius: var(--radius-md);
+        font-size: 14px;
+    }
+
+    .med-notice {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        border-radius: var(--radius-md);
+        background: var(--off-bg);
+        color: var(--ink-700);
+        font-size: 14px;
+    }
+
+    .med-notice i {
+        font-size: 18px;
+        color: var(--ink-500);
+        margin-top: 1px;
+    }
+
+    /* ============================================================
+       GRILLE
+       ============================================================ */
+    .med-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .med-col {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
+    }
+
+    /* ============================================================
+       PANNEAUX
+       ============================================================ */
+    .med-panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .med-panel__head {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line);
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .med-panel__body {
+        padding: 4px 20px;
+    }
+
+    /* ============================================================
+       LISTE DE CHAMPS
+       ============================================================ */
+    .med-fields {
+        margin: 0;
+    }
+
+    .med-field {
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: 16px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--line-soft);
+    }
+
+    .med-field:last-child {
+        border-bottom: none;
+    }
+
+    .med-field dt {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ink-500);
+    }
+
+    .med-field dd {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-900);
+        word-break: break-word;
+    }
+
+    .med-field dd small {
+        display: block;
+        margin-top: 3px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ink-500);
+    }
+
+    /* ============================================================
+       RÉFÉRENCES
+       ============================================================ */
+    .med-ref {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: var(--radius-sm);
+        background: var(--canvas);
+        border: 1px solid var(--line);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: .02em;
+    }
+
+    .med-ref--primary {
+        background: var(--brand-50);
+        border-color: #cce5e1;
+        color: var(--brand-700);
+        font-size: 13.5px;
+        font-weight: 700;
+    }
+
+    .med-family {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .med-family__name {
+        font-weight: 600;
+        color: var(--ink-900);
+    }
+
+    .med-family__code {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--brand-700);
+        letter-spacing: .03em;
+    }
+
+    .med-tag {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: var(--radius-sm);
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 12.5px;
+        font-weight: 600;
+    }
+
+    .med-empty-value {
+        color: var(--ink-400);
+        font-weight: 400;
+    }
+
+    .med-description {
+        padding: 16px 0;
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--ink-700);
+        white-space: pre-line;
+        max-width: 75ch;
+    }
+
+    /* ============================================================
+       CHIFFRES CLÉS
+       ============================================================ */
+    .med-figures {
+        padding: 4px 20px;
+    }
+
+    .med-figure {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line-soft);
+    }
+
+    .med-figure:last-child {
+        border-bottom: none;
+    }
+
+    .med-figure__label {
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .med-figure__value {
+        margin-top: 4px;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.15;
+        color: var(--ink-900);
+    }
+
+    .med-figure__value--warn {
+        color: var(--warn-fg);
+    }
+
+    .med-figure__hint {
+        margin-top: 4px;
+        font-size: 12.5px;
+        color: var(--ink-500);
+        line-height: 1.5;
+    }
+
+    /* ============================================================
+       SUIVI
+       ============================================================ */
+    .med-meta {
+        padding: 4px 20px;
+        margin: 0;
+    }
+
+    .med-meta__row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line-soft);
+        font-size: 13.5px;
+    }
+
+    .med-meta__row:last-child {
+        border-bottom: none;
+    }
+
+    .med-meta__row dt {
+        color: var(--ink-500);
+        font-weight: 400;
+    }
+
+    .med-meta__row dd {
+        margin: 0;
+        text-align: right;
+        color: var(--ink-700);
+        font-weight: 600;
+        word-break: break-all;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1100px) {
+        .med-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+
+        .med-head__actions {
+            width: 100%;
+        }
+
+        .med-head__actions > *,
+        .med-head__actions form .med-btn {
+            flex: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .med-field {
+            grid-template-columns: 1fr;
+            gap: 4px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .med * {
+            transition: none !important;
+        }
+    }
+</style>
+
+
+<div class="med">
+
+    <!-- ========================================================
+         EN-TÊTE
+         ======================================================== -->
+    <header class="med-head">
+
+        <div>
+
+            <nav class="med-head__crumb" aria-label="Fil d'Ariane">
+                <a href="{% url 'stock:medicament_list' %}">
+                    Médicaments
+                </a>
+
+                <span aria-hidden="true"> / </span>
+
+                <span>Fiche</span>
+            </nav>
+
+            <div class="med-head__title">
+
+                <h1>
+                    {{ medicament.nom }}
+                </h1>
+
+                {% if medicament.actif %}
+
+                    <span class="med-status med-status--on">
+                        Actif
+                    </span>
+
+                {% else %}
+
+                    <span class="med-status med-status--off">
+                        Inactif
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            <div class="med-head__meta">
+
+                {% if medicament.code %}
+                    <span>
+                        Réf. SANITA
+                        <strong>{{ medicament.code }}</strong>
+                    </span>
+                {% endif %}
+
+                {% if medicament.famille %}
+
+                    <span>
+                        Famille
+                        <strong>
+                            {{ medicament.famille.nom }}
+                        </strong>
+                    </span>
+
+                {% endif %}
+
+                {% if medicament.forme %}
+
+                    <span>
+                        {{ medicament.get_forme_display }}
+
+                        {% if medicament.dosage %}
+                            {{ medicament.dosage }}
+                        {% endif %}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="med-head__actions">
+
+            <a
+                href="{% url 'stock:medicament_list' %}"
+                class="med-btn med-btn--ghost"
+            >
+                <i
+                    class="ri-arrow-left-line"
+                    aria-hidden="true"
+                ></i>
+
+                Retour à la liste
+            </a>
+
+
+            <form
+                method="post"
+                action="{% url 'stock:medicament_toggle' medicament.pk %}"
+                {% if medicament.actif %}
+                    onsubmit="return confirm('Désactiver « {{ medicament.nom|escapejs }} » ? Il ne sera plus proposé dans les mouvements de stock.');"
+                {% endif %}
+            >
+
+                {% csrf_token %}
+
+                {% if medicament.actif %}
+
+                    <button
+                        type="submit"
+                        class="med-btn med-btn--danger"
+                    >
+                        <i
+                            class="ri-pause-circle-line"
+                            aria-hidden="true"
+                        ></i>
+
+                        Désactiver
+                    </button>
+
+                {% else %}
+
+                    <button
+                        type="submit"
+                        class="med-btn med-btn--success"
+                    >
+                        <i
+                            class="ri-play-circle-line"
+                            aria-hidden="true"
+                        ></i>
+
+                        Réactiver
+                    </button>
+
+                {% endif %}
+
+            </form>
+
+
+            <a
+                href="{% url 'stock:medicament_update' medicament.pk %}"
+                class="med-btn med-btn--primary"
+            >
+                <i
+                    class="ri-pencil-line"
+                    aria-hidden="true"
+                ></i>
+
+                Modifier
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================================
+         MESSAGES
+         ======================================================== -->
+    {% for message in messages %}
+
+        <div
+            class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+            role="alert"
+        >
+            {{ message }}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Fermer"
+            ></button>
+        </div>
+
+    {% endfor %}
+
+
+    {% if not medicament.actif %}
+
+        <div
+            class="med-notice"
+            role="status"
+        >
+
+            <i
+                class="ri-information-line"
+                aria-hidden="true"
+            ></i>
+
+            <span>
+                Ce médicament est inactif :
+                il n'est plus proposé pour les opérations
+                utilisant le référentiel des médicaments.
+                Réactivez-le pour l'utiliser à nouveau.
+            </span>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ========================================================
+         CONTENU
+         ======================================================== -->
+    <div class="med-layout">
+
+
+        <!-- ====================================================
+             COLONNE PRINCIPALE
+             ==================================================== -->
+        <div class="med-col">
+
+
+            <!-- =================================================
+                 IDENTIFICATION
+                 ================================================= -->
+            <section
+                class="med-panel"
+                aria-labelledby="sec-identification"
+            >
+
+                <h2
+                    class="med-panel__head"
+                    id="sec-identification"
+                >
+                    Identification
+                </h2>
+
+                <div class="med-panel__body">
+
+                    <dl class="med-fields">
+
+
+                        <!-- Référence SANITA -->
+                        <div class="med-field">
+
+                            <dt>
+                                Référence SANITA
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.code %}
+
+                                    <span class="med-ref med-ref--primary">
+                                        {{ medicament.code }}
+                                    </span>
+
+                                    <small>
+                                        Référence interne générée automatiquement
+                                        à partir du code de la famille.
+                                    </small>
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non renseignée
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+
+                        <!-- Nom -->
+                        <div class="med-field">
+
+                            <dt>
+                                Médicament
+                            </dt>
+
+                            <dd>
+                                {{ medicament.nom }}
+                            </dd>
+
+                        </div>
+
+
+                        <!-- Famille -->
+                        <div class="med-field">
+
+                            <dt>
+                                Famille thérapeutique
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.famille %}
+
+                                    <div class="med-family">
+
+                                        <span class="med-family__name">
+                                            {{ medicament.famille.nom }}
+                                        </span>
+
+                                        {% if medicament.famille.code %}
+
+                                            <span class="med-family__code">
+                                                Code famille :
+                                                {{ medicament.famille.code }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non classé
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+
+                        <!-- CIP -->
+                        <div class="med-field">
+
+                            <dt>
+                                Code CIP
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.code_cip %}
+
+                                    <span class="med-ref">
+                                        {{ medicament.code_cip }}
+                                    </span>
+
+                                    <small>
+                                        Référence pharmaceutique externe.
+                                    </small>
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non renseigné
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+
+                        <!-- Code-barres -->
+                        <div class="med-field">
+
+                            <dt>
+                                Code-barres
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.code_barre %}
+
+                                    <span class="med-ref">
+                                        {{ medicament.code_barre }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non renseigné
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+                    </dl>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PRÉSENTATION
+                 ================================================= -->
+            <section
+                class="med-panel"
+                aria-labelledby="sec-presentation"
+            >
+
+                <h2
+                    class="med-panel__head"
+                    id="sec-presentation"
+                >
+                    Présentation
+                </h2>
+
+                <div class="med-panel__body">
+
+                    <dl class="med-fields">
+
+
+                        <!-- Forme -->
+                        <div class="med-field">
+
+                            <dt>
+                                Forme pharmaceutique
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.forme %}
+
+                                    <span class="med-tag">
+                                        {{ medicament.get_forme_display }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non renseignée
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+
+                        <!-- Dosage -->
+                        <div class="med-field">
+
+                            <dt>
+                                Dosage
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.dosage %}
+
+                                    {{ medicament.dosage }}
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non renseigné
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+
+                        <!-- Contenu -->
+                        <div class="med-field">
+
+                            <dt>
+                                Contenu / conditionnement
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.contenu %}
+
+                                    {{ medicament.contenu }}
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non renseigné
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+
+                        <!-- Unité -->
+                        <div class="med-field">
+
+                            <dt>
+                                Unité de gestion
+                            </dt>
+
+                            <dd>
+
+                                {% if medicament.unite %}
+
+                                    {{ medicament.unite }}
+
+                                {% else %}
+
+                                    <span class="med-empty-value">
+                                        Non renseignée
+                                    </span>
+
+                                {% endif %}
+
+                            </dd>
+
+                        </div>
+
+                    </dl>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 DESCRIPTION
+                 ================================================= -->
+            <section
+                class="med-panel"
+                aria-labelledby="sec-description"
+            >
+
+                <h2
+                    class="med-panel__head"
+                    id="sec-description"
+                >
+                    Description
+                </h2>
+
+                <div class="med-panel__body">
+
+                    {% if medicament.description %}
+
+                        <div class="med-description">
+                            {{ medicament.description }}
+                        </div>
+
+                    {% else %}
+
+                        <div class="med-description med-empty-value">
+
+                            Aucune description.
+
+                            Vous pouvez en ajouter une depuis
+
+                            <a
+                                href="{% url 'stock:medicament_update' medicament.pk %}"
+                            >
+                                la modification de la fiche
+                            </a>.
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+
+        <!-- ====================================================
+             COLONNE LATÉRALE
+             ==================================================== -->
+        <aside class="med-col">
+
+
+            <!-- =================================================
+                 DONNÉES DE RÉFÉRENCE
+                 ================================================= -->
+            <section
+                class="med-panel"
+                aria-labelledby="sec-prix"
+            >
+
+                <h2
+                    class="med-panel__head"
+                    id="sec-prix"
+                >
+                    Données de référence
+                </h2>
+
+                <div class="med-figures">
+
+
+                    <!-- Prix de référence -->
+                    <div class="med-figure">
+
+                        <div class="med-figure__label">
+                            Prix de référence
+                        </div>
+
+                        <div class="med-figure__value">
+
+                            {% if medicament.prix_reference is not None %}
+
+                                {{ medicament.prix_reference|floatformat:"2g" }}
+
+                            {% else %}
+
+                                <span class="med-empty-value">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Dernier prix d'achat -->
+                    <div class="med-figure">
+
+                        <div class="med-figure__label">
+                            Dernier prix d'achat
+                        </div>
+
+                        <div class="med-figure__value">
+
+                            {% if medicament.dernier_prix_achat is not None %}
+
+                                {{ medicament.dernier_prix_achat|floatformat:"2g" }}
+
+                            {% else %}
+
+                                <span class="med-empty-value">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        {% if medicament.dernier_prix_achat is None %}
+
+                            <div class="med-figure__hint">
+                                Aucun achat enregistré pour l'instant.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Seuil -->
+                    <div class="med-figure">
+
+                        <div class="med-figure__label">
+                            Seuil d'alerte
+                        </div>
+
+                        <div class="med-figure__value med-figure__value--warn">
+
+                            {% if medicament.seuil is not None %}
+
+                                {{ medicament.seuil|floatformat:"-2g" }}
+
+                            {% else %}
+
+                                <span class="med-empty-value">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div class="med-figure__hint">
+
+                            Seuil de référence utilisé lors
+                            du suivi des stocks.
+
+                            {% if medicament.unite %}
+                                ({{ medicament.unite }})
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SUIVI
+                 ================================================= -->
+            <section
+                class="med-panel"
+                aria-labelledby="sec-suivi"
+            >
+
+                <h2
+                    class="med-panel__head"
+                    id="sec-suivi"
+                >
+                    Suivi du référentiel
+                </h2>
+
+                <dl class="med-meta">
+
+
+                    <div class="med-meta__row">
+
+                        <dt>
+                            Créé le
+                        </dt>
+
+                        <dd>
+                            {{ medicament.date_creation|date:"d/m/Y à H:i"|default:"—" }}
+                        </dd>
+
+                    </div>
+
+
+                    <div class="med-meta__row">
+
+                        <dt>
+                            Modifié le
+                        </dt>
+
+                        <dd>
+                            {{ medicament.date_modification|date:"d/m/Y à H:i"|default:"—" }}
+                        </dd>
+
+                    </div>
+
+
+                    <div class="med-meta__row">
+
+                        <dt>
+                            Statut
+                        </dt>
+
+                        <dd>
+
+                            {% if medicament.actif %}
+                                Actif
+                            {% else %}
+                                Inactif
+                            {% endif %}
+
+                        </dd>
+
+                    </div>
+
+
+                    <div class="med-meta__row">
+
+                        <dt>
+                            Statut système
+                        </dt>
+
+                        <dd>
+                            {{ medicament.statut|default:"—" }}
+                        </dd>
+
+                    </div>
+
+
+                    <div class="med-meta__row">
+
+                        <dt>
+                            Identifiant
+                        </dt>
+
+                        <dd>
+                            #{{ medicament.pk }}
+                        </dd>
+
+                    </div>
+
+
+                </dl>
+
+            </section>
+
+
+        </aside>
+
+
+    </div>
+
+</div>
+
+{% endblock %}

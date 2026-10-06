@@ -1,0 +1,26 @@
+                         SANITA V2
+                            │
+                            ▼
+                    PARAMETRAGE GENERAL
+                            │
+                            ▼
+                        Pharmacie
+                            │
+             ┌──────────────┴──────────────┐
+             │                             │
+             ▼                             ▼
+       Configuration                  Stock / Pharmacie
+       de la pharmacie                      │
+                                           │
+       ┌───────────────────────────────────┼──────────────────────────┐
+       │                                   │                          │
+       ▼                                   ▼                          ▼
+   Référentiels                         Stocks                    Opérations
+       │                                   │                          │
+       ├── Médicaments                     ├── Dépôts                 ├── Entrées
+       ├── Familles                        ├── Stocks                  ├── Sorties
+       ├── Fournisseurs                    └── Lots                    ├── Transferts
+       └── Clients                                                    └── Inventaires
+                                                                          │
+                                                                          ▼
+                                                                    Mouvements

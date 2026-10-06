@@ -1,0 +1,120 @@
+stock/
+│
+├── __init__.py
+├── admin.py
+├── apps.py
+├── urls.py
+│
+├── migrations/
+│   └── ...
+│
+├── models/
+│   ├── __init__.py
+│   │
+│   ├── medicaments.py
+│   ├── fournisseurs.py
+│   ├── clients.py
+│   ├── depots.py
+│   ├── stocks.py
+│   ├── lots.py
+│   ├── entrees.py
+│   ├── sorties.py
+│   ├── transferts.py
+│   ├── inventaires.py
+│   └── mouvements.py
+│
+├── forms/
+│   ├── __init__.py
+│   │
+│   ├── medicaments.py
+│   ├── fournisseurs.py
+│   ├── clients.py
+│   ├── depots.py
+│   ├── entrees.py
+│   ├── sorties.py
+│   ├── transferts.py
+│   └── inventaires.py
+│
+├── views/
+│   ├── __init__.py
+│   │
+│   ├── dashboard.py
+│   ├── medicaments.py
+│   ├── fournisseurs.py
+│   ├── clients.py
+│   ├── depots.py
+│   ├── stocks.py
+│   ├── lots.py
+│   ├── entrees.py
+│   ├── sorties.py
+│   ├── transferts.py
+│   ├── inventaires.py
+│   └── mouvements.py
+│
+├── services/
+│   ├── __init__.py
+│   │
+│   ├── stock_service.py
+│   ├── entree_service.py
+│   ├── sortie_service.py
+│   ├── transfert_service.py
+│   ├── inventaire_service.py
+│   └── mouvement_service.py
+│
+└── templates/
+    └── backend/
+        └── pages/
+            └── stock/
+                │
+                ├── dashboard.html
+                │
+                ├── medicaments/
+                │   ├── liste.html
+                │   └── details.html
+                │
+                ├── fournisseurs/
+                │   ├── liste.html
+                │   └── details.html
+                │
+                ├── clients/
+                │   ├── liste.html
+                │   └── details.html
+                │
+                ├── depots/
+                │   ├── liste.html
+                │   └── details.html
+                │
+                ├── stocks/
+                │   ├── liste.html
+                │   └── details.html
+                │
+                ├── lots/
+                │   ├── liste.html
+                │   └── details.html
+                │
+                ├── entrees/
+                │   ├── liste.html
+                │   ├── ajouter.html
+                │   └── details.html
+                │
+                ├── sorties/
+                │   ├── liste.html
+                │   ├── ajouter.html
+                │   └── details.html
+                │
+                ├── transferts/
+                │   ├── liste.html
+                │   ├── ajouter.html
+                │   └── details.html
+                │
+                ├── inventaires/
+                │   ├── liste.html
+                │   ├── ajouter.html
+                │   └── details.html
+                │
+                └── mouvements/
+                    ├── liste.html
+                    ├── entrees.html
+                    ├── sorties.html
+                    ├── transferts.html
+                    └── details.html

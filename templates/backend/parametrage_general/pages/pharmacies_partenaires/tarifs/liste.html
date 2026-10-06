@@ -1,0 +1,2510 @@
+{% extends 'backend/parametrage_general/base.html' %}
+{% load static %}
+
+{% block inner_content %}
+
+<div class="tarifs-partenaire-page">
+
+<!-- ============================================================
+     STYLES
+============================================================ -->
+<style>
+    .tarifs-partenaire-page {
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+        --ink: #17212b;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --surface: #ffffff;
+        --surface-soft: #f8fafc;
+        --success: #198754;
+        --warning: #d39e00;
+        --danger: #dc3545;
+        --info: #0d6efd;
+        color: var(--ink);
+    }
+
+    .tarifs-partenaire-page .page-header {
+        background: linear-gradient(
+            135deg,
+            var(--teal-900),
+            var(--teal-700)
+        );
+        border-radius: 16px;
+        padding: 24px 26px;
+        color: #fff;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(15, 92, 86, 0.15);
+    }
+
+    .tarifs-partenaire-page .page-header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .tarifs-partenaire-page .page-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+
+    .tarifs-partenaire-page .page-title-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.14);
+        font-size: 20px;
+    }
+
+    .tarifs-partenaire-page .page-subtitle {
+        margin: 7px 0 0 58px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.88rem;
+    }
+
+    .tarifs-partenaire-page .btn-add {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 16px;
+        background: #fff;
+        color: var(--teal-700);
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .tarifs-partenaire-page .btn-add:hover {
+        background: #f8fafc;
+        color: var(--teal-900);
+    }
+
+    /* ============================================================
+       STATISTIQUES
+    ============================================================ */
+
+    .tarifs-partenaire-page .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .tarifs-partenaire-page .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 94px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .tarifs-partenaire-page .stat-icon {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 18px;
+    }
+
+    .tarifs-partenaire-page .stat-label {
+        color: var(--muted);
+        font-size: 0.78rem;
+        margin-bottom: 3px;
+    }
+
+    .tarifs-partenaire-page .stat-value {
+        font-size: 1.35rem;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    /* ============================================================
+       FILTRES
+    ============================================================ */
+
+    .tarifs-partenaire-page .filter-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .tarifs-partenaire-page .filter-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+        color: var(--teal-900);
+    }
+
+    .tarifs-partenaire-page .filter-row {
+        display: grid;
+        grid-template-columns:
+            minmax(240px, 1.7fr)
+            minmax(200px, 1fr)
+            minmax(160px, .8fr)
+            auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .tarifs-partenaire-page .form-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 6px;
+    }
+
+    .tarifs-partenaire-page .form-control,
+    .tarifs-partenaire-page .form-select {
+        min-height: 40px;
+        border-radius: 9px;
+        border-color: #dfe3e8;
+        font-size: 0.86rem;
+    }
+
+    .tarifs-partenaire-page .form-control:focus,
+    .tarifs-partenaire-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 3px rgba(18, 118, 110, 0.10);
+    }
+
+    .tarifs-partenaire-page .form-select:disabled {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+        opacity: .75;
+    }
+
+    .tarifs-partenaire-page .btn-filter {
+        min-height: 40px;
+        border-radius: 9px;
+        padding: 0 16px;
+        border: 1px solid var(--teal-700);
+        background: var(--teal-700);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.84rem;
+    }
+
+    .tarifs-partenaire-page .btn-filter:hover {
+        background: var(--teal-900);
+    }
+
+    .tarifs-partenaire-page .btn-reset {
+        min-height: 40px;
+        border-radius: 9px;
+        padding: 0 14px;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: #4b5563;
+        font-weight: 600;
+        font-size: 0.84rem;
+        margin-left: 6px;
+    }
+
+    /* ============================================================
+       TABLEAU
+    ============================================================ */
+
+    .tarifs-partenaire-page .table-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .tarifs-partenaire-page .table-card-header {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .tarifs-partenaire-page .table-card-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .tarifs-partenaire-page .result-count {
+        color: var(--muted);
+        font-size: 0.78rem;
+    }
+
+    .tarifs-partenaire-page .table-responsive {
+        overflow-x: auto;
+    }
+
+    .tarifs-partenaire-page table {
+        margin: 0;
+        min-width: 1150px;
+    }
+
+    .tarifs-partenaire-page thead th {
+        background: var(--surface-soft);
+        color: #4b5563;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .025em;
+        border-bottom: 1px solid var(--border);
+        padding: 13px 12px;
+        white-space: nowrap;
+    }
+
+    .tarifs-partenaire-page tbody td {
+        padding: 13px 12px;
+        border-bottom: 1px solid #eef0f2;
+        vertical-align: middle;
+        font-size: 0.82rem;
+    }
+
+    .tarifs-partenaire-page tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .tarifs-partenaire-page tbody tr:hover {
+        background: #fbfdfd;
+    }
+
+    .tarifs-partenaire-page .medicament-name {
+        font-weight: 700;
+        color: var(--teal-900);
+        margin-bottom: 3px;
+    }
+
+    .tarifs-partenaire-page .medicament-code {
+        color: var(--muted);
+        font-size: 0.72rem;
+    }
+
+    .tarifs-partenaire-page .pharmacie-name {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .tarifs-partenaire-page .pharmacie-code {
+        color: var(--muted);
+        font-size: 0.72rem;
+        margin-top: 2px;
+    }
+
+    .tarifs-partenaire-page .reference {
+        font-family: monospace;
+        font-size: 0.76rem;
+        color: #4b5563;
+        background: #f8fafc;
+        border: 1px solid #edf0f2;
+        border-radius: 6px;
+        padding: 4px 7px;
+        display: inline-block;
+    }
+
+    .tarifs-partenaire-page .price {
+        font-weight: 800;
+        color: var(--teal-700);
+        white-space: nowrap;
+    }
+
+    .tarifs-partenaire-page .currency {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-left: 3px;
+        font-weight: 600;
+    }
+
+    .tarifs-partenaire-page .validity {
+        line-height: 1.4;
+        white-space: nowrap;
+    }
+
+    .tarifs-partenaire-page .validity-start {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .tarifs-partenaire-page .validity-end {
+        color: var(--muted);
+        font-size: 0.72rem;
+    }
+
+    .tarifs-partenaire-page .validity-unlimited {
+        color: var(--success);
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+    /* ============================================================
+       BADGES
+    ============================================================ */
+
+    .tarifs-partenaire-page .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .tarifs-partenaire-page .status-active {
+        background: #e8f7ee;
+        color: #147a43;
+    }
+
+    .tarifs-partenaire-page .status-inactive {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .tarifs-partenaire-page .status-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .tarifs-partenaire-page .motif-badge {
+        display: inline-block;
+        max-width: 180px;
+        white-space: normal;
+        line-height: 1.3;
+        color: #4b5563;
+        font-size: 0.74rem;
+    }
+
+    /* ============================================================
+       ACTIONS
+    ============================================================ */
+
+    .tarifs-partenaire-page .actions {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .tarifs-partenaire-page .action-btn {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+        text-decoration: none;
+        transition: all .15s ease;
+    }
+
+    .tarifs-partenaire-page .action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .tarifs-partenaire-page .action-view {
+        color: var(--info);
+    }
+
+    .tarifs-partenaire-page .action-view:hover {
+        background: #eef5ff;
+        border-color: #cfe0ff;
+    }
+
+    .tarifs-partenaire-page .action-edit {
+        color: var(--teal-700);
+    }
+
+    .tarifs-partenaire-page .action-edit:hover {
+        background: var(--teal-100);
+        border-color: #bde4df;
+    }
+
+    .tarifs-partenaire-page .action-toggle {
+        color: var(--warning);
+    }
+
+    .tarifs-partenaire-page .action-toggle:hover {
+        background: #fff8e1;
+        border-color: #f5df9c;
+    }
+
+    .tarifs-partenaire-page .action-delete {
+        color: var(--danger);
+    }
+
+    .tarifs-partenaire-page .action-delete:hover {
+        background: #fff0f1;
+        border-color: #f2c5ca;
+    }
+
+    /* ============================================================
+       EMPTY STATE
+    ============================================================ */
+
+    .tarifs-partenaire-page .empty-state {
+        padding: 55px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .tarifs-partenaire-page .empty-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 14px;
+        border-radius: 16px;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .tarifs-partenaire-page .empty-title {
+        color: #374151;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    /* ============================================================
+       MODALE
+    ============================================================ */
+
+    .tarifs-partenaire-page .modal-content {
+        border: 0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.20);
+    }
+
+    .tarifs-partenaire-page .modal-header {
+        background: linear-gradient(
+            135deg,
+            var(--teal-900),
+            var(--teal-700)
+        );
+        color: #fff;
+        border: 0;
+        padding: 18px 20px;
+    }
+
+    .tarifs-partenaire-page .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .tarifs-partenaire-page .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: .85;
+    }
+
+    .tarifs-partenaire-page .modal-body {
+        padding: 22px;
+    }
+
+    .tarifs-partenaire-page .form-section {
+        margin-bottom: 20px;
+    }
+
+    .tarifs-partenaire-page .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .tarifs-partenaire-page .section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--teal-900);
+        font-size: 0.84rem;
+        font-weight: 700;
+        padding-bottom: 9px;
+        margin-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .tarifs-partenaire-page .required {
+        color: var(--danger);
+    }
+
+    .tarifs-partenaire-page .field-error {
+        color: var(--danger);
+        font-size: 0.74rem;
+        margin-top: 5px;
+    }
+
+    .tarifs-partenaire-page .non-field-errors {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        color: #9f1239;
+        border-radius: 9px;
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+    }
+
+    .tarifs-partenaire-page .help-text {
+        color: var(--muted);
+        font-size: 0.7rem;
+        margin-top: 4px;
+    }
+
+    .tarifs-partenaire-page .checkbox-wrapper {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .tarifs-partenaire-page .checkbox-wrapper .form-check {
+        margin: 0;
+    }
+
+    .tarifs-partenaire-page .modal-footer {
+        padding: 14px 20px;
+        background: var(--surface-soft);
+        border-top: 1px solid var(--border);
+    }
+
+    .tarifs-partenaire-page .btn-save {
+        background: var(--teal-700);
+        border-color: var(--teal-700);
+        color: #fff;
+        border-radius: 9px;
+        font-weight: 600;
+        padding: 9px 17px;
+    }
+
+    .tarifs-partenaire-page .btn-save:hover {
+        background: var(--teal-900);
+        border-color: var(--teal-900);
+        color: #fff;
+    }
+
+    .tarifs-partenaire-page .btn-cancel {
+        border-radius: 9px;
+        font-weight: 600;
+        padding: 9px 15px;
+    }
+
+    /* ============================================================
+       DELETE MODAL
+    ============================================================ */
+
+    .tarifs-partenaire-page .delete-warning {
+        text-align: center;
+        padding: 8px 5px 12px;
+    }
+
+    .tarifs-partenaire-page .delete-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 14px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff0f1;
+        color: var(--danger);
+        font-size: 22px;
+    }
+
+    .tarifs-partenaire-page .delete-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: #374151;
+    }
+
+    .tarifs-partenaire-page .delete-text {
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.5;
+        margin-bottom: 0;
+    }
+
+    .tarifs-partenaire-page .btn-delete-confirm {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: #fff;
+        border-radius: 9px;
+        font-weight: 600;
+        padding: 9px 17px;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+
+    @media (max-width: 1100px) {
+        .tarifs-partenaire-page .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tarifs-partenaire-page .filter-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .tarifs-partenaire-page .filter-actions {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .tarifs-partenaire-page .page-header-content {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .tarifs-partenaire-page .btn-add {
+            justify-content: center;
+        }
+
+        .tarifs-partenaire-page .page-subtitle {
+            margin-left: 0;
+        }
+
+        .tarifs-partenaire-page .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tarifs-partenaire-page .filter-row {
+            grid-template-columns: 1fr;
+        }
+
+        .tarifs-partenaire-page .filter-actions {
+            grid-column: auto;
+        }
+    }
+</style>
+
+
+<!-- ============================================================
+     EN-TÊTE
+============================================================ -->
+<div class="page-header">
+
+    <div class="page-header-content">
+
+        <div>
+            <h1 class="page-title">
+
+                <span class="page-title-icon">
+                    <i class="ri-price-tag-3-line"></i>
+                </span>
+
+                <span>
+                    Tarifs des médicaments partenaires
+                </span>
+
+            </h1>
+
+            <p class="page-subtitle">
+                Gestion des tarifs appliqués par les pharmacies partenaires
+                aux médicaments de leur catalogue.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="btn btn-add"
+            data-bs-toggle="modal"
+            data-bs-target="#tarifModal"
+            id="btnAjouterTarif"
+        >
+            <i class="ri-add-line"></i>
+            Ajouter un tarif
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MESSAGES
+============================================================ -->
+{% if messages %}
+
+    {% for message in messages %}
+
+        <div
+            class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+            role="alert"
+        >
+
+            {{ message }}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Fermer"
+            ></button>
+
+        </div>
+
+    {% endfor %}
+
+{% endif %}
+
+
+<!-- ============================================================
+     STATISTIQUES
+============================================================ -->
+<div class="stats-grid">
+
+    <!-- TOTAL -->
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            <i class="ri-price-tag-3-line"></i>
+        </div>
+
+        <div>
+
+            <div class="stat-label">
+                Total tarifs
+            </div>
+
+            <div class="stat-value">
+                {{ total_tarifs }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIFS -->
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            <i class="ri-checkbox-circle-line"></i>
+        </div>
+
+        <div>
+
+            <div class="stat-label">
+                Tarifs actifs
+            </div>
+
+            <div class="stat-value">
+                {{ total_tarifs_actifs }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- INACTIFS -->
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            <i class="ri-close-circle-line"></i>
+        </div>
+
+        <div>
+
+            <div class="stat-label">
+                Tarifs inactifs
+            </div>
+
+            <div class="stat-value">
+                {{ total_tarifs_inactifs }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PHARMACIES -->
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            <i class="ri-store-2-line"></i>
+        </div>
+
+        <div>
+
+            <div class="stat-label">
+                Pharmacies concernées
+            </div>
+
+            <div class="stat-value">
+                {{ total_pharmacies }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     FILTRES
+============================================================ -->
+<div class="filter-card">
+
+    <div class="filter-title">
+        <i class="ri-filter-3-line"></i>
+        Filtrer les tarifs
+    </div>
+
+    <form method="get">
+
+        <div class="filter-row">
+
+            <!-- RECHERCHE -->
+            <div>
+
+                <label
+                    for="recherche"
+                    class="form-label"
+                >
+                    Recherche
+                </label>
+
+                <input
+                    type="text"
+                    id="recherche"
+                    name="q"
+                    value="{{ recherche }}"
+                    class="form-control"
+                    placeholder="Médicament, code, pharmacie, référence..."
+                >
+
+            </div>
+
+
+            <!-- PHARMACIE -->
+            <div>
+
+                <label
+                    for="pharmacie"
+                    class="form-label"
+                >
+                    Pharmacie partenaire
+                </label>
+
+                <select
+                    name="pharmacie"
+                    id="pharmacie"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Toutes les pharmacies
+                    </option>
+
+                    {% for pharmacie in pharmacies %}
+
+                        <option
+                            value="{{ pharmacie.pk }}"
+                            {% if pharmacie_id|stringformat:"s" == pharmacie.pk|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ pharmacie.nom }} — {{ pharmacie.code }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- STATUT -->
+            <div>
+
+                <label
+                    for="statut"
+                    class="form-label"
+                >
+                    Statut
+                </label>
+
+                <select
+                    name="statut"
+                    id="statut"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Tous
+                    </option>
+
+                    <option
+                        value="actif"
+                        {% if statut == "actif" %}selected{% endif %}
+                    >
+                        Actifs
+                    </option>
+
+                    <option
+                        value="inactif"
+                        {% if statut == "inactif" %}selected{% endif %}
+                    >
+                        Inactifs
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-filter"
+                >
+                    <i class="ri-search-line me-1"></i>
+                    Rechercher
+                </button>
+
+                <a
+                    href="{% url 'parametrage_general:liste_tarifs_medicaments_pharmacies_partenaires' %}"
+                    class="btn btn-reset"
+                >
+                    <i class="ri-refresh-line me-1"></i>
+                    Réinitialiser
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- ============================================================
+     TABLEAU
+============================================================ -->
+<div class="table-card">
+
+    <div class="table-card-header">
+
+        <h2 class="table-card-title">
+            <i class="ri-list-check-2"></i>
+            Tarifs configurés
+        </h2>
+
+        <span class="result-count">
+
+            {{ tarifs|length }}
+            résultat{{ tarifs|length|pluralize }}
+
+        </span>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        {% if tarifs %}
+
+            <table class="table align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Médicament
+                        </th>
+
+                        <th>
+                            Pharmacie partenaire
+                        </th>
+
+                        <th>
+                            Référence
+                        </th>
+
+                        <th>
+                            Conditionnement
+                        </th>
+
+                        <th>
+                            Prix
+                        </th>
+
+                        <th>
+                            Validité
+                        </th>
+
+                        <th>
+                            Motif
+                        </th>
+
+                        <th>
+                            Statut
+                        </th>
+
+                        <th class="text-end">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for tarif in tarifs %}
+
+                        <tr>
+
+                            <!-- MÉDICAMENT -->
+                            <td>
+
+                                <div class="medicament-name">
+                                    {{ tarif.catalogue.medicament.nom }}
+                                </div>
+
+                                <div class="medicament-code">
+
+                                    {% if tarif.catalogue.medicament.code %}
+
+                                        Code :
+                                        {{ tarif.catalogue.medicament.code }}
+
+                                    {% endif %}
+
+                                    {% if tarif.catalogue.medicament.code_cip %}
+
+                                        · CIP :
+                                        {{ tarif.catalogue.medicament.code_cip }}
+
+                                    {% endif %}
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- PHARMACIE -->
+                            <td>
+
+                                <div class="pharmacie-name">
+                                    {{ tarif.catalogue.pharmacie.nom }}
+                                </div>
+
+                                <div class="pharmacie-code">
+                                    {{ tarif.catalogue.pharmacie.code }}
+                                </div>
+
+                            </td>
+
+
+                            <!-- REFERENCE -->
+                            <td>
+
+                                <span class="reference">
+                                    {{ tarif.reference }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- CONDITIONNEMENT -->
+                            <td>
+
+                                {% if tarif.catalogue.conditionnement %}
+
+                                    <div>
+                                        {{ tarif.catalogue.conditionnement }}
+                                    </div>
+
+                                {% elif tarif.catalogue.unite_vente %}
+
+                                    <div>
+                                        {{ tarif.catalogue.unite_vente }}
+                                    </div>
+
+                                {% else %}
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- PRIX -->
+                            <td>
+
+                                <div class="price">
+
+                                    {{ tarif.prix|floatformat:2 }}
+
+                                    <span class="currency">
+                                        {{ tarif.devise }}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- VALIDITE -->
+                            <td>
+
+                                <div class="validity">
+
+                                    <div class="validity-start">
+                                        À partir du
+                                        {{ tarif.date_debut|date:"d/m/Y" }}
+                                    </div>
+
+                                    {% if tarif.date_fin %}
+
+                                        <div class="validity-end">
+                                            Jusqu'au
+                                            {{ tarif.date_fin|date:"d/m/Y" }}
+                                        </div>
+
+                                    {% else %}
+
+                                        <div class="validity-unlimited">
+                                            Sans date de fin
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- MOTIF -->
+                            <td>
+
+                                <span class="motif-badge">
+                                    {{ tarif.get_motif_display }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- STATUT -->
+                            <td>
+
+                                {% if tarif.actif %}
+
+                                    <span class="status-badge status-active">
+                                        <span class="dot"></span>
+                                        Actif
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-inactive">
+                                        <span class="dot"></span>
+                                        Inactif
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- ACTIONS -->
+                            <td>
+
+                                <div class="actions justify-content-end">
+
+                                    <!-- DÉTAILS -->
+                                    <a
+                                        href="{% url 'parametrage_general:details_tarif_medicament_pharmacie_partenaire' tarif.pk %}"
+                                        class="action-btn action-view"
+                                        title="Voir les détails"
+                                    >
+                                        <i class="ri-eye-line"></i>
+                                    </a>
+
+
+                                    <!-- MODIFIER -->
+                                    <a
+                                        href="{% url 'parametrage_general:liste_tarifs_medicaments_pharmacies_partenaires' %}?modifier={{ tarif.pk }}"
+                                        class="action-btn action-edit"
+                                        title="Modifier"
+                                    >
+                                        <i class="ri-edit-line"></i>
+                                    </a>
+
+
+                                    <!-- ACTIVER / DESACTIVER -->
+                                    <a
+                                        href="{% url 'parametrage_general:toggle_tarif_medicament_pharmacie_partenaire' tarif.pk %}"
+                                        class="action-btn action-toggle"
+                                        title="{% if tarif.actif %}Désactiver{% else %}Activer{% endif %}"
+                                    >
+
+                                        {% if tarif.actif %}
+
+                                            <i class="ri-pause-circle-line"></i>
+
+                                        {% else %}
+
+                                            <i class="ri-play-circle-line"></i>
+
+                                        {% endif %}
+
+                                    </a>
+
+
+                                    <!-- SUPPRIMER -->
+                                    <button
+                                        type="button"
+                                        class="action-btn action-delete btn-open-delete"
+                                        title="Supprimer"
+                                        data-id="{{ tarif.pk }}"
+                                        data-reference="{{ tarif.reference }}"
+                                        data-medicament="{{ tarif.catalogue.medicament.nom }}"
+                                    >
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    <i class="ri-price-tag-3-line"></i>
+                </div>
+
+                <div class="empty-title">
+                    Aucun tarif trouvé
+                </div>
+
+                <div>
+                    Aucun tarif de médicament partenaire
+                    ne correspond aux critères sélectionnés.
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     DONNÉES CATALOGUES POUR JAVASCRIPT
+============================================================ -->
+
+{{ catalogues_data|json_script:"tarifs-catalogues-data" }}
+
+
+<!-- ============================================================
+     MODALE AJOUT / MODIFICATION
+============================================================ -->
+
+<div
+    class="modal fade"
+    id="tarifModal"
+    tabindex="-1"
+    aria-labelledby="tarifModalLabel"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="tarifModalLabel"
+                >
+
+                    <i
+                        class="{% if mode_formulaire == 'modification' %}
+                            ri-edit-line
+                        {% else %}
+                            ri-price-tag-3-line
+                        {% endif %}"
+                    ></i>
+
+                    {% if mode_formulaire == "modification" %}
+                        Modifier le tarif
+                    {% else %}
+                        Ajouter un tarif
+                    {% endif %}
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+
+            <form
+                method="post"
+                action="{% url 'parametrage_general:liste_tarifs_medicaments_pharmacies_partenaires' %}"
+                novalidate
+            >
+
+                {% csrf_token %}
+
+
+                {% if mode_formulaire == "modification" %}
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="modifier"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="tarif_id"
+                        value="{{ tarif_modification_id }}"
+                    >
+
+                {% else %}
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="ajouter"
+                    >
+
+                {% endif %}
+
+
+                <div class="modal-body">
+
+                    {% if form.non_field_errors %}
+
+                        <div class="non-field-errors">
+
+                            {% for error in form.non_field_errors %}
+
+                                <div>
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- ==================================================
+                         IDENTIFICATION
+                    =================================================== -->
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <i class="ri-information-line"></i>
+                            Identification du tarif
+                        </div>
+
+
+                        <!-- PHARMACIE -->
+                        <div class="mb-3">
+
+                            <label
+                                for="{{ form.pharmacie.id_for_label }}"
+                                class="form-label"
+                            >
+                                Pharmacie partenaire
+                                <span class="required">*</span>
+                            </label>
+
+                            {{ form.pharmacie }}
+
+                            {% if form.pharmacie.errors %}
+
+                                {% for error in form.pharmacie.errors %}
+
+                                    <div class="field-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            {% endif %}
+
+                            {% if form.pharmacie.help_text %}
+
+                                <div class="help-text">
+                                    {{ form.pharmacie.help_text }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <!-- CATALOGUE -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="{{ form.catalogue.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Médicament du catalogue
+                                    <span class="required">*</span>
+                                </label>
+
+                                {{ form.catalogue }}
+
+                                {% if form.catalogue.errors %}
+
+                                    {% for error in form.catalogue.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                                {% if form.catalogue.help_text %}
+
+                                    <div class="help-text">
+                                        {{ form.catalogue.help_text }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- REFERENCE -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="{{ form.reference.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Référence tarifaire
+                                    <span class="required">*</span>
+                                </label>
+
+                                {{ form.reference }}
+
+                                {% if form.reference.errors %}
+
+                                    {% for error in form.reference.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         PRIX
+                    =================================================== -->
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <i class="ri-money-dollar-circle-line"></i>
+                            Configuration tarifaire
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <!-- PRIX -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="{{ form.prix.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Prix
+                                    <span class="required">*</span>
+                                </label>
+
+                                {{ form.prix }}
+
+                                {% if form.prix.errors %}
+
+                                    {% for error in form.prix.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- DEVISE -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="{{ form.devise.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Devise
+                                    <span class="required">*</span>
+                                </label>
+
+                                {{ form.devise }}
+
+                                {% if form.devise.errors %}
+
+                                    {% for error in form.devise.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         VALIDITE
+                    =================================================== -->
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <i class="ri-calendar-check-line"></i>
+                            Période de validité
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <!-- DATE DEBUT -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="{{ form.date_debut.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Date de début
+                                    <span class="required">*</span>
+                                </label>
+
+                                {{ form.date_debut }}
+
+                                {% if form.date_debut.errors %}
+
+                                    {% for error in form.date_debut.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- DATE FIN -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="{{ form.date_fin.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Date de fin
+                                </label>
+
+                                {{ form.date_fin }}
+
+                                {% if form.date_fin.errors %}
+
+                                    {% for error in form.date_fin.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                                <div class="help-text">
+                                    Laisser vide pour un tarif sans date de fin.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         MOTIF / STATUT
+                    =================================================== -->
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <i class="ri-settings-3-line"></i>
+                            Gestion du tarif
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <!-- MOTIF -->
+                            <div class="col-md-7">
+
+                                <label
+                                    for="{{ form.motif.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Motif
+                                    <span class="required">*</span>
+                                </label>
+
+                                {{ form.motif }}
+
+                                {% if form.motif.errors %}
+
+                                    {% for error in form.motif.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- ACTIF -->
+                            <div class="col-md-5">
+
+                                <label class="form-label">
+                                    Statut
+                                </label>
+
+                                <div class="checkbox-wrapper">
+
+                                    <div class="form-check">
+
+                                        {{ form.actif }}
+
+                                        <label
+                                            class="form-check-label"
+                                            for="{{ form.actif.id_for_label }}"
+                                        >
+                                            Tarif actif
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                {% if form.actif.errors %}
+
+                                    {% for error in form.actif.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         COMMENTAIRE
+                    =================================================== -->
+                    <div class="form-section">
+
+                        <div class="section-title">
+                            <i class="ri-chat-3-line"></i>
+                            Informations complémentaires
+                        </div>
+
+
+                        <div>
+
+                            <label
+                                for="{{ form.commentaire.id_for_label }}"
+                                class="form-label"
+                            >
+                                Commentaire
+                            </label>
+
+                            {{ form.commentaire }}
+
+                            {% if form.commentaire.errors %}
+
+                                {% for error in form.commentaire.errors %}
+
+                                    <div class="field-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light btn-cancel"
+                        data-bs-dismiss="modal"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-save"
+                    >
+
+                        {% if mode_formulaire == "modification" %}
+
+                            <i class="ri-save-line me-1"></i>
+                            Enregistrer les modifications
+
+                        {% else %}
+
+                            <i class="ri-add-line me-1"></i>
+                            Créer le tarif
+
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODALE SUPPRESSION
+============================================================ -->
+<div
+    class="modal fade"
+    id="deleteTarifModal"
+    tabindex="-1"
+    aria-labelledby="deleteTarifModalLabel"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="deleteTarifModalLabel"
+                >
+
+                    <i class="ri-delete-bin-line"></i>
+                    Supprimer le tarif
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+
+            <form
+                method="post"
+                id="deleteTarifForm"
+                action="{% url 'parametrage_general:supprimer_tarif_medicament_pharmacie_partenaire' 0 %}"
+            >
+
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="delete-warning">
+
+                        <div class="delete-icon">
+                            <i class="ri-delete-bin-line"></i>
+                        </div>
+
+                        <div class="delete-title">
+                            Confirmer la suppression
+                        </div>
+
+                        <p class="delete-text">
+
+                            Vous êtes sur le point de supprimer le tarif
+                            <strong id="deleteTarifReference"></strong>
+                            du médicament
+                            <strong id="deleteTarifMedicament"></strong>.
+
+                            <br>
+
+                            Cette opération est définitive.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light btn-cancel"
+                        data-bs-dismiss="modal"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-delete-confirm"
+                    >
+                        <i class="ri-delete-bin-line me-1"></i>
+                        Supprimer définitivement
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        /* ========================================================
+           DONNÉES DES CATALOGUES
+        ======================================================== */
+
+        const catalogueDataElement =
+            document.getElementById(
+                "tarifs-catalogues-data"
+            );
+
+        let cataloguesData = [];
+
+        if (catalogueDataElement) {
+
+            try {
+
+                cataloguesData = JSON.parse(
+                    catalogueDataElement.textContent
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Impossible de charger les données des catalogues :",
+                    error
+                );
+
+                cataloguesData = [];
+
+            }
+
+        }
+
+
+        /* ========================================================
+           CHAMPS PHARMACIE / CATALOGUE
+        ======================================================== */
+
+        const pharmacieField =
+            document.getElementById(
+                "id_pharmacie_tarif"
+            );
+
+        const catalogueField =
+            document.getElementById(
+                "id_catalogue_tarif"
+            );
+
+
+        /*
+         * Valeur actuellement sélectionnée.
+         *
+         * Cela permet de conserver le catalogue :
+         * - en modification ;
+         * - après une erreur de validation POST.
+         */
+        const catalogueInitialValue =
+            catalogueField
+                ? catalogueField.value
+                : "";
+
+
+        /* ========================================================
+           CONSTRUCTION DES OPTIONS DU CATALOGUE
+        ======================================================== */
+
+        function chargerCatalogues(
+            pharmacieId,
+            catalogueSelectionne = ""
+        ) {
+
+            if (!catalogueField) {
+                return;
+            }
+
+
+            /*
+             * On vide toujours la liste actuelle.
+             */
+            catalogueField.innerHTML = "";
+
+
+            /*
+             * Aucun pharmacien sélectionné.
+             */
+            if (!pharmacieId) {
+
+                catalogueField.disabled = true;
+
+                const option =
+                    document.createElement("option");
+
+                option.value = "";
+
+                option.textContent =
+                    "Sélectionner d'abord une pharmacie partenaire";
+
+                option.selected = true;
+
+                catalogueField.appendChild(option);
+
+                return;
+            }
+
+
+            /*
+             * Option par défaut.
+             */
+            const defaultOption =
+                document.createElement("option");
+
+            defaultOption.value = "";
+
+            defaultOption.textContent =
+                "Sélectionner un médicament";
+
+            defaultOption.selected =
+                !catalogueSelectionne;
+
+            catalogueField.appendChild(
+                defaultOption
+            );
+
+
+            /*
+             * Filtrage des catalogues
+             * selon la pharmacie choisie.
+             */
+            const cataloguesPharmacie =
+                cataloguesData.filter(function (catalogue) {
+
+                    return String(
+                        catalogue.pharmacie_id
+                    ) === String(
+                        pharmacieId
+                    );
+
+                });
+
+
+            /*
+             * Aucun médicament.
+             */
+            if (
+                cataloguesPharmacie.length === 0
+            ) {
+
+                catalogueField.disabled = true;
+
+                const emptyOption =
+                    document.createElement("option");
+
+                emptyOption.value = "";
+
+                emptyOption.textContent =
+                    "Aucun médicament dans le catalogue";
+
+                emptyOption.disabled = true;
+
+                catalogueField.appendChild(
+                    emptyOption
+                );
+
+                return;
+            }
+
+
+            /*
+             * Le catalogue est disponible.
+             */
+            catalogueField.disabled = false;
+
+
+            cataloguesPharmacie.forEach(
+                function (catalogue) {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value =
+                        catalogue.id;
+
+
+                    /*
+                     * Libellé principal :
+                     * médicament
+                     */
+                    let label =
+                        catalogue.medicament;
+
+
+                    /*
+                     * Ajout du conditionnement.
+                     */
+                    if (
+                        catalogue.conditionnement
+                    ) {
+
+                        label +=
+                            " — " +
+                            catalogue.conditionnement;
+
+                    } else if (
+                        catalogue.unite_vente
+                    ) {
+
+                        label +=
+                            " — " +
+                            catalogue.unite_vente;
+
+                    }
+
+
+                    option.textContent =
+                        label;
+
+
+                    /*
+                     * Restaurer la sélection.
+                     */
+                    if (
+                        String(
+                            catalogue.id
+                        ) === String(
+                            catalogueSelectionne
+                        )
+                    ) {
+
+                        option.selected = true;
+
+                    }
+
+
+                    catalogueField.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* ========================================================
+           CHANGEMENT DE PHARMACIE
+        ======================================================== */
+
+        if (pharmacieField) {
+
+            pharmacieField.addEventListener(
+                "change",
+                function () {
+
+                    /*
+                     * Lorsqu'on change de pharmacie,
+                     * le médicament doit être réinitialisé.
+                     */
+                    chargerCatalogues(
+                        this.value,
+                        ""
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* ========================================================
+           INITIALISATION
+        ======================================================== */
+
+        if (pharmacieField && catalogueField) {
+
+            chargerCatalogues(
+                pharmacieField.value,
+                catalogueInitialValue
+            );
+
+        }
+
+
+        /* ========================================================
+           MODALE AJOUT / MODIFICATION
+        ======================================================== */
+
+        const tarifModalElement =
+            document.getElementById(
+                "tarifModal"
+            );
+
+        const tarifModal =
+            tarifModalElement
+                ? new bootstrap.Modal(
+                    tarifModalElement
+                )
+                : null;
+
+
+        /*
+         * Ouvre automatiquement la modale lorsqu'on arrive
+         * sur ?modifier=<id>
+         */
+        {% if ouvrir_modal %}
+
+            if (tarifModal) {
+                tarifModal.show();
+            }
+
+        {% endif %}
+
+
+        /* ========================================================
+           MODALE SUPPRESSION
+        ======================================================== */
+
+        const deleteModalElement =
+            document.getElementById(
+                "deleteTarifModal"
+            );
+
+        const deleteModal =
+            deleteModalElement
+                ? new bootstrap.Modal(
+                    deleteModalElement
+                )
+                : null;
+
+        const deleteForm =
+            document.getElementById(
+                "deleteTarifForm"
+            );
+
+        const deleteReference =
+            document.getElementById(
+                "deleteTarifReference"
+            );
+
+        const deleteMedicament =
+            document.getElementById(
+                "deleteTarifMedicament"
+            );
+
+
+        const deleteUrlTemplate =
+            "{% url 'parametrage_general:supprimer_tarif_medicament_pharmacie_partenaire' 0 %}";
+
+
+        document
+            .querySelectorAll(
+                ".btn-open-delete"
+            )
+            .forEach(function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const tarifId =
+                            this.dataset.id;
+
+                        const reference =
+                            this.dataset.reference;
+
+                        const medicament =
+                            this.dataset.medicament;
+
+
+                        if (deleteReference) {
+
+                            deleteReference.textContent =
+                                "« " +
+                                reference +
+                                " »";
+
+                        }
+
+
+                        if (deleteMedicament) {
+
+                            deleteMedicament.textContent =
+                                "« " +
+                                medicament +
+                                " »";
+
+                        }
+
+
+                        if (deleteForm) {
+
+                            deleteForm.action =
+                                deleteUrlTemplate.replace(
+                                    "/0/",
+                                    "/" +
+                                    tarifId +
+                                    "/"
+                                );
+
+                        }
+
+
+                        if (deleteModal) {
+                            deleteModal.show();
+                        }
+
+                    }
+                );
+
+            });
+
+
+        /* ========================================================
+           NOUVEAU TARIF
+        ======================================================== */
+
+        const btnAjouter =
+            document.getElementById(
+                "btnAjouterTarif"
+            );
+
+
+        if (btnAjouter) {
+
+            btnAjouter.addEventListener(
+                "click",
+                function () {
+
+                    /*
+                     * En mode ajout, le formulaire est vierge.
+                     *
+                     * On s'assure que le champ catalogue
+                     * démarre bien désactivé.
+                     */
+                    if (
+                        catalogueField &&
+                        pharmacieField
+                    ) {
+
+                        if (
+                            !pharmacieField.value
+                        ) {
+
+                            chargerCatalogues(
+                                "",
+                                ""
+                            );
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* ========================================================
+           AUTO FOCUS
+        ======================================================== */
+
+        if (tarifModalElement) {
+
+            tarifModalElement.addEventListener(
+                "shown.bs.modal",
+                function () {
+
+                    /*
+                     * On donne priorité à la pharmacie
+                     * pour respecter l'ordre logique :
+                     *
+                     * Pharmacie
+                     *      ↓
+                     * Catalogue
+                     *      ↓
+                     * Référence
+                     */
+                    if (
+                        pharmacieField
+                    ) {
+
+                        pharmacieField.focus();
+
+                        return;
+
+                    }
+
+
+                    const firstInput =
+                        tarifModalElement.querySelector(
+                            "input:not([type='hidden']), select"
+                        );
+
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+
+                }
+            );
+
+        }
+
+    });
+
+</script>
+
+</div>
+
+{% endblock %}

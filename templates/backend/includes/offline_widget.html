@@ -1,0 +1,537 @@
+{% load static %}
+
+<style>
+    /* ============================================================
+       WIDGET DE CONNEXION SANITA
+       ============================================================ */
+    .net-widget {
+        --net-brand-900: #0b3d3a;
+        --net-brand-600: #12766e;
+        --net-ok-bg: #e9f6ef;
+        --net-ok-fg: #146c43;
+        --net-ok-line: #bfe3cf;
+
+        position: fixed;
+        left: 50%;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: max-content;
+        max-width: min(560px, calc(100vw - 32px));
+        padding: 10px 10px 10px 14px;
+        border-radius: 12px;
+        background: var(--net-brand-900);
+        color: #fff;
+        font-size: 14px;
+        line-height: 1.4;
+        box-shadow: 0 16px 36px -12px rgba(11, 61, 58, .5);
+        transform: translate(-50%, 160%);
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            transform .3s cubic-bezier(.2, .7, .3, 1),
+            opacity .2s ease,
+            visibility 0s linear .3s;
+    }
+
+    .net-widget.is-visible {
+        transform: translate(-50%, 0);
+        opacity: 1;
+        visibility: visible;
+        transition:
+            transform .3s cubic-bezier(.2, .7, .3, 1),
+            opacity .2s ease,
+            visibility 0s;
+    }
+
+    /* Connexion rétablie */
+    .net-widget.is-online {
+        padding-right: 16px;
+        border: 1px solid var(--net-ok-line);
+        background: var(--net-ok-bg);
+        color: var(--net-ok-fg);
+        box-shadow: 0 12px 28px -14px rgba(20, 108, 67, .35);
+    }
+
+    .net-widget.is-online .net-widget__actions {
+        display: none;
+    }
+
+    /* Envoi bloqué : petite secousse pour attirer l'œil */
+    .net-widget.is-blocked {
+        animation: net-nudge .35s ease;
+    }
+
+    .net-widget__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, .1);
+        font-size: 18px;
+    }
+
+    .net-widget.is-online .net-widget__icon {
+        background: rgba(20, 108, 67, .1);
+    }
+
+    .net-widget__text {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .net-widget__title {
+        display: block;
+        font-weight: 600;
+    }
+
+    .net-widget__detail {
+        display: block;
+        font-size: 13px;
+        opacity: .82;
+    }
+
+    .net-widget__countdown {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .net-widget__actions {
+        flex: none;
+        display: flex;
+        gap: 4px;
+    }
+
+    .net-widget__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid rgba(255, 255, 255, .28);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .1);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color .15s ease;
+    }
+
+    .net-widget__btn:hover {
+        background: rgba(255, 255, 255, .2);
+    }
+
+    .net-widget__btn:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+    }
+
+    .net-widget__btn[disabled] {
+        opacity: .65;
+        cursor: progress;
+    }
+
+    .net-widget__btn[disabled] i {
+        animation: net-spin .8s linear infinite;
+    }
+
+    .net-widget__btn--icon {
+        width: 34px;
+        padding: 0;
+        border-color: transparent;
+        background: transparent;
+        font-size: 17px;
+    }
+
+    /* Version réduite : une simple pastille dans le coin */
+    .net-widget.is-minimized {
+        left: auto;
+        right: 16px;
+        padding: 6px;
+        transform: none;
+        cursor: pointer;
+    }
+
+    .net-widget.is-minimized .net-widget__text,
+    .net-widget.is-minimized .net-widget__actions {
+        display: none;
+    }
+
+    @keyframes net-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes net-nudge {
+        0%, 100% { transform: translate(-50%, 0); }
+        25%      { transform: translate(calc(-50% - 6px), 0); }
+        75%      { transform: translate(calc(-50% + 6px), 0); }
+    }
+
+    @media (max-width: 520px) {
+        .net-widget {
+            left: 12px;
+            right: 12px;
+            width: auto;
+            max-width: none;
+            transform: translateY(160%);
+        }
+
+        .net-widget.is-visible {
+            transform: translateY(0);
+        }
+
+        .net-widget.is-minimized {
+            left: auto;
+            right: 12px;
+        }
+
+        .net-widget__btn-label {
+            display: none;
+        }
+
+        @keyframes net-nudge {
+            0%, 100% { transform: translateX(0); }
+            25%      { transform: translateX(-6px); }
+            75%      { transform: translateX(6px); }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .net-widget,
+        .net-widget.is-visible {
+            transition: opacity .2s ease, visibility 0s;
+        }
+
+        .net-widget.is-blocked,
+        .net-widget__btn[disabled] i {
+            animation: none;
+        }
+    }
+
+    @media print {
+        .net-widget {
+            display: none !important;
+        }
+    }
+</style>
+
+
+<div class="net-widget"
+     id="net-widget"
+     data-ping-url="{% static 'backend/assets/images/logo-sm.svg' %}"
+     aria-hidden="true">
+
+    <span class="net-widget__icon" aria-hidden="true">
+        <i class="ri-wifi-off-line" id="net-widget-icon"></i>
+    </span>
+
+    <div class="net-widget__text">
+        <span class="net-widget__title" id="net-widget-title" role="status" aria-live="polite">
+            Vous êtes hors ligne
+        </span>
+        <span class="net-widget__detail">
+            <span id="net-widget-detail">Vos saisies restent sur la page.</span>
+            <span class="net-widget__countdown" id="net-widget-countdown" aria-hidden="true"></span>
+        </span>
+    </div>
+
+    <div class="net-widget__actions">
+        <button type="button" class="net-widget__btn" id="net-widget-retry">
+            <i class="ri-refresh-line" aria-hidden="true"></i>
+            <span class="net-widget__btn-label">Réessayer</span>
+        </button>
+
+        <button type="button"
+                class="net-widget__btn net-widget__btn--icon"
+                id="net-widget-minimize"
+                title="Réduire"
+                aria-label="Réduire l'alerte de connexion">
+            <i class="ri-subtract-line" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+
+
+<script>
+(function () {
+    'use strict';
+
+    var widget = document.getElementById('net-widget');
+    if (!widget || window.SanitaNetwork) {
+        return; // déjà chargé (include en double)
+    }
+
+    var icon      = document.getElementById('net-widget-icon');
+    var title     = document.getElementById('net-widget-title');
+    var detail    = document.getElementById('net-widget-detail');
+    var countdown = document.getElementById('net-widget-countdown');
+    var retry     = document.getElementById('net-widget-retry');
+    var minimize  = document.getElementById('net-widget-minimize');
+
+    var PING_URL     = widget.getAttribute('data-ping-url');
+    var POLL_DELAY   = 15;     // secondes entre deux vérifications hors ligne
+    var PING_TIMEOUT = 5000;   // délai de réponse maximal du serveur (ms)
+    var HIDE_DELAY   = 3000;   // durée du message « Connexion rétablie » (ms)
+
+    /*
+     * État partagé :
+     *   'online'      tout fonctionne
+     *   'offline'     plus de réseau du tout
+     *   'unreachable' réseau présent mais serveur SANITA injoignable
+     */
+    var state = 'online';
+    var secondsLeft = 0;
+    var tickTimer = null;
+    var hideTimer = null;
+
+    var MESSAGES = {
+        offline: {
+            icon: 'ri-wifi-off-line',
+            title: 'Vous êtes hors ligne',
+            detail: 'Vos saisies restent sur la page.'
+        },
+        unreachable: {
+            icon: 'ri-server-line',
+            title: 'Serveur SANITA injoignable',
+            detail: 'Le réseau fonctionne, mais le serveur ne répond pas.'
+        }
+    };
+
+    /* --------------------------------------------------------
+       API publique : d'autres scripts (bandeau de la page des
+       modules, formulaires…) peuvent lire l'état et l'écouter.
+       -------------------------------------------------------- */
+    window.SanitaNetwork = {
+        getState: function () { return state; },
+        isOnline: function () { return state === 'online'; },
+        check: function () { return check(); }
+    };
+
+    function broadcast() {
+        document.dispatchEvent(new CustomEvent('sanita:network', {
+            detail: { state: state, online: state === 'online' }
+        }));
+    }
+
+    /* --------------------------------------------------------
+       Affichage
+       -------------------------------------------------------- */
+    function show() {
+        widget.classList.add('is-visible');
+        widget.removeAttribute('aria-hidden');
+    }
+
+    function hide() {
+        widget.classList.remove('is-visible', 'is-minimized');
+        widget.setAttribute('aria-hidden', 'true');
+    }
+
+    function renderProblem() {
+        var msg = MESSAGES[state];
+        clearTimeout(hideTimer);
+
+        widget.classList.remove('is-online');
+        icon.className = msg.icon;
+        title.textContent = msg.title;
+        detail.textContent = msg.detail;
+        show();
+    }
+
+    function renderBackOnline() {
+        widget.classList.remove('is-minimized');
+        widget.classList.add('is-online');
+        icon.className = 'ri-wifi-line';
+        title.textContent = 'Connexion rétablie';
+        detail.textContent = 'Vous pouvez de nouveau enregistrer.';
+        countdown.textContent = '';
+        show();
+
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(hide, HIDE_DELAY);
+    }
+
+    function setState(next) {
+        if (next === state) {
+            return;
+        }
+
+        var wasProblem = state !== 'online';
+        state = next;
+
+        if (state === 'online') {
+            stopTicking();
+            if (wasProblem) {
+                renderBackOnline();
+            }
+        } else {
+            renderProblem();
+            startTicking();
+        }
+
+        broadcast();
+    }
+
+    /* --------------------------------------------------------
+       Compte à rebours jusqu'à la prochaine vérification
+       (aria-hidden : pas d'annonce chaque seconde)
+       -------------------------------------------------------- */
+    function startTicking() {
+        stopTicking();
+        secondsLeft = POLL_DELAY;
+        updateCountdown();
+
+        tickTimer = setInterval(function () {
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                check();
+                secondsLeft = POLL_DELAY;
+            }
+            updateCountdown();
+        }, 1000);
+    }
+
+    function stopTicking() {
+        clearInterval(tickTimer);
+        tickTimer = null;
+    }
+
+    function updateCountdown() {
+        countdown.textContent = state === 'online'
+            ? ''
+            : ' Nouvelle vérification dans ' + secondsLeft + ' s.';
+    }
+
+    /* --------------------------------------------------------
+       Vérification réelle auprès du serveur
+       -------------------------------------------------------- */
+    var checking = null;
+
+    function check() {
+        if (checking) {
+            return checking; // évite les vérifications simultanées
+        }
+
+        if (!navigator.onLine) {
+            setState('offline');
+            return Promise.resolve(false);
+        }
+
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, PING_TIMEOUT);
+        var url = PING_URL + (PING_URL.indexOf('?') === -1 ? '?' : '&') + '_=' + Date.now();
+
+        checking = fetch(url, {
+            method: 'HEAD',
+            cache: 'no-store',
+            credentials: 'same-origin',
+            signal: controller.signal
+        })
+        .then(function (response) {
+            var ok = response.ok;
+            setState(ok ? 'online' : 'unreachable');
+            return ok;
+        })
+        .catch(function () {
+            setState(navigator.onLine ? 'unreachable' : 'offline');
+            return false;
+        })
+        .finally(function () {
+            clearTimeout(timer);
+            checking = null;
+        });
+
+        return checking;
+    }
+
+    /* --------------------------------------------------------
+       Événements du navigateur
+       -------------------------------------------------------- */
+    window.addEventListener('offline', function () {
+        setState('offline');
+    });
+
+    window.addEventListener('online', function () {
+        check();
+    });
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible' && state !== 'online') {
+            check();
+        }
+    });
+
+    retry.addEventListener('click', function () {
+        retry.disabled = true;
+        check().then(function (ok) {
+            retry.disabled = false;
+            if (!ok) {
+                detail.textContent = 'Toujours pas de connexion.';
+                secondsLeft = POLL_DELAY;
+                updateCountdown();
+            }
+        });
+    });
+
+    minimize.addEventListener('click', function (event) {
+        event.stopPropagation();
+        widget.classList.add('is-minimized');
+        widget.setAttribute('title', title.textContent + ' : cliquez pour afficher');
+    });
+
+    widget.addEventListener('click', function () {
+        if (widget.classList.contains('is-minimized')) {
+            widget.classList.remove('is-minimized');
+            widget.removeAttribute('title');
+        }
+    });
+
+    /* --------------------------------------------------------
+       Blocage des envois hors ligne
+       Phase de capture : passe avant les écouteurs des formulaires
+       (blocage du double clic…). Un formulaire peut s'exclure avec
+       l'attribut data-offline-ignore.
+       -------------------------------------------------------- */
+    document.addEventListener('submit', function (event) {
+        var form = event.target;
+
+        if (state === 'online' && navigator.onLine) {
+            return;
+        }
+
+        if (form && form.hasAttribute && form.hasAttribute('data-offline-ignore')) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (state === 'online') {
+            setState('offline');
+        }
+
+        widget.classList.remove('is-minimized', 'is-online');
+        icon.className = 'ri-error-warning-line';
+        title.textContent = 'Enregistrement impossible';
+        detail.textContent = 'Rien n\'a été perdu : enregistrez de nouveau au retour de la connexion.';
+        show();
+
+        widget.classList.remove('is-blocked');
+        void widget.offsetWidth; // relance l'animation
+        widget.classList.add('is-blocked');
+    }, true);
+
+    /* --------------------------------------------------------
+       État initial
+       -------------------------------------------------------- */
+    if (!navigator.onLine) {
+        setState('offline');
+    } else {
+        broadcast();
+    }
+})();
+</script>

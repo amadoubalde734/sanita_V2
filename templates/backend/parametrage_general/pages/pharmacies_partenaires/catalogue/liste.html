@@ -1,0 +1,2663 @@
+{% extends "backend/parametrage_general/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+
+    /* ============================================================
+       VARIABLES
+    ============================================================ */
+
+    .catalogue-partenaire-page,
+    #catalogueMedicamentModal,
+    #deleteCatalogueMedicamentModal {
+
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --soft: #f8fafc;
+
+        --success: #198754;
+        --warning: #f59e0b;
+        --danger: #dc3545;
+        --info: #0d6efd;
+    }
+
+
+    /* ============================================================
+       EN-TÊTE
+    ============================================================ */
+
+    .catalogue-partenaire-page .page-header {
+        margin-bottom: 24px;
+    }
+
+    .catalogue-partenaire-page .page-header h4 {
+        color: var(--teal-900);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .catalogue-partenaire-page .page-subtitle {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+
+    /* ============================================================
+       STATISTIQUES
+    ============================================================ */
+
+    .catalogue-partenaire-page .stats-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        height: 100%;
+        transition: .2s ease;
+    }
+
+    .catalogue-partenaire-page .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 18px rgba(15, 92, 86, .08);
+    }
+
+    .catalogue-partenaire-page .stats-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+
+    .catalogue-partenaire-page .stats-icon.green {
+        background: var(--teal-100);
+        color: var(--teal-700);
+    }
+
+    .catalogue-partenaire-page .stats-icon.success {
+        background: #eaf7ef;
+        color: var(--success);
+    }
+
+    .catalogue-partenaire-page .stats-icon.warning {
+        background: #fff7e6;
+        color: var(--warning);
+    }
+
+    .catalogue-partenaire-page .stats-icon.info {
+        background: #eaf2ff;
+        color: var(--info);
+    }
+
+    .catalogue-partenaire-page .stats-value {
+        font-size: 26px;
+        line-height: 1;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 5px;
+    }
+
+    .catalogue-partenaire-page .stats-label {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+
+    /* ============================================================
+       FILTRES
+    ============================================================ */
+
+    .catalogue-partenaire-page .toolbar-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .catalogue-partenaire-page .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    .catalogue-partenaire-page .form-control,
+    .catalogue-partenaire-page .form-select {
+        min-height: 38px;
+        border-color: #d1d5db;
+        border-radius: 8px;
+    }
+
+    .catalogue-partenaire-page .form-control:focus,
+    .catalogue-partenaire-page .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 .2rem rgba(18, 118, 110, .12);
+    }
+
+
+    /* ============================================================
+       TABLEAU
+    ============================================================ */
+
+    .catalogue-partenaire-page .table-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .catalogue-partenaire-page .table-card-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .catalogue-partenaire-page .table-card-header h5 {
+        margin: 0;
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .catalogue-partenaire-page .table-card-header span {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .catalogue-partenaire-page table {
+        margin-bottom: 0;
+    }
+
+    .catalogue-partenaire-page thead th {
+        background: var(--soft);
+        color: #4b5563;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .3px;
+        border-bottom: 1px solid var(--border);
+        padding: 13px 15px;
+        white-space: nowrap;
+    }
+
+    .catalogue-partenaire-page tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f2f4;
+    }
+
+    .catalogue-partenaire-page tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .catalogue-partenaire-page tbody tr:hover {
+        background: #fcfefe;
+    }
+
+
+    /* ============================================================
+       INFORMATIONS MÉDICAMENT
+    ============================================================ */
+
+    .medicament-name {
+        font-weight: 650;
+        color: var(--ink);
+        margin-bottom: 3px;
+    }
+
+    .medicament-name.sm {
+        font-size: 13px;
+    }
+
+    .medicament-code {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .medicament-family {
+        font-size: 13px;
+        color: #4b5563;
+    }
+
+    .medicament-family i {
+        color: var(--teal-500);
+        margin-right: 4px;
+    }
+
+
+    /* ============================================================
+       PHARMACIE PARTENAIRE
+    ============================================================ */
+
+    .pharmacie-name {
+        font-weight: 650;
+        color: var(--ink);
+        margin-bottom: 3px;
+    }
+
+    .pharmacie-code {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+
+    /* ============================================================
+       BADGES
+    ============================================================ */
+
+    .status-badge,
+    .feature-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border-radius: 30px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: #eaf7ef;
+        color: #16834d;
+    }
+
+    .status-inactive {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .status-available {
+        background: #eaf7ef;
+        color: #16834d;
+    }
+
+    .status-order {
+        background: #fff7e6;
+        color: #a16207;
+    }
+
+    .status-unavailable {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .feature-active {
+        background: #eef6f5;
+        color: var(--teal-700);
+    }
+
+    .feature-inactive {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .prescription-required {
+        background: #eaf2ff;
+        color: #0d6efd;
+    }
+
+    .prescription-not-required {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+
+    /* ============================================================
+       ACTIONS
+    ============================================================ */
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .action-buttons .btn {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+
+
+    /* ============================================================
+       ÉTAT VIDE
+    ============================================================ */
+
+    .empty-state {
+        text-align: center;
+        padding: 55px 20px;
+    }
+
+    .empty-state-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        background: var(--teal-100);
+        color: var(--teal-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+
+    .empty-state h5 {
+        color: var(--ink);
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+    .empty-state p {
+        color: var(--muted);
+        margin-bottom: 20px;
+    }
+
+
+    /* ============================================================
+       MODALE
+    ============================================================ */
+
+    #catalogueMedicamentModal .modal-dialog {
+        width: calc(100% - 30px);
+        max-width: 1100px;
+        margin: 15px auto;
+    }
+
+    #catalogueMedicamentModal .modal-content {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 30px);
+        border: none;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    #catalogueMedicamentForm {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    #catalogueMedicamentModal .modal-header {
+        flex-shrink: 0;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 17px 20px;
+    }
+
+    #catalogueMedicamentModal .modal-title {
+        color: var(--teal-900);
+        font-weight: 700;
+    }
+
+    #catalogueMedicamentModal .modal-body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 20px;
+        background: #fff;
+    }
+
+    #catalogueMedicamentModal .modal-footer {
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        background: #fff;
+        padding: 14px 20px;
+    }
+
+
+    /* ============================================================
+       SECTIONS FORMULAIRE
+    ============================================================ */
+
+    .modal-section {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 18px;
+        overflow: hidden;
+    }
+
+    .modal-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .modal-section-title {
+        background: var(--soft);
+        border-bottom: 1px solid var(--border);
+        padding: 11px 15px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--teal-900);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-section-title i {
+        color: var(--teal-500);
+        font-size: 17px;
+    }
+
+    .modal-section-body {
+        padding: 18px;
+    }
+
+    #catalogueMedicamentModal .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    #catalogueMedicamentModal .form-control,
+    #catalogueMedicamentModal .form-select {
+        min-height: 38px;
+        border-color: #d1d5db;
+        border-radius: 8px;
+    }
+
+    #catalogueMedicamentModal .form-control:focus,
+    #catalogueMedicamentModal .form-select:focus {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 .2rem rgba(18, 118, 110, .12);
+    }
+
+    #catalogueMedicamentModal textarea.form-control {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .required-star {
+        color: var(--danger);
+    }
+
+    .form-help {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+
+    .field-error {
+        color: var(--danger);
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+
+    /* ============================================================
+       CASES À COCHER
+    ============================================================ */
+
+    .check-card {
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 12px 14px;
+        height: 100%;
+        background: #fff;
+    }
+
+    .check-card .form-check {
+        margin-bottom: 0;
+    }
+
+    .check-card .form-check-input {
+        cursor: pointer;
+    }
+
+    .check-card .form-check-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    .check-card small {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 4px;
+        margin-left: 24px;
+    }
+
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+
+    @media (max-width: 767.98px) {
+
+        #catalogueMedicamentModal .modal-dialog {
+            width: calc(100% - 15px);
+            margin: 7px auto;
+        }
+
+        #catalogueMedicamentModal .modal-content {
+            max-height: calc(100vh - 14px);
+        }
+
+        #catalogueMedicamentModal .modal-body {
+            padding: 14px;
+        }
+
+        .catalogue-partenaire-page .table-card table {
+            min-width: 1250px;
+        }
+    }
+
+</style>
+
+
+<div class="catalogue-partenaire-page">
+
+    <!-- ========================================================
+         EN-TÊTE
+    ========================================================= -->
+
+    <div class="page-header">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <div>
+
+                <h4>
+                    Catalogue des médicaments
+                </h4>
+
+                <div class="page-subtitle">
+                    Gestion des médicaments proposés par les pharmacies partenaires.
+                </div>
+
+            </div>
+
+            <button type="button"
+                    class="btn btn-success"
+                    data-bs-toggle="modal"
+                    data-bs-target="#catalogueMedicamentModal">
+
+                <i class="ri-add-line me-1"></i>
+
+                Ajouter un médicament
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         STATISTIQUES
+    ========================================================= -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stats-card">
+
+                <div class="stats-icon green">
+                    <i class="ri-capsule-line"></i>
+                </div>
+
+                <div class="stats-value">
+                    {{ catalogue|length }}
+                </div>
+
+                <div class="stats-label">
+                    Médicaments au catalogue
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stats-card">
+
+                <div class="stats-icon success">
+                    <i class="ri-checkbox-circle-line"></i>
+                </div>
+
+                <div class="stats-value">
+                    {{ catalogue|length }}
+                </div>
+
+                <div class="stats-label">
+                    Entrées affichées
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stats-card">
+
+                <div class="stats-icon info">
+                    <i class="ri-store-2-line"></i>
+                </div>
+
+                <div class="stats-value">
+                    {{ pharmacies|length }}
+                </div>
+
+                <div class="stats-label">
+                    Pharmacies partenaires
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stats-card">
+
+                <div class="stats-icon warning">
+                    <i class="ri-file-list-3-line"></i>
+                </div>
+
+                <div class="stats-value">
+                    {{ catalogue|length }}
+                </div>
+
+                <div class="stats-label">
+                    Références configurées
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         FILTRES
+    ========================================================= -->
+
+    <div class="toolbar-card">
+
+        <form method="get">
+
+            <div class="row g-3 align-items-end">
+
+
+                <!-- RECHERCHE -->
+
+                <div class="col-xl-5 col-md-6">
+
+                    <label class="form-label">
+                        Recherche
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-white">
+
+                            <i class="ri-search-line"></i>
+
+                        </span>
+
+                        <input type="text"
+                               name="q"
+                               class="form-control"
+                               value="{{ recherche }}"
+                               placeholder="Médicament, code, CIP, référence, pharmacie...">
+
+                    </div>
+
+                </div>
+
+
+                <!-- PHARMACIE -->
+
+                <div class="col-xl-3 col-md-6">
+
+                    <label class="form-label">
+                        Pharmacie partenaire
+                    </label>
+
+                    <select name="pharmacie"
+                            class="form-select">
+
+                        <option value="">
+                            Toutes les pharmacies
+                        </option>
+
+                        {% for pharmacie in pharmacies %}
+
+                            <option value="{{ pharmacie.pk }}"
+                                    {% if pharmacie_id|stringformat:"s" == pharmacie.pk|stringformat:"s" %}selected{% endif %}>
+
+                                {{ pharmacie.nom }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- STATUT -->
+
+                <div class="col-xl-3 col-md-6">
+
+                    <label class="form-label">
+                        État
+                    </label>
+
+                    <select name="statut"
+                            class="form-select">
+
+                        <option value="">
+                            Tous les états
+                        </option>
+
+                        <option value="actif"
+                                {% if statut == "actif" %}selected{% endif %}>
+
+                            Actifs
+
+                        </option>
+
+                        <option value="inactif"
+                                {% if statut == "inactif" %}selected{% endif %}>
+
+                            Inactifs
+
+                        </option>
+
+                        <option value="disponible"
+                                {% if statut == "disponible" %}selected{% endif %}>
+
+                            Disponibles
+
+                        </option>
+
+                        <option value="indisponible"
+                                {% if statut == "indisponible" %}selected{% endif %}>
+
+                            Indisponibles
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ACTION FILTRE -->
+
+                <div class="col-xl-1 col-md-6">
+
+                    <div class="d-flex gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                title="Filtrer">
+
+                            <i class="ri-filter-3-line"></i>
+
+                        </button>
+
+
+                        {% if recherche or pharmacie_id or statut %}
+
+                            <a href="{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}"
+                               class="btn btn-light"
+                               title="Réinitialiser">
+
+                                <i class="ri-refresh-line"></i>
+
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ========================================================
+         TABLEAU
+    ========================================================= -->
+
+    <div class="table-card">
+
+        <div class="table-card-header">
+
+            <div>
+
+                <h5>
+                    Catalogue des médicaments
+                </h5>
+
+                <span>
+
+                    {{ catalogue|length }}
+                    entrée{{ catalogue|length|pluralize }}
+                    affichée{{ catalogue|length|pluralize }}
+
+                </span>
+
+            </div>
+
+            <i class="ri-capsule-line fs-4 text-success"></i>
+
+        </div>
+
+
+        {% if catalogue %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Médicament
+                            </th>
+
+                            <th>
+                                Pharmacie partenaire
+                            </th>
+
+                            <th>
+                                Référence
+                            </th>
+
+                            <th>
+                                Conditionnement
+                            </th>
+
+                            <th>
+                                Disponibilité
+                            </th>
+
+                            <th>
+                                Ordonnance
+                            </th>
+
+                            <th>
+                                Dispensation
+                            </th>
+
+                            <th>
+                                État
+                            </th>
+
+                            <th class="text-end">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for item in catalogue %}
+
+                            <tr>
+
+
+                                <!-- ==================================
+                                     MÉDICAMENT
+                                =================================== -->
+
+                                <td>
+
+                                    <div class="medicament-name">
+
+                                        {{ item.medicament.nom }}
+
+                                    </div>
+
+                                    <div class="medicament-code">
+
+                                        Code :
+                                        {{ item.medicament.code }}
+
+                                        {% if item.medicament.code_cip %}
+
+                                            · CIP :
+                                            {{ item.medicament.code_cip }}
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    {% if item.medicament.famille %}
+
+                                        <div class="medicament-code">
+
+                                            {{ item.medicament.famille.nom }}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     PHARMACIE
+                                =================================== -->
+
+                                <td>
+
+                                    <div class="pharmacie-name">
+
+                                        {{ item.pharmacie.nom }}
+
+                                    </div>
+
+                                    <div class="pharmacie-code">
+
+                                        {{ item.pharmacie.code }}
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     RÉFÉRENCE
+                                =================================== -->
+
+                                <td>
+
+                                    {% if item.reference_interne %}
+
+                                        <div class="medicament-name sm">
+
+                                            {{ item.reference_interne }}
+
+                                        </div>
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            Non renseignée
+                                        </span>
+
+                                    {% endif %}
+
+                                    {% if item.nom_commercial %}
+
+                                        <div class="medicament-code">
+
+                                            {{ item.nom_commercial }}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     CONDITIONNEMENT
+                                =================================== -->
+
+                                <td>
+
+                                    {% if item.conditionnement %}
+
+                                        <div class="medicament-name sm">
+
+                                            {{ item.conditionnement }}
+
+                                        </div>
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            Non renseigné
+                                        </span>
+
+                                    {% endif %}
+
+                                    {% if item.unite_vente %}
+
+                                        <div class="medicament-code">
+
+                                            {{ item.unite_vente }}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     DISPONIBILITÉ
+                                =================================== -->
+
+                                <td>
+
+                                    {% if item.disponible %}
+
+                                        <span class="status-badge status-available">
+
+                                            <i class="ri-checkbox-circle-fill"></i>
+
+                                            Disponible
+
+                                        </span>
+
+                                    {% elif item.sur_commande %}
+
+                                        <span class="status-badge status-order">
+
+                                            <i class="ri-time-line"></i>
+
+                                            Sur commande
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge status-unavailable">
+
+                                            <i class="ri-close-circle-line"></i>
+
+                                            Indisponible
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     ORDONNANCE
+                                =================================== -->
+
+                                <td>
+
+                                    {% if item.accepte_ordonnance %}
+
+                                        <span class="feature-badge prescription-required">
+
+                                            <i class="ri-file-list-3-line"></i>
+
+                                            Requise
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="feature-badge prescription-not-required">
+
+                                            <i class="ri-checkbox-blank-circle-line"></i>
+
+                                            Non requise
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     DISPENSATION
+                                =================================== -->
+
+                                <td>
+
+                                    {% if item.dispensation_active %}
+
+                                        <span class="feature-badge feature-active">
+
+                                            <i class="ri-medicine-bottle-line"></i>
+
+                                            Active
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="feature-badge feature-inactive">
+
+                                            <i class="ri-close-circle-line"></i>
+
+                                            Inactive
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     ÉTAT
+                                =================================== -->
+
+                                <td>
+
+                                    {% if item.actif %}
+
+                                        <span class="status-badge status-active">
+
+                                            <i class="ri-checkbox-circle-fill"></i>
+
+                                            Actif
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge status-inactive">
+
+                                            <i class="ri-close-circle-fill"></i>
+
+                                            Inactif
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ==================================
+                                     ACTIONS
+                                =================================== -->
+
+                                <td>
+
+                                    <div class="action-buttons">
+
+
+                                        <!-- DÉTAIL -->
+
+                                        <a href="{% url 'parametrage_general:details_catalogue_medicament_pharmacie_partenaire' item.pk %}"
+                                           class="btn btn-soft-info"
+                                           title="Voir les détails">
+
+                                            <i class="ri-eye-line"></i>
+
+                                        </a>
+
+
+                                        <!-- MODIFIER -->
+
+                                        <button type="button"
+                                                class="btn btn-soft-primary"
+                                                title="Modifier"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#catalogueMedicamentModal"
+
+                                                data-id="{{ item.pk }}"
+
+                                                data-pharmacie="{{ item.pharmacie_id }}"
+
+                                                data-medicament="{{ item.medicament_id }}"
+
+                                                data-reference="{{ item.reference_interne|default_if_none:'' }}"
+
+                                                data-nom-commercial="{{ item.nom_commercial|default_if_none:'' }}"
+
+                                                data-disponible="{{ item.disponible|yesno:'true,false' }}"
+
+                                                data-sur-commande="{{ item.sur_commande|yesno:'true,false' }}"
+
+                                                data-unite-vente="{{ item.unite_vente|default_if_none:'' }}"
+
+                                                data-conditionnement="{{ item.conditionnement|default_if_none:'' }}"
+
+                                                data-accepte-ordonnance="{{ item.accepte_ordonnance|yesno:'true,false' }}"
+
+                                                data-dispensation-active="{{ item.dispensation_active|yesno:'true,false' }}"
+
+                                                data-actif="{{ item.actif|yesno:'true,false' }}"
+
+                                                data-description="{{ item.description|default_if_none:'' }}"
+
+                                                data-observations="{{ item.observations|default_if_none:'' }}">
+
+                                            <i class="ri-edit-line"></i>
+
+                                        </button>
+
+
+                                        <!-- ACTIVER / DÉSACTIVER -->
+
+                                        <a href="{% url 'parametrage_general:toggle_catalogue_medicament_pharmacie_partenaire' item.pk %}"
+                                           class="btn btn-soft-success"
+                                           title="{% if item.actif %}Désactiver{% else %}Activer{% endif %}">
+
+                                            {% if item.actif %}
+
+                                                <i class="ri-toggle-line"></i>
+
+                                            {% else %}
+
+                                                <i class="ri-toggle-fill"></i>
+
+                                            {% endif %}
+
+                                        </a>
+
+
+                                        <!-- SUPPRIMER -->
+
+                                        <button type="button"
+                                                class="btn btn-soft-danger"
+                                                title="Supprimer"
+
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteCatalogueMedicamentModal"
+
+                                                data-id="{{ item.pk }}"
+
+                                                data-nom="{{ item.medicament.nom }}"
+
+                                                data-pharmacie="{{ item.pharmacie.nom }}">
+
+                                            <i class="ri-delete-bin-line"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+
+            <!-- ====================================================
+                 ÉTAT VIDE
+            ===================================================== -->
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+
+                    <i class="ri-capsule-line"></i>
+
+                </div>
+
+                <h5>
+
+                    Aucun médicament dans le catalogue
+
+                </h5>
+
+
+                {% if recherche or pharmacie_id or statut %}
+
+                    <p>
+
+                        Aucun médicament ne correspond
+                        aux critères de recherche.
+
+                    </p>
+
+
+                    <a href="{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}"
+                       class="btn btn-light me-2">
+
+                        <i class="ri-refresh-line me-1"></i>
+
+                        Réinitialiser
+
+                    </a>
+
+                {% else %}
+
+                    <p>
+
+                        Commencez par ajouter un médicament
+                        au catalogue d'une pharmacie partenaire.
+
+                    </p>
+
+                {% endif %}
+
+
+                <button type="button"
+                        class="btn btn-success"
+                        data-bs-toggle="modal"
+                        data-bs-target="#catalogueMedicamentModal">
+
+                    <i class="ri-add-line me-1"></i>
+
+                    Ajouter un médicament
+
+                </button>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODALE AJOUT / MODIFICATION
+============================================================ -->
+
+<div class="modal fade"
+     id="catalogueMedicamentModal"
+     tabindex="-1"
+     aria-labelledby="catalogueMedicamentModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+
+        <div class="modal-content">
+
+
+            <!-- EN-TÊTE -->
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h5 class="modal-title"
+                        id="catalogueMedicamentModalLabel">
+
+                        Ajouter un médicament au catalogue
+
+                    </h5>
+
+                    <div class="text-muted small mt-1">
+
+                        Référencement d'un médicament
+                        dans une pharmacie partenaire.
+
+                    </div>
+
+                </div>
+
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Fermer">
+                </button>
+
+            </div>
+
+
+            <!-- FORMULAIRE -->
+
+            <form method="post"
+                  id="catalogueMedicamentForm"
+                  action="{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}"
+                  novalidate>
+
+                {% csrf_token %}
+
+
+                <!-- =================================================
+                     IDENTIFICATION DE L'OPÉRATION
+                ================================================== -->
+
+                <input type="hidden"
+                       name="action"
+                       id="catalogueMedicamentAction"
+                       value="ajouter">
+
+                <input type="hidden"
+                       name="catalogue_id"
+                       id="catalogueMedicamentId"
+                       value="">
+
+
+                <div class="modal-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger">
+
+                            {{ form.non_field_errors }}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- ==========================================
+                         1. RÉFÉRENCEMENT
+                    =========================================== -->
+
+                    <div class="modal-section">
+
+                        <div class="modal-section-title">
+
+                            <i class="ri-capsule-line"></i>
+
+                            Référencement du médicament
+
+                        </div>
+
+
+                        <div class="modal-section-body">
+
+                            <div class="row g-3">
+
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label"
+                                           for="{{ form.pharmacie.id_for_label }}">
+
+                                        Pharmacie partenaire
+
+                                        <span class="required-star">*</span>
+
+                                    </label>
+
+                                    {{ form.pharmacie }}
+
+                                    {% for error in form.pharmacie.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label"
+                                           for="{{ form.medicament.id_for_label }}">
+
+                                        Médicament
+
+                                        <span class="required-star">*</span>
+
+                                    </label>
+
+                                    {{ form.medicament }}
+
+                                    <div class="form-help">
+
+                                        Sélectionnez un médicament
+                                        provenant du référentiel SANITA.
+
+                                    </div>
+
+                                    {% for error in form.medicament.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==========================================
+                         2. IDENTIFICATION PARTENAIRE
+                    =========================================== -->
+
+                    <div class="modal-section">
+
+                        <div class="modal-section-title">
+
+                            <i class="ri-price-tag-3-line"></i>
+
+                            Identification dans la pharmacie
+
+                        </div>
+
+
+                        <div class="modal-section-body">
+
+                            <div class="row g-3">
+
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label"
+                                           for="{{ form.reference_interne.id_for_label }}">
+
+                                        Référence interne
+
+                                    </label>
+
+                                    {{ form.reference_interne }}
+
+                                    <div class="form-help">
+
+                                        Référence utilisée par la pharmacie
+                                        pour identifier ce médicament.
+
+                                    </div>
+
+                                    {% for error in form.reference_interne.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label"
+                                           for="{{ form.nom_commercial.id_for_label }}">
+
+                                        Nom commercial
+
+                                    </label>
+
+                                    {{ form.nom_commercial }}
+
+                                    {% for error in form.nom_commercial.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==========================================
+                         3. CONDITIONNEMENT
+                    =========================================== -->
+
+                    <div class="modal-section">
+
+                        <div class="modal-section-title">
+
+                            <i class="ri-inbox-line"></i>
+
+                            Conditionnement et unité
+
+                        </div>
+
+
+                        <div class="modal-section-body">
+
+                            <div class="row g-3">
+
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label"
+                                           for="{{ form.unite_vente.id_for_label }}">
+
+                                        Unité de vente
+
+                                    </label>
+
+                                    {{ form.unite_vente }}
+
+                                    {% for error in form.unite_vente.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label"
+                                           for="{{ form.conditionnement.id_for_label }}">
+
+                                        Conditionnement
+
+                                    </label>
+
+                                    {{ form.conditionnement }}
+
+                                    {% for error in form.conditionnement.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==========================================
+                         4. DISPONIBILITÉ ET DISPENSATION
+                    =========================================== -->
+
+                    <div class="modal-section">
+
+                        <div class="modal-section-title">
+
+                            <i class="ri-medicine-bottle-line"></i>
+
+                            Disponibilité et dispensation
+
+                        </div>
+
+
+                        <div class="modal-section-body">
+
+                            <div class="row g-3">
+
+
+                                <!-- DISPONIBLE -->
+
+                                <div class="col-md-6">
+
+                                    <div class="check-card">
+
+                                        <div class="form-check">
+
+                                            {{ form.disponible }}
+
+                                            <label class="form-check-label"
+                                                   for="{{ form.disponible.id_for_label }}">
+
+                                                Médicament disponible
+
+                                            </label>
+
+                                        </div>
+
+                                        <small>
+
+                                            Le médicament est actuellement
+                                            disponible dans cette pharmacie.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- SUR COMMANDE -->
+
+                                <div class="col-md-6">
+
+                                    <div class="check-card">
+
+                                        <div class="form-check">
+
+                                            {{ form.sur_commande }}
+
+                                            <label class="form-check-label"
+                                                   for="{{ form.sur_commande.id_for_label }}">
+
+                                                Disponible sur commande
+
+                                            </label>
+
+                                        </div>
+
+                                        <small>
+
+                                            Le médicament peut être obtenu
+                                            sur commande auprès de la pharmacie.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- ORDONNANCE -->
+
+                                <div class="col-md-6">
+
+                                    <div class="check-card">
+
+                                        <div class="form-check">
+
+                                            {{ form.accepte_ordonnance }}
+
+                                            <label class="form-check-label"
+                                                   for="{{ form.accepte_ordonnance.id_for_label }}">
+
+                                                Ordonnance nécessaire
+
+                                            </label>
+
+                                        </div>
+
+                                        <small>
+
+                                            Indique si la dispensation de ce
+                                            médicament nécessite une ordonnance.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- DISPENSATION -->
+
+                                <div class="col-md-6">
+
+                                    <div class="check-card">
+
+                                        <div class="form-check">
+
+                                            {{ form.dispensation_active }}
+
+                                            <label class="form-check-label"
+                                                   for="{{ form.dispensation_active.id_for_label }}">
+
+                                                Dispensation active
+
+                                            </label>
+
+                                        </div>
+
+                                        <small>
+
+                                            Autorise le traitement de la
+                                            dispensation via SANITA.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- ACTIF -->
+
+                                <div class="col-12">
+
+                                    <div class="check-card">
+
+                                        <div class="form-check">
+
+                                            {{ form.actif }}
+
+                                            <label class="form-check-label"
+                                                   for="{{ form.actif.id_for_label }}">
+
+                                                Référence active dans le catalogue
+
+                                            </label>
+
+                                        </div>
+
+                                        <small>
+
+                                            Une référence inactive ne sera
+                                            pas proposée dans les opérations SANITA.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==========================================
+                         5. INFORMATIONS COMPLÉMENTAIRES
+                    =========================================== -->
+
+                    <div class="modal-section">
+
+                        <div class="modal-section-title">
+
+                            <i class="ri-information-line"></i>
+
+                            Informations complémentaires
+
+                        </div>
+
+
+                        <div class="modal-section-body">
+
+                            <div class="row g-3">
+
+
+                                <div class="col-12">
+
+                                    <label class="form-label"
+                                           for="{{ form.description.id_for_label }}">
+
+                                        Description
+
+                                    </label>
+
+                                    {{ form.description }}
+
+                                    {% for error in form.description.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <label class="form-label"
+                                           for="{{ form.observations.id_for_label }}">
+
+                                        Observations
+
+                                    </label>
+
+                                    {{ form.observations }}
+
+                                    {% for error in form.observations.errors %}
+
+                                        <div class="field-error">
+                                            {{ error }}
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+
+                        Annuler
+
+                    </button>
+
+
+                    <button type="submit"
+                            class="btn btn-success"
+                            id="catalogueMedicamentSubmitBtn">
+
+                        <i class="ri-save-line me-1"></i>
+
+                        <span>
+                            Enregistrer
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODALE SUPPRESSION
+============================================================ -->
+
+<div class="modal fade"
+     id="deleteCatalogueMedicamentModal"
+     tabindex="-1"
+     aria-labelledby="deleteCatalogueMedicamentModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="deleteCatalogueMedicamentModalLabel">
+
+                    Confirmer la suppression
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Fermer">
+                </button>
+
+            </div>
+
+
+            <form method="post"
+                  id="deleteCatalogueMedicamentForm"
+                  action="">
+
+                {% csrf_token %}
+
+
+                <div class="modal-body">
+
+                    <div class="text-center py-2">
+
+                        <i class="ri-delete-bin-6-line text-danger d-block mb-3"
+                           style="font-size: 48px;">
+                        </i>
+
+                        <h5>
+
+                            Retirer ce médicament du catalogue ?
+
+                        </h5>
+
+                        <p class="text-muted mb-1">
+
+                            Médicament :
+
+                        </p>
+
+                        <strong id="deleteCatalogueMedicamentName"></strong>
+
+                        <p class="text-muted mb-1 mt-3">
+
+                            Pharmacie :
+
+                        </p>
+
+                        <strong id="deleteCataloguePharmacieName"></strong>
+
+                        <p class="text-muted mt-3 mb-0 small">
+
+                            Cette action est irréversible.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+
+                        Annuler
+
+                    </button>
+
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        <i class="ri-delete-bin-line me-1"></i>
+
+                        Supprimer
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+
+    /* ============================================================
+       URL PRINCIPALE
+    ============================================================ */
+
+    const URL_LISTE =
+        "{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}";
+
+
+    /*
+     * Route de suppression.
+     *
+     * On conserve la vue dédiée de suppression avec le PK.
+     * Django génère ici une URL temporaire avec 0 qui sera
+     * remplacée dynamiquement par l'identifiant réel.
+     */
+
+    const URL_SUPPRESSION =
+        "{% url 'parametrage_general:supprimer_catalogue_medicament_pharmacie_partenaire' 0 %}";
+
+
+    /* ============================================================
+       ÉLÉMENTS
+    ============================================================ */
+
+    const modalEl =
+        document.getElementById('catalogueMedicamentModal');
+
+    const form =
+        document.getElementById('catalogueMedicamentForm');
+
+    const titreEl =
+        document.getElementById('catalogueMedicamentModalLabel');
+
+    const submitTxt =
+        document.querySelector(
+            '#catalogueMedicamentSubmitBtn span'
+        );
+
+    const actionField =
+        document.getElementById('catalogueMedicamentAction');
+
+    const catalogueIdField =
+        document.getElementById('catalogueMedicamentId');
+
+
+    const delModalEl =
+        document.getElementById(
+            'deleteCatalogueMedicamentModal'
+        );
+
+    const delForm =
+        document.getElementById(
+            'deleteCatalogueMedicamentForm'
+        );
+
+    const delNameEl =
+        document.getElementById(
+            'deleteCatalogueMedicamentName'
+        );
+
+    const delPharmacieEl =
+        document.getElementById(
+            'deleteCataloguePharmacieName'
+        );
+
+
+    /* ============================================================
+       OUTILS
+    ============================================================ */
+
+    function getField(name) {
+
+        return form
+            ? form.querySelector('[name="' + name + '"]')
+            : null;
+
+    }
+
+
+    function setValue(name, value) {
+
+        const field = getField(name);
+
+        if (field) {
+
+            field.value = value || '';
+
+        }
+
+    }
+
+
+    function setChecked(name, checked) {
+
+        const field = getField(name);
+
+        if (field) {
+
+            field.checked = !!checked;
+
+        }
+
+    }
+
+
+    function setAction(action, catalogueId) {
+
+        if (form) {
+
+            /*
+             * Ajout et modification passent désormais
+             * par la même vue LISTE.
+             */
+
+            form.action = URL_LISTE;
+
+        }
+
+
+        if (actionField) {
+
+            actionField.value = action;
+
+        }
+
+
+        if (catalogueIdField) {
+
+            catalogueIdField.value =
+                catalogueId || '';
+
+        }
+
+    }
+
+
+    function setMode(modification) {
+
+        if (titreEl) {
+
+            titreEl.textContent =
+                modification
+                    ? 'Modifier le médicament du catalogue'
+                    : 'Ajouter un médicament au catalogue';
+
+        }
+
+
+        if (submitTxt) {
+
+            submitTxt.textContent =
+                modification
+                    ? 'Enregistrer les modifications'
+                    : 'Enregistrer';
+
+        }
+
+    }
+
+
+    function effacerErreurs() {
+
+        if (!form) {
+
+            return;
+
+        }
+
+
+        form.querySelectorAll('.field-error')
+            .forEach(function (el) {
+
+                el.remove();
+
+            });
+
+
+        form.querySelectorAll('.alert-danger')
+            .forEach(function (el) {
+
+                el.remove();
+
+            });
+
+    }
+
+
+    /* ============================================================
+       MODALE AJOUT / MODIFICATION
+    ============================================================ */
+
+    if (modalEl && form) {
+
+
+        modalEl.addEventListener(
+            'show.bs.modal',
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+
+                /*
+                 * Si la modale est ouverte automatiquement
+                 * par ?modifier=ID, il n'y a pas de
+                 * relatedTarget.
+                 *
+                 * Dans ce cas, la configuration serveur
+                 * ci-dessous prend le relais.
+                 */
+
+                if (!button) {
+
+                    return;
+
+                }
+
+
+                effacerErreurs();
+
+
+                /* ================================================
+                   AJOUT
+                ================================================= */
+
+                if (!button.hasAttribute('data-id')) {
+
+                    form.reset();
+
+
+                    setAction(
+                        'ajouter',
+                        ''
+                    );
+
+
+                    setValue(
+                        'pharmacie',
+                        ''
+                    );
+
+                    setValue(
+                        'medicament',
+                        ''
+                    );
+
+                    setValue(
+                        'reference_interne',
+                        ''
+                    );
+
+                    setValue(
+                        'nom_commercial',
+                        ''
+                    );
+
+                    setValue(
+                        'unite_vente',
+                        ''
+                    );
+
+                    setValue(
+                        'conditionnement',
+                        ''
+                    );
+
+                    setValue(
+                        'description',
+                        ''
+                    );
+
+                    setValue(
+                        'observations',
+                        ''
+                    );
+
+
+                    /*
+                     * Valeurs par défaut
+                     */
+
+                    setChecked(
+                        'disponible',
+                        true
+                    );
+
+                    setChecked(
+                        'sur_commande',
+                        false
+                    );
+
+                    setChecked(
+                        'accepte_ordonnance',
+                        true
+                    );
+
+                    setChecked(
+                        'dispensation_active',
+                        true
+                    );
+
+                    setChecked(
+                        'actif',
+                        true
+                    );
+
+
+                    setMode(false);
+
+                    return;
+
+                }
+
+
+                /* ================================================
+                   MODIFICATION
+                ================================================= */
+
+                form.reset();
+
+
+                const catalogueId =
+                    button.getAttribute('data-id');
+
+
+                setAction(
+                    'modifier',
+                    catalogueId
+                );
+
+
+                setValue(
+                    'pharmacie',
+                    button.getAttribute('data-pharmacie')
+                );
+
+
+                setValue(
+                    'medicament',
+                    button.getAttribute('data-medicament')
+                );
+
+
+                setValue(
+                    'reference_interne',
+                    button.getAttribute('data-reference')
+                );
+
+
+                setValue(
+                    'nom_commercial',
+                    button.getAttribute('data-nom-commercial')
+                );
+
+
+                setValue(
+                    'unite_vente',
+                    button.getAttribute('data-unite-vente')
+                );
+
+
+                setValue(
+                    'conditionnement',
+                    button.getAttribute('data-conditionnement')
+                );
+
+
+                setValue(
+                    'description',
+                    button.getAttribute('data-description')
+                );
+
+
+                setValue(
+                    'observations',
+                    button.getAttribute('data-observations')
+                );
+
+
+                setChecked(
+                    'disponible',
+                    button.getAttribute('data-disponible') === 'true'
+                );
+
+
+                setChecked(
+                    'sur_commande',
+                    button.getAttribute('data-sur-commande') === 'true'
+                );
+
+
+                setChecked(
+                    'accepte_ordonnance',
+                    button.getAttribute('data-accepte-ordonnance') === 'true'
+                );
+
+
+                setChecked(
+                    'dispensation_active',
+                    button.getAttribute('data-dispensation-active') === 'true'
+                );
+
+
+                setChecked(
+                    'actif',
+                    button.getAttribute('data-actif') === 'true'
+                );
+
+
+                setMode(true);
+
+            }
+        );
+
+
+        /* ========================================================
+           RÉOUVERTURE AUTOMATIQUE DE LA MODALE
+           - après erreur de validation
+           - ou depuis details.html?modifier=ID
+        ========================================================= */
+
+        {% if ouvrir_modal %}
+
+            const modeModalServeur =
+                "{{ mode_formulaire|default:'ajout' }}";
+
+            const idModalServeur =
+                "{{ catalogue_modification_id|default:'' }}";
+
+
+            if (modeModalServeur === 'modification') {
+
+                /*
+                 * Le formulaire est déjà lié à l'instance
+                 * côté Django lorsqu'il s'agit de
+                 * ?modifier=ID ou d'une erreur POST.
+                 *
+                 * On ne fait donc surtout pas form.reset().
+                 */
+
+                setAction(
+                    'modifier',
+                    idModalServeur
+                );
+
+                setMode(true);
+
+            } else {
+
+                setAction(
+                    'ajouter',
+                    ''
+                );
+
+                setMode(false);
+
+            }
+
+
+            bootstrap.Modal
+                .getOrCreateInstance(modalEl)
+                .show();
+
+        {% endif %}
+
+    }
+
+
+    /* ============================================================
+       MODALE SUPPRESSION
+    ============================================================ */
+
+    if (delModalEl && delForm) {
+
+
+        delModalEl.addEventListener(
+            'show.bs.modal',
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+
+                if (!button) {
+
+                    return;
+
+                }
+
+
+                const catalogueId =
+                    button.getAttribute('data-id');
+
+
+                const nom =
+                    button.getAttribute('data-nom') || '';
+
+
+                const pharmacie =
+                    button.getAttribute('data-pharmacie') || '';
+
+
+                /*
+                 * Construction de l'URL de suppression
+                 * à partir de la route Django.
+                 */
+
+                if (catalogueId) {
+
+                    delForm.action =
+                        URL_SUPPRESSION.replace(
+                            '/0/',
+                            '/' + catalogueId + '/'
+                        );
+
+                }
+
+
+                if (delNameEl) {
+
+                    delNameEl.textContent =
+                        nom;
+
+                }
+
+
+                if (delPharmacieEl) {
+
+                    delPharmacieEl.textContent =
+                        pharmacie;
+
+                }
+
+            }
+        );
+
+    }
+
+});
+
+</script>
+
+
+{% endblock %}

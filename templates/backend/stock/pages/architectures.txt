@@ -1,0 +1,65 @@
+                    SANITA
+                       │
+          ┌────────────┼────────────┐
+          │            │            │
+   Pharmacie privée  Pharmacie    Pharmacie
+                    interne       partenaire
+                       │              │
+                       │              ├── Catalogue
+                       │              ├── Tarifs
+                       │              ├── Conditions/remises
+                       │              ├── Réception ordonnance
+                       │              └── Validation / dispensation
+                       │
+                    STOCK
+                       │
+             ┌─────────┼─────────┐
+             │         │         │
+          Dépôts      Lots    Mouvements
+
+
+stock/
+│
+├── models/
+│   ├── clients.py
+│   ├── depots.py
+│   ├── entrees.py
+│   ├── fournisseurs.py
+│   ├── inventaires.py
+│   ├── lots.py
+│   ├── medicaments.py
+│   ├── mouvements.py
+│   ├── sorties.py
+│   ├── stocks.py
+│   └── transferts.py
+│
+├── forms/
+│   ├── clients.py
+│   ├── depots.py
+│   ├── entrees.py
+│   ├── fournisseurs.py
+│   ├── inventaires.py
+│   ├── medicaments.py
+│   ├── sorties.py
+│   └── transferts.py
+│
+├── services/
+│   ├── entree_service.py
+│   ├── inventaire_service.py
+│   ├── mouvement_service.py
+│   ├── sortie_service.py
+│   ├── stock_service.py
+│   └── transfert_service.py
+│
+└── views/
+    ├── clients.py
+    ├── depots.py
+    ├── entrees.py
+    ├── fournisseurs.py
+    ├── inventaires.py
+    ├── lots.py
+    ├── medicaments.py
+    ├── mouvements.py
+    ├── sorties.py
+    ├── stocks.py
+    └── transferts.py                         

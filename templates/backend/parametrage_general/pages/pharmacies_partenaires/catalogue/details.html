@@ -1,0 +1,1534 @@
+{% extends "backend/parametrage_general/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+
+    /* ============================================================
+       VARIABLES
+    ============================================================ */
+
+    .catalogue-detail-page {
+
+        --teal-900: #0b3d3a;
+        --teal-700: #0f5c56;
+        --teal-500: #12766e;
+        --teal-100: #e6f5f2;
+
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --soft: #f8fafc;
+
+        --success: #198754;
+        --warning: #f59e0b;
+        --danger: #dc3545;
+        --info: #0d6efd;
+    }
+
+
+    /* ============================================================
+       EN-TÊTE
+    ============================================================ */
+
+    .catalogue-detail-page .page-header {
+        margin-bottom: 24px;
+    }
+
+    .catalogue-detail-page .page-header h4 {
+        color: var(--teal-900);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .catalogue-detail-page .page-subtitle {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+
+    /* ============================================================
+       CARTES
+    ============================================================ */
+
+    .catalogue-detail-page .detail-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .catalogue-detail-page .detail-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .catalogue-detail-page .detail-card-header {
+        padding: 17px 20px;
+        border-bottom: 1px solid var(--border);
+        background: #fff;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+    }
+
+    .catalogue-detail-page .detail-card-header h5 {
+        margin: 0;
+        color: var(--ink);
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .catalogue-detail-page .detail-card-header .header-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: var(--teal-100);
+        color: var(--teal-700);
+        font-size: 19px;
+    }
+
+    .catalogue-detail-page .detail-card-body {
+        padding: 20px;
+    }
+
+
+    /* ============================================================
+       BLOC PRINCIPAL
+    ============================================================ */
+
+    .catalogue-detail-page .medicament-hero {
+        background: linear-gradient(
+            135deg,
+            var(--teal-100),
+            #ffffff
+        );
+
+        border: 1px solid #d8eeeb;
+        border-radius: 12px;
+
+        padding: 22px;
+
+        margin-bottom: 20px;
+    }
+
+    .catalogue-detail-page .medicament-icon {
+        width: 58px;
+        height: 58px;
+
+        border-radius: 12px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #fff;
+        color: var(--teal-700);
+
+        font-size: 28px;
+
+        border: 1px solid #d8eeeb;
+
+        flex-shrink: 0;
+    }
+
+    .catalogue-detail-page .medicament-title {
+        color: var(--teal-900);
+        font-weight: 700;
+        font-size: 21px;
+        margin-bottom: 4px;
+    }
+
+    .catalogue-detail-page .medicament-subtitle {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+
+    /* ============================================================
+       BADGES
+    ============================================================ */
+
+    .status-badge,
+    .feature-badge {
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 5px;
+
+        border-radius: 30px;
+
+        padding: 6px 11px;
+
+        font-size: 11px;
+
+        font-weight: 650;
+
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: #eaf7ef;
+        color: #16834d;
+    }
+
+    .status-inactive {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .status-available {
+        background: #eaf7ef;
+        color: #16834d;
+    }
+
+    .status-order {
+        background: #fff7e6;
+        color: #a16207;
+    }
+
+    .status-unavailable {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .feature-active {
+        background: #eef6f5;
+        color: var(--teal-700);
+    }
+
+    .feature-inactive {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    .prescription-required {
+        background: #eaf2ff;
+        color: #0d6efd;
+    }
+
+    .prescription-not-required {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+
+    /* ============================================================
+       INFORMATIONS
+    ============================================================ */
+
+    .info-row {
+        display: flex;
+        align-items: flex-start;
+
+        padding: 11px 0;
+
+        border-bottom: 1px solid #f0f2f4;
+
+        gap: 15px;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .info-row:first-child {
+        padding-top: 0;
+    }
+
+    .info-label {
+        width: 180px;
+
+        flex-shrink: 0;
+
+        color: var(--muted);
+
+        font-size: 12px;
+
+        font-weight: 600;
+    }
+
+    .info-value {
+        color: var(--ink);
+
+        font-size: 13px;
+
+        font-weight: 500;
+
+        flex: 1;
+    }
+
+
+    /* ============================================================
+       PHARMACIE
+    ============================================================ */
+
+    .pharmacie-box {
+
+        background: var(--soft);
+
+        border: 1px solid var(--border);
+
+        border-radius: 10px;
+
+        padding: 15px;
+    }
+
+    .pharmacie-icon {
+
+        width: 42px;
+        height: 42px;
+
+        border-radius: 9px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: var(--teal-100);
+
+        color: var(--teal-700);
+
+        font-size: 20px;
+
+        flex-shrink: 0;
+    }
+
+    .pharmacie-name {
+
+        color: var(--ink);
+
+        font-weight: 700;
+
+        font-size: 14px;
+
+        margin-bottom: 3px;
+    }
+
+    .pharmacie-code {
+
+        color: var(--muted);
+
+        font-size: 12px;
+    }
+
+
+    /* ============================================================
+       ÉTAT / FONCTIONNALITÉS
+    ============================================================ */
+
+    .feature-grid {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+    }
+
+    .feature-item {
+
+        border: 1px solid var(--border);
+
+        border-radius: 10px;
+
+        padding: 14px;
+
+        background: #fff;
+    }
+
+    .feature-item-label {
+
+        color: var(--muted);
+
+        font-size: 11px;
+
+        margin-bottom: 7px;
+
+        font-weight: 600;
+    }
+
+
+    /* ============================================================
+       DESCRIPTION
+    ============================================================ */
+
+    .text-block {
+
+        background: var(--soft);
+
+        border: 1px solid var(--border);
+
+        border-radius: 9px;
+
+        padding: 14px;
+
+        color: #4b5563;
+
+        font-size: 13px;
+
+        line-height: 1.6;
+
+        white-space: pre-line;
+    }
+
+
+    /* ============================================================
+       DATES
+    ============================================================ */
+
+    .date-info {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        color: var(--muted);
+
+        font-size: 12px;
+    }
+
+    .date-info i {
+
+        color: var(--teal-500);
+
+        font-size: 16px;
+    }
+
+
+    /* ============================================================
+       ACTIONS
+    ============================================================ */
+
+    .detail-actions {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: flex-end;
+
+        gap: 8px;
+
+        flex-wrap: wrap;
+    }
+
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+
+    @media (max-width: 767.98px) {
+
+        .catalogue-detail-page .detail-card-body {
+            padding: 15px;
+        }
+
+        .catalogue-detail-page .medicament-hero {
+            padding: 16px;
+        }
+
+        .info-row {
+            display: block;
+        }
+
+        .info-label {
+            width: auto;
+            margin-bottom: 4px;
+        }
+
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-actions {
+            justify-content: flex-start;
+        }
+    }
+
+</style>
+
+
+<div class="catalogue-detail-page">
+
+
+    <!-- ========================================================
+         EN-TÊTE
+    ========================================================= -->
+
+    <div class="page-header">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <div>
+
+                <h4>
+                    Détails du médicament
+                </h4>
+
+                <div class="page-subtitle">
+
+                    Consultation de la configuration du médicament
+                    dans le catalogue d'une pharmacie partenaire.
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-actions">
+
+                <!-- RETOUR -->
+
+                <a href="{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}"
+                   class="btn btn-light">
+
+                    <i class="ri-arrow-left-line me-1"></i>
+
+                    Retour au catalogue
+
+                </a>
+
+
+                <!-- MODIFIER -->
+                <!-- La modification se fait dans la modale de liste.html -->
+
+                <a href="{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}?modifier={{ catalogue.pk }}"
+                   class="btn btn-primary">
+
+                    <i class="ri-edit-line me-1"></i>
+
+                    Modifier
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         IDENTIFICATION PRINCIPALE
+    ========================================================= -->
+
+    <div class="medicament-hero">
+
+        <div class="d-flex flex-wrap align-items-center gap-3">
+
+
+            <div class="medicament-icon">
+
+                <i class="ri-capsule-line"></i>
+
+            </div>
+
+
+            <div class="flex-grow-1">
+
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+
+                    <div class="medicament-title">
+
+                        {{ catalogue.medicament.nom }}
+
+                    </div>
+
+
+                    {% if catalogue.actif %}
+
+                        <span class="status-badge status-active">
+
+                            <i class="ri-checkbox-circle-fill"></i>
+
+                            Actif
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-badge status-inactive">
+
+                            <i class="ri-close-circle-fill"></i>
+
+                            Inactif
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="medicament-subtitle">
+
+                    Référence du médicament dans le catalogue
+                    de la pharmacie partenaire.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+
+        <!-- ====================================================
+             COLONNE GAUCHE
+        ===================================================== -->
+
+        <div class="col-xl-7">
+
+
+            <!-- =================================================
+                 MÉDICAMENT
+            ================================================== -->
+
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+
+                    <h5>
+
+                        Informations du médicament
+
+                    </h5>
+
+                    <div class="header-icon">
+
+                        <i class="ri-capsule-line"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-card-body">
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Médicament
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {{ catalogue.medicament.nom }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Code médicament
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {{ catalogue.medicament.code }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Code CIP
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.medicament.code_cip %}
+
+                                {{ catalogue.medicament.code_cip }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseigné
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Code-barres
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.medicament.code_barre %}
+
+                                {{ catalogue.medicament.code_barre }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseigné
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Famille
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.medicament.famille %}
+
+                                {{ catalogue.medicament.famille.nom }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseignée
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Forme
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.medicament.forme %}
+
+                                {{ catalogue.medicament.get_forme_display }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseignée
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Dosage
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.medicament.dosage %}
+
+                                {{ catalogue.medicament.dosage }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseigné
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Unité
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.medicament.unite %}
+
+                                {{ catalogue.medicament.unite }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseignée
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Contenu
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.medicament.contenu %}
+
+                                {{ catalogue.medicament.contenu }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseigné
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CONFIGURATION PARTENAIRE
+            ================================================== -->
+
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+
+                    <h5>
+
+                        Configuration dans la pharmacie
+
+                    </h5>
+
+                    <div class="header-icon">
+
+                        <i class="ri-store-2-line"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-card-body">
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Référence interne
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.reference_interne %}
+
+                                {{ catalogue.reference_interne }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseignée
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Nom commercial
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.nom_commercial %}
+
+                                {{ catalogue.nom_commercial }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseigné
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Unité de vente
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.unite_vente %}
+
+                                {{ catalogue.unite_vente }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseignée
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            Conditionnement
+
+                        </div>
+
+                        <div class="info-value">
+
+                            {% if catalogue.conditionnement %}
+
+                                {{ catalogue.conditionnement }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Non renseigné
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 DESCRIPTION
+            ================================================== -->
+
+            {% if catalogue.description %}
+
+                <div class="detail-card">
+
+                    <div class="detail-card-header">
+
+                        <h5>
+
+                            Description
+
+                        </h5>
+
+                        <div class="header-icon">
+
+                            <i class="ri-file-text-line"></i>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-card-body">
+
+                        <div class="text-block">
+
+                            {{ catalogue.description }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 OBSERVATIONS
+            ================================================== -->
+
+            {% if catalogue.observations %}
+
+                <div class="detail-card">
+
+                    <div class="detail-card-header">
+
+                        <h5>
+
+                            Observations
+
+                        </h5>
+
+                        <div class="header-icon">
+
+                            <i class="ri-information-line"></i>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-card-body">
+
+                        <div class="text-block">
+
+                            {{ catalogue.observations }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ====================================================
+             COLONNE DROITE
+        ===================================================== -->
+
+        <div class="col-xl-5">
+
+
+            <!-- =================================================
+                 PHARMACIE PARTENAIRE
+            ================================================== -->
+
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+
+                    <h5>
+
+                        Pharmacie partenaire
+
+                    </h5>
+
+                    <div class="header-icon">
+
+                        <i class="ri-store-2-line"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-card-body">
+
+                    <div class="pharmacie-box">
+
+                        <div class="d-flex align-items-center gap-3">
+
+
+                            <div class="pharmacie-icon">
+
+                                <i class="ri-store-2-line"></i>
+
+                            </div>
+
+
+                            <div class="flex-grow-1">
+
+                                <div class="pharmacie-name">
+
+                                    {{ catalogue.pharmacie.nom }}
+
+                                </div>
+
+                                <div class="pharmacie-code">
+
+                                    Code :
+                                    {{ catalogue.pharmacie.code }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 DISPONIBILITÉ
+            ================================================== -->
+
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+
+                    <h5>
+
+                        Disponibilité et dispensation
+
+                    </h5>
+
+                    <div class="header-icon">
+
+                        <i class="ri-medicine-bottle-line"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-card-body">
+
+
+                    <div class="feature-grid">
+
+
+                        <!-- DISPONIBILITÉ -->
+
+                        <div class="feature-item">
+
+                            <div class="feature-item-label">
+
+                                Disponibilité
+
+                            </div>
+
+                            {% if catalogue.disponible %}
+
+                                <span class="status-badge status-available">
+
+                                    <i class="ri-checkbox-circle-fill"></i>
+
+                                    Disponible
+
+                                </span>
+
+                            {% elif catalogue.sur_commande %}
+
+                                <span class="status-badge status-order">
+
+                                    <i class="ri-time-line"></i>
+
+                                    Sur commande
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-unavailable">
+
+                                    <i class="ri-close-circle-line"></i>
+
+                                    Indisponible
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- SUR COMMANDE -->
+
+                        <div class="feature-item">
+
+                            <div class="feature-item-label">
+
+                                Commande
+
+                            </div>
+
+                            {% if catalogue.sur_commande %}
+
+                                <span class="feature-badge feature-active">
+
+                                    <i class="ri-check-line"></i>
+
+                                    Possible
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="feature-badge feature-inactive">
+
+                                    <i class="ri-close-line"></i>
+
+                                    Non configurée
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- ORDONNANCE -->
+
+                        <div class="feature-item">
+
+                            <div class="feature-item-label">
+
+                                Ordonnance
+
+                            </div>
+
+                            {% if catalogue.accepte_ordonnance %}
+
+                                <span class="feature-badge prescription-required">
+
+                                    <i class="ri-file-list-3-line"></i>
+
+                                    Requise
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="feature-badge prescription-not-required">
+
+                                    <i class="ri-checkbox-blank-circle-line"></i>
+
+                                    Non requise
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- DISPENSATION -->
+
+                        <div class="feature-item">
+
+                            <div class="feature-item-label">
+
+                                Dispensation SANITA
+
+                            </div>
+
+                            {% if catalogue.dispensation_active %}
+
+                                <span class="feature-badge feature-active">
+
+                                    <i class="ri-checkbox-circle-line"></i>
+
+                                    Active
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="feature-badge feature-inactive">
+
+                                    <i class="ri-close-circle-line"></i>
+
+                                    Inactive
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- CATALOGUE -->
+
+                        <div class="feature-item">
+
+                            <div class="feature-item-label">
+
+                                Référence catalogue
+
+                            </div>
+
+                            {% if catalogue.actif %}
+
+                                <span class="status-badge status-active">
+
+                                    <i class="ri-checkbox-circle-fill"></i>
+
+                                    Active
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-inactive">
+
+                                    <i class="ri-close-circle-fill"></i>
+
+                                    Inactive
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 INFORMATIONS SYSTÈME
+            ================================================== -->
+
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+
+                    <h5>
+
+                        Informations système
+
+                    </h5>
+
+                    <div class="header-icon">
+
+                        <i class="ri-information-line"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-card-body">
+
+
+                    <div class="date-info mb-3">
+
+                        <i class="ri-calendar-line"></i>
+
+                        <span>
+
+                            Créé le
+
+                            {{ catalogue.date_creation|date:"d/m/Y à H:i" }}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="date-info">
+
+                        <i class="ri-time-line"></i>
+
+                        <span>
+
+                            Dernière modification :
+
+                            {{ catalogue.date_modification|date:"d/m/Y à H:i" }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ACTIONS
+            ================================================== -->
+
+            <div class="detail-card">
+
+                <div class="detail-card-header">
+
+                    <h5>
+
+                        Actions
+
+                    </h5>
+
+                    <div class="header-icon">
+
+                        <i class="ri-settings-3-line"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-card-body">
+
+                    <div class="d-grid gap-2">
+
+
+                        <!-- MODIFIER -->
+
+                        <a href="{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}?modifier={{ catalogue.pk }}"
+                           class="btn btn-primary">
+
+                            <i class="ri-edit-line me-1"></i>
+
+                            Modifier la référence
+
+                        </a>
+
+
+                        <!-- ACTIVER / DÉSACTIVER -->
+
+                        <a href="{% url 'parametrage_general:toggle_catalogue_medicament_pharmacie_partenaire' catalogue.pk %}"
+                           class="btn btn-light">
+
+                            {% if catalogue.actif %}
+
+                                <i class="ri-toggle-line me-1"></i>
+
+                                Désactiver la référence
+
+                            {% else %}
+
+                                <i class="ri-toggle-fill me-1"></i>
+
+                                Activer la référence
+
+                            {% endif %}
+
+                        </a>
+
+
+                        <!-- RETOUR -->
+
+                        <a href="{% url 'parametrage_general:liste_catalogue_medicaments_pharmacies_partenaires' %}"
+                           class="btn btn-light">
+
+                            <i class="ri-arrow-left-line me-1"></i>
+
+                            Retour au catalogue
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% comment %}
+    Champ de formulaire standard du module Médicaments.
+
+    Paramètres :
+        field   (obligatoire) : le BoundField, ex. form.nom
+        help    (facultatif)  : aide affichée si le champ n'a pas de help_text
+        full    (facultatif)  : True pour occuper toute la largeur
+        icon    (facultatif)  : classe Remix Icon affichée dans le champ
+        suffix  (facultatif)  : unité affichée à droite (ex. devise)
+
+    Exemple :
+        {% include "backend/stock/medicament/_field.html" with field=form.dosage help="Par exemple : 500 mg." %}
+{% endcomment %}
+
+<div
+    class="med-field{% if full %} med-field--full{% endif %}{% if field.errors %} has-error{% endif %}"
+    data-field="{{ field.name }}"
+>
+    <label class="med-label" for="{{ field.id_for_label }}">
+        <span>{{ field.label }}</span>
+        {% if field.field.required %}
+            <span class="med-req" aria-hidden="true">*</span>
+        {% else %}
+            <span class="med-opt">facultatif</span>
+        {% endif %}
+    </label>
+
+    <div class="med-control{% if icon %} has-icon{% endif %}{% if suffix %} has-suffix{% endif %}">
+        {% if icon %}
+            <i class="{{ icon }} med-control__icon" aria-hidden="true"></i>
+        {% endif %}
+
+        {{ field }}
+
+        {% if suffix %}
+            <span class="med-control__suffix" aria-hidden="true">{{ suffix }}</span>
+        {% endif %}
+    </div>
+
+    {% if field.help_text %}
+        <p class="med-help">{{ field.help_text }}</p>
+    {% elif help %}
+        <p class="med-help">{{ help }}</p>
+    {% endif %}
+
+    {% for error in field.errors %}
+        <p class="med-error">
+            <i class="ri-error-warning-fill" aria-hidden="true"></i>
+            {{ error }}
+        </p>
+    {% endfor %}
+</div>
