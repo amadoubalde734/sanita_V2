@@ -5,7 +5,7 @@
 
 <style>
     /* ============================================================
-       TOKENS (identiques aux pages Médicaments et Familles)
+       TOKENS (identiques aux pages du module Stock)
        ============================================================ */
     .med {
         --brand-900: #0b3d3a;
@@ -24,17 +24,10 @@
         --surface:   #ffffff;
         --canvas:    #f7f9f9;
 
-        --ok-bg: #e9f6ef;
-        --ok-fg: #146c43;
-
         --off-bg: #f3f4f6;
-
-        --warn-bg: #fdf6e3;
-        --warn-fg: #9a6700;
 
         --radius-lg: 14px;
         --radius-md: 8px;
-        --radius-sm: 6px;
 
         color: var(--ink-900);
         font-size: 14px;
@@ -230,15 +223,15 @@
     }
 
     .dash-kpi.is-soon .dash-kpi__value {
+        margin-top: 18px;
         font-size: 15px;
         font-weight: 600;
-        color: var(--ink-500);
         letter-spacing: 0;
-        margin-top: 18px;
+        color: var(--ink-500);
     }
 
     /* ============================================================
-       GRILLE PRINCIPALE
+       GRILLE ET CARTES
        ============================================================ */
     .dash-grid {
         display: grid;
@@ -278,8 +271,33 @@
     }
 
     /* ============================================================
-       MISE EN ROUTE (étapes réelles, donc numérotées)
+       MISE EN ROUTE (vraie séquence, donc numérotée)
        ============================================================ */
+    .dash-progress {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .dash-progress__bar {
+        flex: 1;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--line-soft);
+        overflow: hidden;
+    }
+
+    .dash-progress__bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--brand-600);
+        transition: width .4s ease;
+    }
+
     .dash-steps {
         list-style: none;
         margin: 0;
@@ -288,7 +306,6 @@
     }
 
     .dash-step {
-        position: relative;
         display: grid;
         grid-template-columns: 32px minmax(0, 1fr) auto;
         gap: 14px;
@@ -335,7 +352,10 @@
     .dash-step__title {
         display: block;
         font-weight: 600;
-        color: var(--ink-900);
+    }
+
+    .dash-step.is-soon .dash-step__title {
+        color: var(--ink-500);
     }
 
     .dash-step__text {
@@ -346,47 +366,19 @@
         color: var(--ink-500);
     }
 
-    .dash-step.is-soon .dash-step__title {
-        color: var(--ink-500);
-    }
-
-    .dash-progress {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 4px;
-        font-size: 13px;
-        color: var(--ink-500);
-    }
-
-    .dash-progress__bar {
-        flex: 1;
-        height: 6px;
-        border-radius: 999px;
-        background: var(--line-soft);
-        overflow: hidden;
-    }
-
-    .dash-progress__bar span {
-        display: block;
-        height: 100%;
-        border-radius: inherit;
-        background: var(--brand-600);
-    }
-
     /* ============================================================
-       ACCÈS AU RÉFÉRENTIEL
+       ACCÈS RAPIDES
        ============================================================ */
     .dash-links {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
     }
 
     .dash-link {
         display: flex;
-        align-items: center;
-        gap: 14px;
+        flex-direction: column;
+        gap: 12px;
         padding: 16px;
         border: 1px solid var(--line);
         border-radius: var(--radius-md);
@@ -402,7 +394,6 @@
     }
 
     .dash-link__icon {
-        flex: none;
         display: grid;
         place-items: center;
         width: 40px;
@@ -418,8 +409,15 @@
     }
 
     .dash-link__title {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         font-weight: 600;
+    }
+
+    .dash-link__title i {
+        font-size: 18px;
+        color: var(--ink-400);
     }
 
     .dash-link__text {
@@ -428,12 +426,6 @@
         font-size: 13px;
         line-height: 1.45;
         color: var(--ink-500);
-    }
-
-    .dash-link__arrow {
-        margin-left: auto;
-        font-size: 18px;
-        color: var(--ink-400);
     }
 
     /* ============================================================
@@ -496,6 +488,19 @@
         .dash-kpis {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+        .dash-links {
+            grid-template-columns: 1fr;
+        }
+
+        .dash-link {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .dash-link > span:last-child {
+            flex: 1;
+        }
     }
 
     @media (max-width: 640px) {
@@ -506,10 +511,6 @@
         .med-head__actions,
         .med-head__actions .med-btn {
             width: 100%;
-        }
-
-        .dash-links {
-            grid-template-columns: 1fr;
         }
 
         .dash-card__head,
@@ -557,13 +558,18 @@
             <div>
                 <h1>Gestion des stocks</h1>
                 <p>
-                    Référentiel des médicaments, stocks, approvisionnements et mouvements
-                    pour l'ensemble des pharmacies SANITA.
+                    Référentiel des médicaments, dépôts, stocks, approvisionnements
+                    et mouvements pour l'ensemble des pharmacies SANITA.
                 </p>
             </div>
         </div>
 
         <div class="med-head__actions">
+            <a href="{% url 'stock:depot_list' %}" class="med-btn med-btn--ghost">
+                <i class="ri-inbox-archive-line" aria-hidden="true"></i>
+                Dépôts
+            </a>
+
             <a href="{% url 'stock:famille_list' %}" class="med-btn med-btn--ghost">
                 <i class="ri-folder-3-line" aria-hidden="true"></i>
                 Familles
@@ -588,9 +594,7 @@
                 Médicaments référencés
                 <span class="dash-kpi__icon" aria-hidden="true"><i class="ri-capsule-line"></i></span>
             </span>
-            <span class="dash-kpi__value">
-                {% if nombre_medicaments is not None %}{{ nombre_medicaments }}{% else %}—{% endif %}
-            </span>
+            <span class="dash-kpi__value">{% if nombre_medicaments is not None %}{{ nombre_medicaments }}{% else %}—{% endif %}</span>
             <span class="dash-kpi__note">
                 Voir le référentiel
                 <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
@@ -602,11 +606,21 @@
                 Familles actives
                 <span class="dash-kpi__icon" aria-hidden="true"><i class="ri-folder-3-line"></i></span>
             </span>
-            <span class="dash-kpi__value">
-                {% if nombre_familles is not None %}{{ nombre_familles }}{% else %}—{% endif %}
-            </span>
+            <span class="dash-kpi__value">{% if nombre_familles is not None %}{{ nombre_familles }}{% else %}—{% endif %}</span>
             <span class="dash-kpi__note">
                 Gérer les familles
+                <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+            </span>
+        </a>
+
+        <a href="{% url 'stock:depot_list' %}" class="dash-kpi">
+            <span class="dash-kpi__top">
+                Dépôts actifs
+                <span class="dash-kpi__icon" aria-hidden="true"><i class="ri-inbox-archive-line"></i></span>
+            </span>
+            <span class="dash-kpi__value">{% if nombre_depots is not None %}{{ nombre_depots }}{% else %}—{% endif %}</span>
+            <span class="dash-kpi__note">
+                Gérer les dépôts
                 <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
             </span>
         </a>
@@ -618,15 +632,6 @@
             </span>
             <span class="dash-kpi__value">Bientôt disponible</span>
             <span class="dash-kpi__note">Quantités par pharmacie et dépôt</span>
-        </div>
-
-        <div class="dash-kpi is-soon">
-            <span class="dash-kpi__top">
-                Alertes
-                <span class="dash-kpi__icon" aria-hidden="true"><i class="ri-alarm-warning-line"></i></span>
-            </span>
-            <span class="dash-kpi__value">Bientôt disponible</span>
-            <span class="dash-kpi__note">Seuils et péremptions</span>
         </div>
 
     </section>
@@ -644,24 +649,30 @@
 
                 <div class="dash-card__head">
                     <h2 id="dash-setup-title">Mise en route du module</h2>
-                    <p>Le référentiel doit être complet avant de saisir des stocks.</p>
+                    <p>Le référentiel et les dépôts doivent être prêts avant la saisie des stocks.</p>
                 </div>
 
                 <div class="dash-card__body">
 
-                    {% with f_ok=nombre_familles|default:0 m_ok=nombre_medicaments|default:0 %}
+                    {% with f_ok=nombre_familles|default:0 m_ok=nombre_medicaments|default:0 d_ok=nombre_depots|default:0 %}
+                    {% with f_step=f_ok|yesno:"1,0" m_step=m_ok|yesno:"1,0" d_step=d_ok|yesno:"1,0" %}
+                    {% with done=f_step|add:m_step|add:d_step %}
 
                         <div class="dash-progress">
-                            <div class="dash-progress__bar" aria-hidden="true">
-                                <span style="width: {% if f_ok and m_ok %}66{% elif f_ok %}33{% else %}0{% endif %}%"></span>
+                            <div class="dash-progress__bar"
+                                 role="progressbar"
+                                 aria-label="Étapes terminées"
+                                 aria-valuemin="0"
+                                 aria-valuemax="4"
+                                 aria-valuenow="{{ done }}">
+                                <span style="width: {% widthratio done 4 100 %}%"></span>
                             </div>
-                            <span>
-                                {% if f_ok and m_ok %}2{% elif f_ok %}1{% else %}0{% endif %} étape{% if f_ok %}s{% endif %} sur 3
-                            </span>
+                            <span>{{ done }} étape{{ done|pluralize }} sur 4</span>
                         </div>
 
                         <ol class="dash-steps">
 
+                            <!-- 1. FAMILLES -->
                             <li class="dash-step{% if f_ok %} is-done{% endif %}">
                                 <span class="dash-step__num" aria-hidden="true"></span>
                                 <div>
@@ -674,11 +685,13 @@
                                         {% endif %}
                                     </span>
                                 </div>
-                                <a href="{% url 'stock:famille_list' %}" class="med-btn med-btn--ghost">
+                                <a href="{% url 'stock:famille_list' %}"
+                                   class="med-btn {% if f_ok %}med-btn--ghost{% else %}med-btn--primary{% endif %}">
                                     {% if f_ok %}Gérer{% else %}Créer une famille{% endif %}
                                 </a>
                             </li>
 
+                            <!-- 2. MÉDICAMENTS -->
                             <li class="dash-step{% if m_ok %} is-done{% endif %}">
                                 <span class="dash-step__num" aria-hidden="true"></span>
                                 <div>
@@ -701,30 +714,50 @@
                                 {% endif %}
                             </li>
 
+                            <!-- 3. DÉPÔTS -->
+                            <li class="dash-step{% if d_ok %} is-done{% endif %}">
+                                <span class="dash-step__num" aria-hidden="true"></span>
+                                <div>
+                                    <span class="dash-step__title">Configurer les dépôts</span>
+                                    <span class="dash-step__text">
+                                        {% if d_ok %}
+                                            {{ d_ok }} dépôt{{ d_ok|pluralize }} actif{{ d_ok|pluralize }}, prêt{{ d_ok|pluralize }} à recevoir les stocks.
+                                        {% else %}
+                                            Définissez les lieux de stockage rattachés à chaque pharmacie.
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <a href="{% url 'stock:depot_list' %}"
+                                   class="med-btn {% if d_ok %}med-btn--ghost{% else %}med-btn--primary{% endif %}">
+                                    {% if d_ok %}Gérer{% else %}Configurer{% endif %}
+                                </a>
+                            </li>
+
+                            <!-- 4. STOCKS -->
                             <li class="dash-step is-soon">
                                 <span class="dash-step__num" aria-hidden="true"></span>
                                 <div>
                                     <span class="dash-step__title">Saisir les stocks initiaux</span>
-                                    <span class="dash-step__text">
-                                        Disponible avec l'arrivée des modules Stocks et Lots.
-                                    </span>
+                                    <span class="dash-step__text">Disponible avec l'arrivée des modules Stocks et Lots.</span>
                                 </div>
                             </li>
 
                         </ol>
 
                     {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
 
                 </div>
             </section>
 
 
-            <!-- RÉFÉRENTIEL -->
-            <section class="dash-card" aria-labelledby="dash-ref-title">
+            <!-- ACCÈS RAPIDES -->
+            <section class="dash-card" aria-labelledby="dash-links-title">
 
                 <div class="dash-card__head">
-                    <h2 id="dash-ref-title">Référentiel</h2>
-                    <p>Données partagées par toutes les pharmacies.</p>
+                    <h2 id="dash-links-title">Accès rapides</h2>
+                    <p>Le référentiel et les dépôts sont partagés par toutes les pharmacies.</p>
                 </div>
 
                 <div class="dash-card__body">
@@ -733,19 +766,34 @@
                         <a href="{% url 'stock:medicament_list' %}" class="dash-link">
                             <span class="dash-link__icon" aria-hidden="true"><i class="ri-capsule-line"></i></span>
                             <span>
-                                <span class="dash-link__title">Médicaments</span>
+                                <span class="dash-link__title">
+                                    Médicaments
+                                    <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                                </span>
                                 <span class="dash-link__text">Rechercher, modifier, activer ou désactiver.</span>
                             </span>
-                            <i class="ri-arrow-right-s-line dash-link__arrow" aria-hidden="true"></i>
                         </a>
 
                         <a href="{% url 'stock:famille_list' %}" class="dash-link">
                             <span class="dash-link__icon" aria-hidden="true"><i class="ri-folder-3-line"></i></span>
                             <span>
-                                <span class="dash-link__title">Familles</span>
+                                <span class="dash-link__title">
+                                    Familles
+                                    <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                                </span>
                                 <span class="dash-link__text">Classement thérapeutique et préfixes.</span>
                             </span>
-                            <i class="ri-arrow-right-s-line dash-link__arrow" aria-hidden="true"></i>
+                        </a>
+
+                        <a href="{% url 'stock:depot_list' %}" class="dash-link">
+                            <span class="dash-link__icon" aria-hidden="true"><i class="ri-inbox-archive-line"></i></span>
+                            <span>
+                                <span class="dash-link__title">
+                                    Dépôts
+                                    <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                                </span>
+                                <span class="dash-link__text">Lieux de stockage de chaque pharmacie.</span>
+                            </span>
                         </a>
 
                     </div>
@@ -759,7 +807,6 @@
              COLONNE LATÉRALE
              ==================================================== -->
         <aside>
-
             <section class="dash-card" aria-labelledby="dash-roadmap-title">
 
                 <div class="dash-card__head">
@@ -771,7 +818,7 @@
                     <ul class="dash-roadmap">
 
                         <li class="dash-roadmap__group">
-                            <p class="dash-roadmap__label">Gestion des stocks</p>
+                            <p class="dash-roadmap__label">Stocks et mouvements</p>
                             <ul class="dash-roadmap__items">
                                 <li><i class="ri-archive-stack-line" aria-hidden="true"></i>Stocks</li>
                                 <li><i class="ri-box-3-line" aria-hidden="true"></i>Lots</li>
@@ -784,7 +831,7 @@
                         </li>
 
                         <li class="dash-roadmap__group">
-                            <p class="dash-roadmap__label">Approvisionnement</p>
+                            <p class="dash-roadmap__label">Achats</p>
                             <ul class="dash-roadmap__items">
                                 <li><i class="ri-truck-line" aria-hidden="true"></i>Fournisseurs</li>
                                 <li><i class="ri-price-tag-3-line" aria-hidden="true"></i>Catalogue et tarifs</li>
@@ -803,8 +850,8 @@
 
                     </ul>
                 </div>
-            </section>
 
+            </section>
         </aside>
 
     </div>

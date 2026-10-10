@@ -3,35 +3,89 @@
 {% with ns=request.resolver_match.namespace url_name=request.resolver_match.url_name|default:'' %}
 
 <style>
-    .app-menu .nav-link.is-active {
+    /* ============================================================
+       MENU DU MODULE STOCK
+       ============================================================ */
+    .stock-menu .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stock-menu .nav-link i {
+        flex: none;
+        font-size: 18px;
+    }
+
+    /* Page active */
+    .stock-menu .nav-link.is-active {
         color: #0f5c56;
         font-weight: 600;
         background: #eef7f5;
         border-radius: 8px;
     }
 
-    .app-menu .nav-link.is-active i {
+    .stock-menu .nav-link.is-active i {
         color: #12766e;
     }
 
-    .app-menu .nav-link.is-soon {
-        display: flex;
-        align-items: center;
-        cursor: default;
-        opacity: .6;
-        pointer-events: none;
+    /* Retour aux modules */
+    .stock-menu .nav-link.is-back {
+        margin-bottom: 4px;
+        color: #6b7280;
+        font-size: 13px;
     }
 
-    .app-menu .menu-soon {
+    .stock-menu .nav-link.is-back:hover {
+        color: #0f5c56;
+        background: #f5f8f8;
+        border-radius: 8px;
+    }
+
+    .stock-menu .nav-link.is-back:hover i {
+        color: #12766e;
+    }
+
+    /* Section « À venir » */
+    .stock-menu .menu-count {
         margin-left: auto;
-        padding: 2px 7px;
+        padding: 1px 7px;
         border-radius: 999px;
         background: rgba(107, 114, 128, .12);
         color: #6b7280;
-        font-size: 10.5px;
+        font-size: 11px;
         font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stock-menu .soon-list {
+        list-style: none;
+        margin: 4px 0 8px;
+        padding: 0 0 0 12px;
+    }
+
+    .stock-menu .soon-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #9ca3af;
+        cursor: default;
+    }
+
+    .stock-menu .soon-list i {
+        font-size: 16px;
+    }
+
+    .stock-menu .soon-group {
+        padding: 8px 12px 2px;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #6b7280;
     }
 </style>
+
 
 <div class="navbar-brand-box">
     <a href="{% url 'stock:index' %}" class="logo logo-dark" aria-label="SANITA, module Stock">
@@ -44,27 +98,39 @@
     </a>
 </div>
 
-<nav class="app-menu-content" aria-label="Menu du module Stock">
+
+<nav class="app-menu-content stock-menu" aria-label="Menu du module Stock">
     <ul class="navbar-nav">
+
+        <!-- RETOUR AUX MODULES -->
+        <li class="nav-item">
+            <a href="{% url 'dashboard:index_global' %}" class="nav-link is-back">
+                <i class="ri-arrow-left-line" aria-hidden="true"></i>
+                <span>Tous les modules</span>
+            </a>
+        </li>
+
 
         <!-- TABLEAU DE BORD -->
         <li class="nav-item">
             <a href="{% url 'stock:index' %}"
                class="nav-link{% if ns == 'stock' and url_name == 'index' %} is-active{% endif %}"
                {% if ns == 'stock' and url_name == 'index' %}aria-current="page"{% endif %}>
-                <span><i class="ri-dashboard-2-line me-2" aria-hidden="true"></i>Tableau de bord</span>
+                <i class="ri-dashboard-2-line" aria-hidden="true"></i>
+                <span>Tableau de bord</span>
             </a>
         </li>
 
 
-        <!-- RÉFÉRENTIEL -->
+        <!-- ================= RÉFÉRENTIEL ================= -->
         <li class="menu-title"><span>Référentiel</span></li>
 
         <li class="nav-item">
             <a href="{% url 'stock:medicament_list' %}"
                class="nav-link{% if ns == 'stock' and 'medicament' in url_name %} is-active{% endif %}"
                {% if ns == 'stock' and 'medicament' in url_name %}aria-current="page"{% endif %}>
-                <span><i class="ri-capsule-line me-2" aria-hidden="true"></i>Médicaments</span>
+                <i class="ri-capsule-line" aria-hidden="true"></i>
+                <span>Médicaments</span>
             </a>
         </li>
 
@@ -72,111 +138,68 @@
             <a href="{% url 'stock:famille_list' %}"
                class="nav-link{% if ns == 'stock' and 'famille' in url_name %} is-active{% endif %}"
                {% if ns == 'stock' and 'famille' in url_name %}aria-current="page"{% endif %}>
-                <span><i class="ri-folder-3-line me-2" aria-hidden="true"></i>Familles</span>
+                <i class="ri-folder-3-line" aria-hidden="true"></i>
+                <span>Familles</span>
             </a>
         </li>
 
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-price-tag-3-line me-2" aria-hidden="true"></i>Catalogue et tarifs</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
 
-
-        <!-- GESTION DES STOCKS -->
+        <!-- ============== GESTION DES STOCKS ============== -->
         <li class="menu-title"><span>Gestion des stocks</span></li>
 
         <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-archive-stack-line me-2" aria-hidden="true"></i>Stocks</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
-
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-box-3-line me-2" aria-hidden="true"></i>Lots</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
-
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-login-box-line me-2" aria-hidden="true"></i>Entrées</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
-
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-logout-box-line me-2" aria-hidden="true"></i>Sorties</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
-
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-arrow-left-right-line me-2" aria-hidden="true"></i>Transferts</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
-
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-equalizer-line me-2" aria-hidden="true"></i>Ajustements</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
-
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-clipboard-line me-2" aria-hidden="true"></i>Inventaires</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
+            <a href="{% url 'stock:depot_list' %}"
+               class="nav-link{% if ns == 'stock' and 'depot' in url_name %} is-active{% endif %}"
+               {% if ns == 'stock' and 'depot' in url_name %}aria-current="page"{% endif %}>
+                <i class="ri-inbox-archive-line" aria-hidden="true"></i>
+                <span>Dépôts</span>
+            </a>
         </li>
 
 
-        <!-- APPROVISIONNEMENT -->
-        <li class="menu-title"><span>Approvisionnement</span></li>
+        <!-- =================== À VENIR =================== -->
+        <li class="menu-title"><span>Prochainement</span></li>
 
         <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-truck-line me-2" aria-hidden="true"></i>Fournisseurs</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
+            <a class="nav-link menu-link collapsed"
+               href="#stockMenuSoon"
+               data-bs-toggle="collapse"
+               role="button"
+               aria-expanded="false"
+               aria-controls="stockMenuSoon">
+                <i class="ri-time-line" aria-hidden="true"></i>
+                <span>Fonctions à venir</span>
+                <span class="menu-count">13</span>
+            </a>
 
+            <div class="collapse menu-dropdown" id="stockMenuSoon">
 
-        <!-- SUIVI ET RAPPORTS -->
-        <li class="menu-title"><span>Suivi et rapports</span></li>
+                <p class="soon-group">Stocks et mouvements</p>
+                <ul class="soon-list">
+                    <li><i class="ri-archive-stack-line" aria-hidden="true"></i>Stocks</li>
+                    <li><i class="ri-box-3-line" aria-hidden="true"></i>Lots</li>
+                    <li><i class="ri-login-box-line" aria-hidden="true"></i>Entrées</li>
+                    <li><i class="ri-logout-box-line" aria-hidden="true"></i>Sorties</li>
+                    <li><i class="ri-arrow-left-right-line" aria-hidden="true"></i>Transferts</li>
+                    <li><i class="ri-equalizer-line" aria-hidden="true"></i>Ajustements</li>
+                    <li><i class="ri-clipboard-line" aria-hidden="true"></i>Inventaires</li>
+                </ul>
 
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-exchange-line me-2" aria-hidden="true"></i>Mouvements</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
+                <p class="soon-group">Achats</p>
+                <ul class="soon-list">
+                    <li><i class="ri-truck-line" aria-hidden="true"></i>Fournisseurs</li>
+                    <li><i class="ri-price-tag-3-line" aria-hidden="true"></i>Catalogue et tarifs</li>
+                </ul>
 
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-bar-chart-2-line me-2" aria-hidden="true"></i>État des stocks</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
+                <p class="soon-group">Suivi et rapports</p>
+                <ul class="soon-list">
+                    <li><i class="ri-exchange-line" aria-hidden="true"></i>Mouvements</li>
+                    <li><i class="ri-bar-chart-2-line" aria-hidden="true"></i>État des stocks</li>
+                    <li><i class="ri-alarm-warning-line" aria-hidden="true"></i>Alertes de stock</li>
+                    <li><i class="ri-calendar-close-line" aria-hidden="true"></i>Péremptions proches</li>
+                </ul>
 
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-alarm-warning-line me-2" aria-hidden="true"></i>Alertes de stock</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
-        </li>
-
-        <li class="nav-item">
-            <span class="nav-link is-soon" aria-disabled="true">
-                <span><i class="ri-calendar-close-line me-2" aria-hidden="true"></i>Péremptions proches</span>
-                <span class="menu-soon">Bientôt</span>
-            </span>
+            </div>
         </li>
 
     </ul>

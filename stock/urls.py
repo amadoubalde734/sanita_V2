@@ -84,4 +84,38 @@ urlpatterns = [
         views.famille_toggle,
         name="famille_toggle",
     ),
+
+    # ========================================================
+    # DÉPÔTS DE STOCK
+    # ========================================================
+
+    path(
+        "depots/",
+        views.depot_list,
+        name="depot_list",
+    ),
+
+    path(
+        "depots/nouveau/",
+        views.depot_create,
+        name="depot_create",
+    ),
+
+    path(
+        "depots/<int:pk>/",
+        views.depot_detail,
+        name="depot_detail",
+    ),
+
+    path(
+        "depots/<int:pk>/modifier/",
+        views.depot_update,
+        name="depot_update",
+    ),
+
+    path(
+        "depots/<int:pk>/toggle/",
+        views.depot_toggle,
+        name="depot_toggle",
+    ),
 ]

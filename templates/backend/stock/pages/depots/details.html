@@ -1,0 +1,1229 @@
+{% extends "backend/stock/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    /* ============================================================
+       TOKENS
+       ============================================================ */
+    .depot-detail {
+        --brand-900: #0b3d3a;
+        --brand-700: #0f5c56;
+        --brand-600: #12766e;
+        --brand-100: #d6ece8;
+        --brand-50:  #eef7f5;
+
+        --ink-900: #111827;
+        --ink-700: #374151;
+        --ink-500: #6b7280;
+        --ink-400: #9ca3af;
+
+        --line:       #e5e7eb;
+        --line-soft:  #f1f2f4;
+        --field-line: #d5dae0;
+        --surface:    #ffffff;
+        --canvas:     #f7f9f9;
+
+        --ok-bg: #e9f6ef;
+        --ok-fg: #146c43;
+
+        --off-bg: #f3f4f6;
+        --off-fg: #4b5563;
+
+        --warn-bg: #fdf6e3;
+        --warn-fg: #9a6700;
+
+        --err-bg: #fef3f2;
+        --err-fg: #b42318;
+
+        --radius-lg: 14px;
+        --radius-md: 8px;
+        --radius-sm: 6px;
+
+        color: var(--ink-900);
+        font-size: 14px;
+    }
+
+    .depot-detail *,
+    .depot-detail *::before,
+    .depot-detail *::after {
+        box-sizing: border-box;
+    }
+
+    .depot-detail a:focus-visible,
+    .depot-detail button:focus-visible {
+        outline: 2px solid var(--brand-600);
+        outline-offset: 2px;
+    }
+
+    .depot-detail-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas,
+                     "Liberation Mono", monospace;
+    }
+
+    /* ============================================================
+       BOUTONS
+       ============================================================ */
+    .depot-detail-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        background: none;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+            background-color .15s ease,
+            border-color .15s ease,
+            color .15s ease;
+    }
+
+    .depot-detail-btn i {
+        font-size: 17px;
+    }
+
+    .depot-detail-btn--primary {
+        background: var(--brand-700);
+        color: #fff;
+    }
+
+    .depot-detail-btn--primary:hover {
+        background: var(--brand-900);
+        color: #fff;
+    }
+
+    .depot-detail-btn--ghost {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink-700);
+    }
+
+    .depot-detail-btn--ghost:hover {
+        border-color: #cfd4da;
+        color: var(--ink-900);
+    }
+
+    .depot-detail-btn--danger {
+        background: var(--surface);
+        border-color: #f0c5c1;
+        color: var(--err-fg);
+    }
+
+    .depot-detail-btn--danger:hover {
+        background: var(--err-bg);
+        border-color: #e8aaa4;
+        color: var(--err-fg);
+    }
+
+    .depot-detail-btn--success {
+        background: var(--surface);
+        border-color: #b9dfcb;
+        color: var(--ok-fg);
+    }
+
+    .depot-detail-btn--success:hover {
+        background: var(--ok-bg);
+        border-color: #9dceb6;
+        color: var(--ok-fg);
+    }
+
+    /* ============================================================
+       EN-TÊTE
+       ============================================================ */
+    .depot-detail-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding-bottom: 22px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .depot-detail-head__main {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .depot-detail-head__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 27px;
+    }
+
+    .depot-detail-head__crumb {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 5px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .depot-detail-head__crumb a {
+        color: var(--ink-500);
+        text-decoration: none;
+    }
+
+    .depot-detail-head__crumb a:hover {
+        color: var(--brand-700);
+        text-decoration: underline;
+    }
+
+    .depot-detail-head__crumb [aria-current] {
+        color: var(--ink-700);
+    }
+
+    .depot-detail-head h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -.015em;
+        line-height: 1.25;
+    }
+
+    .depot-detail-head__subtitle {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .depot-detail-head__actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       BADGES
+       ============================================================ */
+    .depot-detail-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .depot-detail-status::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .depot-detail-status--on {
+        background: var(--ok-bg);
+        color: var(--ok-fg);
+    }
+
+    .depot-detail-status--off {
+        background: var(--off-bg);
+        color: var(--off-fg);
+    }
+
+    .depot-detail-principal {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--warn-bg);
+        color: var(--warn-fg);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .depot-detail-code {
+        display: inline-flex;
+        align-items: center;
+        min-height: 27px;
+        padding: 3px 9px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        background: var(--canvas);
+        color: var(--ink-700);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+    }
+
+    /* ============================================================
+       GRILLE PRINCIPALE
+       ============================================================ */
+    .depot-detail-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(300px, .85fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    /* ============================================================
+       CARTES
+       ============================================================ */
+    .depot-detail-card {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+    }
+
+    .depot-detail-card + .depot-detail-card {
+        margin-top: 20px;
+    }
+
+    .depot-detail-card__head {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--line);
+        background: var(--canvas);
+    }
+
+    .depot-detail-card__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 19px;
+    }
+
+    .depot-detail-card__head h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--ink-900);
+    }
+
+    .depot-detail-card__head p {
+        margin: 3px 0 0;
+        font-size: 12.5px;
+        color: var(--ink-500);
+    }
+
+    .depot-detail-card__body {
+        padding: 20px;
+    }
+
+    /* ============================================================
+       INFORMATIONS
+       ============================================================ */
+    .depot-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 24px;
+    }
+
+    .depot-info--full {
+        grid-column: 1 / -1;
+    }
+
+    .depot-info__label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 6px;
+        color: var(--ink-500);
+        font-size: 12.5px;
+        font-weight: 500;
+    }
+
+    .depot-info__value {
+        color: var(--ink-900);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    .depot-info__value--normal {
+        font-weight: 400;
+        color: var(--ink-700);
+    }
+
+    .depot-info__value--muted {
+        color: var(--ink-400);
+        font-weight: 400;
+    }
+
+    .depot-info__value a {
+        color: var(--brand-700);
+        text-decoration: none;
+    }
+
+    .depot-info__value a:hover {
+        text-decoration: underline;
+    }
+
+    /* ============================================================
+       PHARMACIE
+       ============================================================ */
+    .depot-pharmacie-box {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 15px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--canvas);
+    }
+
+    .depot-pharmacie-box__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 21px;
+    }
+
+    .depot-pharmacie-box__name {
+        display: block;
+        color: var(--ink-900);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .depot-pharmacie-box__text {
+        display: block;
+        margin-top: 3px;
+        color: var(--ink-500);
+        font-size: 12.5px;
+    }
+
+    /* ============================================================
+       DESCRIPTION
+       ============================================================ */
+    .depot-description {
+        padding: 14px 16px;
+        border: 1px solid var(--line-soft);
+        border-radius: var(--radius-md);
+        background: #fafbfb;
+        color: var(--ink-700);
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+    /* ============================================================
+       INFORMATIONS TECHNIQUES
+       ============================================================ */
+    .depot-meta-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .depot-meta-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line-soft);
+    }
+
+    .depot-meta-item:first-child {
+        padding-top: 0;
+    }
+
+    .depot-meta-item:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .depot-meta-item__label {
+        color: var(--ink-500);
+        font-size: 12.5px;
+    }
+
+    .depot-meta-item__value {
+        color: var(--ink-700);
+        font-size: 13px;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    /* ============================================================
+       STOCK — PRÉPARATION FUTURE
+       ============================================================ */
+    .depot-future {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border: 1px dashed #b8d8d3;
+        border-radius: var(--radius-md);
+        background: var(--brand-50);
+    }
+
+    .depot-future__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: #fff;
+        color: var(--brand-700);
+        font-size: 17px;
+    }
+
+    .depot-future strong {
+        display: block;
+        color: var(--brand-900);
+        font-size: 13px;
+    }
+
+    .depot-future p {
+        margin: 3px 0 0;
+        color: var(--brand-700);
+        font-size: 12.5px;
+        line-height: 1.45;
+    }
+
+    /* ============================================================
+       ACTIONS CARD
+       ============================================================ */
+    .depot-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .depot-actions .depot-detail-btn {
+        width: 100%;
+    }
+
+    .depot-actions__separator {
+        height: 1px;
+        margin: 4px 0;
+        background: var(--line);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1000px) {
+        .depot-detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .depot-detail-head__icon {
+            display: none;
+        }
+
+        .depot-detail-head__actions {
+            width: 100%;
+        }
+
+        .depot-detail-head__actions .depot-detail-btn {
+            flex: 1;
+        }
+
+        .depot-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .depot-info--full {
+            grid-column: auto;
+        }
+
+        .depot-detail-card__body {
+            padding: 16px;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .depot-detail-head__actions {
+            flex-direction: column;
+        }
+
+        .depot-detail-head__actions .depot-detail-btn {
+            width: 100%;
+        }
+
+        .depot-detail-head h1 {
+            font-size: 22px;
+        }
+
+        .depot-meta-item {
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .depot-meta-item__value {
+            text-align: left;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .depot-detail * {
+            transition: none !important;
+        }
+    }
+</style>
+
+
+<div class="depot-detail">
+
+    <!-- ========================================================
+         EN-TÊTE
+         ======================================================== -->
+    <header class="depot-detail-head">
+
+        <div class="depot-detail-head__main">
+
+            <span class="depot-detail-head__icon" aria-hidden="true">
+                <i class="ri-archive-stack-line"></i>
+            </span>
+
+            <div>
+
+                <nav class="depot-detail-head__crumb"
+                     aria-label="Fil d'Ariane">
+
+                    <a href="{% url 'stock:index' %}">
+                        Stock
+                    </a>
+
+                    <span aria-hidden="true">/</span>
+
+                    <a href="{% url 'stock:depot_list' %}">
+                        Dépôts
+                    </a>
+
+                    <span aria-hidden="true">/</span>
+
+                    <span aria-current="page">
+                        {{ depot.nom }}
+                    </span>
+
+                </nav>
+
+
+                <h1>
+                    {{ depot.nom }}
+                </h1>
+
+
+                <div class="depot-detail-head__subtitle">
+
+                    <span class="depot-detail-code depot-detail-mono">
+                        {{ depot.code }}
+                    </span>
+
+
+                    {% if depot.est_principal %}
+
+                        <span class="depot-detail-principal">
+                            <i class="ri-star-fill"
+                               aria-hidden="true"></i>
+                            Dépôt principal
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if depot.actif %}
+
+                        <span class="depot-detail-status depot-detail-status--on">
+                            Actif
+                        </span>
+
+                    {% else %}
+
+                        <span class="depot-detail-status depot-detail-status--off">
+                            Inactif
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="depot-detail-head__actions">
+
+            <a href="{% url 'stock:depot_list' %}"
+               class="depot-detail-btn depot-detail-btn--ghost">
+
+                <i class="ri-arrow-left-line"
+                   aria-hidden="true"></i>
+
+                Retour aux dépôts
+
+            </a>
+
+
+            <a href="{% url 'stock:depot_update' depot.pk %}"
+               class="depot-detail-btn depot-detail-btn--primary">
+
+                <i class="ri-pencil-line"
+                   aria-hidden="true"></i>
+
+                Modifier
+
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================================
+         CONTENU
+         ======================================================== -->
+    <div class="depot-detail-grid">
+
+
+        <!-- ====================================================
+             COLONNE PRINCIPALE
+             ==================================================== -->
+        <main>
+
+
+            <!-- =================================================
+                 INFORMATIONS DU DÉPÔT
+                 ================================================= -->
+            <section class="depot-detail-card">
+
+                <div class="depot-detail-card__head">
+
+                    <span class="depot-detail-card__icon"
+                          aria-hidden="true">
+
+                        <i class="ri-information-line"></i>
+
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Informations du dépôt
+                        </h2>
+
+                        <p>
+                            Informations générales et rattachement.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="depot-detail-card__body">
+
+                    <div class="depot-info-grid">
+
+
+                        <!-- PHARMACIE -->
+                        <div class="depot-info depot-info--full">
+
+                            <span class="depot-info__label">
+                                <i class="ri-hospital-line"
+                                   aria-hidden="true"></i>
+
+                                Pharmacie
+                            </span>
+
+
+                            <div class="depot-pharmacie-box">
+
+                                <span class="depot-pharmacie-box__icon"
+                                      aria-hidden="true">
+
+                                    <i class="ri-hospital-line"></i>
+
+                                </span>
+
+                                <div>
+
+                                    <span class="depot-pharmacie-box__name">
+                                        {{ depot.pharmacie }}
+                                    </span>
+
+                                    <span class="depot-pharmacie-box__text">
+                                        Pharmacie de rattachement du dépôt
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CODE -->
+                        <div class="depot-info">
+
+                            <span class="depot-info__label">
+                                Code dépôt
+                            </span>
+
+                            <span class="depot-info__value depot-detail-mono">
+                                {{ depot.code }}
+                            </span>
+
+                        </div>
+
+
+                        <!-- NOM -->
+                        <div class="depot-info">
+
+                            <span class="depot-info__label">
+                                Nom
+                            </span>
+
+                            <span class="depot-info__value">
+                                {{ depot.nom }}
+                            </span>
+
+                        </div>
+
+
+                        <!-- LIEU -->
+                        <div class="depot-info depot-info--full">
+
+                            <span class="depot-info__label">
+                                <i class="ri-map-pin-line"
+                                   aria-hidden="true"></i>
+
+                                Lieu / emplacement
+                            </span>
+
+                            {% if depot.lieu %}
+
+                                <span class="depot-info__value depot-info__value--normal">
+                                    {{ depot.lieu }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="depot-info__value depot-info__value--muted">
+                                    Aucun lieu renseigné.
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- TYPE -->
+                        <div class="depot-info">
+
+                            <span class="depot-info__label">
+                                Type
+                            </span>
+
+                            <span class="depot-info__value">
+
+                                {% if depot.est_principal %}
+
+                                    <span class="depot-detail-principal">
+                                        <i class="ri-star-fill"
+                                           aria-hidden="true"></i>
+                                        Dépôt principal
+                                    </span>
+
+                                {% else %}
+
+                                    Dépôt secondaire
+
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- STATUT -->
+                        <div class="depot-info">
+
+                            <span class="depot-info__label">
+                                Statut
+                            </span>
+
+                            <span class="depot-info__value">
+
+                                {% if depot.actif %}
+
+                                    <span class="depot-detail-status depot-detail-status--on">
+                                        Actif
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="depot-detail-status depot-detail-status--off">
+                                        Inactif
+                                    </span>
+
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+                        <div class="depot-info depot-info--full">
+
+                            <span class="depot-info__label">
+                                Description
+                            </span>
+
+                            {% if depot.description %}
+
+                                <div class="depot-description">
+                                    {{ depot.description }}
+                                </div>
+
+                            {% else %}
+
+                                <span class="depot-info__value depot-info__value--muted">
+                                    Aucune description renseignée.
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 STOCK FUTUR
+                 ================================================= -->
+            <section class="depot-detail-card">
+
+                <div class="depot-detail-card__head">
+
+                    <span class="depot-detail-card__icon"
+                          aria-hidden="true">
+
+                        <i class="ri-stack-line"></i>
+
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Gestion du stock
+                        </h2>
+
+                        <p>
+                            Stocks et mouvements associés à ce dépôt.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="depot-detail-card__body">
+
+                    <div class="depot-future">
+
+                        <span class="depot-future__icon"
+                              aria-hidden="true">
+
+                            <i class="ri-information-line"></i>
+
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Gestion des stocks à venir
+                            </strong>
+
+                            <p>
+                                Les quantités disponibles, les lots,
+                                les entrées, sorties, transferts et
+                                mouvements seront gérés dans les
+                                modules de stock correspondants.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+
+        <!-- ====================================================
+             COLONNE LATÉRALE
+             ==================================================== -->
+        <aside>
+
+
+            <!-- =================================================
+                 ACTIONS
+                 ================================================= -->
+            <section class="depot-detail-card">
+
+                <div class="depot-detail-card__head">
+
+                    <span class="depot-detail-card__icon"
+                          aria-hidden="true">
+
+                        <i class="ri-settings-3-line"></i>
+
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Actions
+                        </h2>
+
+                        <p>
+                            Gestion du dépôt.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="depot-detail-card__body">
+
+                    <div class="depot-actions">
+
+
+                        <a href="{% url 'stock:depot_update' depot.pk %}"
+                           class="depot-detail-btn depot-detail-btn--primary">
+
+                            <i class="ri-pencil-line"
+                               aria-hidden="true"></i>
+
+                            Modifier le dépôt
+
+                        </a>
+
+
+                        <div class="depot-actions__separator"></div>
+
+
+                        <form method="post"
+                              action="{% url 'stock:depot_toggle' depot.pk %}"
+                              data-confirm="{% if depot.actif %}Désactiver le dépôt « {{ depot.nom }} » ? Le dépôt ne sera plus considéré comme actif.{% else %}Réactiver le dépôt « {{ depot.nom }} » ?{% endif %}">
+
+                            {% csrf_token %}
+
+                            {% if depot.actif %}
+
+                                <button type="submit"
+                                        class="depot-detail-btn depot-detail-btn--danger">
+
+                                    <i class="ri-pause-circle-line"
+                                       aria-hidden="true"></i>
+
+                                    Désactiver le dépôt
+
+                                </button>
+
+                            {% else %}
+
+                                <button type="submit"
+                                        class="depot-detail-btn depot-detail-btn--success">
+
+                                    <i class="ri-play-circle-line"
+                                       aria-hidden="true"></i>
+
+                                    Réactiver le dépôt
+
+                                </button>
+
+                            {% endif %}
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 INFORMATIONS TECHNIQUES
+                 ================================================= -->
+            <section class="depot-detail-card">
+
+                <div class="depot-detail-card__head">
+
+                    <span class="depot-detail-card__icon"
+                          aria-hidden="true">
+
+                        <i class="ri-time-line"></i>
+
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Informations techniques
+                        </h2>
+
+                        <p>
+                            Suivi de l'enregistrement.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="depot-detail-card__body">
+
+                    <ul class="depot-meta-list">
+
+
+                        <li class="depot-meta-item">
+
+                            <span class="depot-meta-item__label">
+                                Identifiant
+                            </span>
+
+                            <span class="depot-meta-item__value depot-detail-mono">
+                                #{{ depot.pk }}
+                            </span>
+
+                        </li>
+
+
+                        <li class="depot-meta-item">
+
+                            <span class="depot-meta-item__label">
+                                Créé le
+                            </span>
+
+                            <span class="depot-meta-item__value">
+
+                                {{ depot.date_creation|date:"d/m/Y à H:i" }}
+
+                            </span>
+
+                        </li>
+
+
+                        <li class="depot-meta-item">
+
+                            <span class="depot-meta-item__label">
+                                Dernière modification
+                            </span>
+
+                            <span class="depot-meta-item__value">
+
+                                {{ depot.date_modification|date:"d/m/Y à H:i" }}
+
+                            </span>
+
+                        </li>
+
+
+                        <li class="depot-meta-item">
+
+                            <span class="depot-meta-item__label">
+                                Statut système
+                            </span>
+
+                            <span class="depot-meta-item__value">
+
+                                {{ depot.statut|default:"—" }}
+
+                            </span>
+
+                        </li>
+
+
+                    </ul>
+
+                </div>
+
+            </section>
+
+
+        </aside>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     COMPORTEMENTS
+     ============================================================ -->
+<script>
+(function () {
+
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+
+            form.addEventListener('submit', function (event) {
+
+                var message = form.getAttribute('data-confirm');
+
+                if (!window.confirm(message)) {
+                    event.preventDefault();
+                }
+
+            });
+
+        });
+
+    });
+
+})();
+</script>
+
+{% endblock %}

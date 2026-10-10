@@ -1,0 +1,1486 @@
+{% extends "backend/stock/base.html" %}
+{% load static %}
+
+{% block inner_content %}
+
+{% include 'backend/includes/message.html' %}
+
+<style>
+    /* ============================================================
+       TOKENS
+       ============================================================ */
+    .depot {
+        --brand-900: #0b3d3a;
+        --brand-700: #0f5c56;
+        --brand-600: #12766e;
+        --brand-100: #d6ece8;
+        --brand-50:  #eef7f5;
+
+        --ink-900: #111827;
+        --ink-700: #374151;
+        --ink-500: #6b7280;
+        --ink-400: #9ca3af;
+
+        --line:       #e5e7eb;
+        --line-soft:  #f1f2f4;
+        --field-line: #d5dae0;
+        --surface:    #ffffff;
+        --canvas:     #f7f9f9;
+
+        --ok-bg: #e9f6ef;
+        --ok-fg: #146c43;
+
+        --off-bg: #f3f4f6;
+        --off-fg: #4b5563;
+
+        --warn-bg: #fdf6e3;
+        --warn-fg: #9a6700;
+
+        --err-bg: #fef3f2;
+        --err-fg: #b42318;
+
+        --radius-lg: 14px;
+        --radius-md: 8px;
+        --radius-sm: 6px;
+
+        color: var(--ink-900);
+        font-size: 14px;
+    }
+
+    .depot *,
+    .depot *::before,
+    .depot *::after {
+        box-sizing: border-box;
+    }
+
+    .depot a:focus-visible,
+    .depot button:focus-visible,
+    .depot input:focus-visible,
+    .depot select:focus-visible {
+        outline: 2px solid var(--brand-600);
+        outline-offset: 2px;
+    }
+
+    .depot-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas,
+                     "Liberation Mono", monospace;
+    }
+
+    /* ============================================================
+       BOUTONS
+       ============================================================ */
+    .depot-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        background: none;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+            background-color .15s ease,
+            border-color .15s ease,
+            color .15s ease;
+    }
+
+    .depot-btn i {
+        font-size: 17px;
+    }
+
+    .depot-btn--primary {
+        background: var(--brand-700);
+        color: #fff;
+    }
+
+    .depot-btn--primary:hover {
+        background: var(--brand-900);
+        color: #fff;
+    }
+
+    .depot-btn--ghost {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink-700);
+    }
+
+    .depot-btn--ghost:hover {
+        border-color: #cfd4da;
+        color: var(--ink-900);
+    }
+
+    .depot-kbd {
+        padding: 1px 6px;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        background: var(--surface);
+        font-family: inherit;
+        font-size: 11.5px;
+        color: var(--ink-500);
+    }
+
+    /* ============================================================
+       EN-TÊTE
+       ============================================================ */
+    .depot-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 22px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .depot-head__main {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .depot-head__icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 24px;
+    }
+
+    .depot-head__crumb {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .depot-head__crumb a {
+        color: var(--ink-500);
+        text-decoration: none;
+    }
+
+    .depot-head__crumb a:hover {
+        color: var(--brand-700);
+        text-decoration: underline;
+    }
+
+    .depot-head__crumb [aria-current] {
+        color: var(--ink-700);
+    }
+
+    .depot-head h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -.015em;
+        line-height: 1.25;
+    }
+
+    .depot-head p {
+        max-width: 64ch;
+        margin: 6px 0 0;
+        color: var(--ink-500);
+        line-height: 1.5;
+    }
+
+    .depot-head__actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       SYNTHÈSE
+       ============================================================ */
+    .depot-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .depot-stat {
+        display: block;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .depot-stat:hover {
+        border-color: #cfd4da;
+        color: inherit;
+    }
+
+    .depot-stat__label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .depot-stat__label i {
+        font-size: 16px;
+    }
+
+    .depot-stat__value {
+        margin-top: 6px;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -.01em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .depot-stat--total .depot-stat__label i {
+        color: var(--brand-700);
+    }
+
+    .depot-stat--on .depot-stat__label i {
+        color: var(--ok-fg);
+    }
+
+    .depot-stat--off .depot-stat__label i {
+        color: var(--ink-400);
+    }
+
+    .depot-stat--principal .depot-stat__label i {
+        color: var(--warn-fg);
+    }
+
+    /* ============================================================
+       PANNEAU / FILTRES
+       ============================================================ */
+    .depot-panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .depot-toolbar {
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--canvas);
+    }
+
+    .depot-toolbar__grid {
+        display: grid;
+        grid-template-columns: minmax(240px, 1fr) 200px 170px auto;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .depot-control {
+        position: relative;
+    }
+
+    .depot-control__icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 17px;
+        color: var(--ink-400);
+        pointer-events: none;
+    }
+
+    .depot-control__hint {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .depot-toolbar input,
+    .depot-toolbar select {
+        display: block;
+        width: 100%;
+        min-height: 40px;
+        padding: 8px 12px;
+        border: 1px solid var(--field-line);
+        border-radius: var(--radius-md);
+        background-color: var(--surface);
+        color: var(--ink-900);
+        font-size: 14px;
+        transition:
+            border-color .15s ease,
+            box-shadow .15s ease;
+    }
+
+    .depot-toolbar input[type="search"] {
+        padding-left: 38px;
+        padding-right: 40px;
+    }
+
+    .depot-toolbar select {
+        appearance: none;
+        padding-right: 36px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+    }
+
+    .depot-toolbar input:hover,
+    .depot-toolbar select:hover {
+        border-color: #b9c0c8;
+    }
+
+    .depot-toolbar input:focus,
+    .depot-toolbar select:focus {
+        outline: none;
+        border-color: var(--brand-600);
+        box-shadow: 0 0 0 3px rgba(18, 118, 110, .15);
+    }
+
+    .depot-toolbar__meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--ink-500);
+    }
+
+    .depot-toolbar__meta strong {
+        color: var(--ink-900);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .depot-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .depot-chip {
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--brand-100);
+        color: var(--brand-900);
+        font-size: 12.5px;
+        font-weight: 600;
+    }
+
+    .depot-link {
+        color: var(--brand-700);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .depot-link:hover {
+        text-decoration: underline;
+    }
+
+    /* ============================================================
+       TABLEAU
+       ============================================================ */
+    .depot-table-wrap {
+        overflow-x: auto;
+    }
+
+    .depot-table {
+        width: 100%;
+        min-width: 900px;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .depot-table thead th {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-500);
+        font-size: 12.5px;
+        font-weight: 600;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .depot-table .end {
+        text-align: right;
+    }
+
+    .depot-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line-soft);
+        color: var(--ink-700);
+        font-size: 13.5px;
+        vertical-align: middle;
+    }
+
+    .depot-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .depot-table tbody tr:hover {
+        background: #fafbfb;
+    }
+
+    .depot-table tbody tr.is-inactive td {
+        color: var(--ink-400);
+    }
+
+    /* ============================================================
+       CELLULE DÉPÔT
+       ============================================================ */
+    .depot-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .depot-icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border: 1px solid #cde4df;
+        border-radius: var(--radius-md);
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 19px;
+    }
+
+    .is-inactive .depot-icon {
+        border-color: var(--line);
+        background: var(--off-bg);
+        color: var(--ink-400);
+    }
+
+    .depot-name {
+        display: block;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--ink-900);
+    }
+
+    .is-inactive .depot-name {
+        color: var(--ink-500);
+    }
+
+    .depot-code {
+        display: inline-flex;
+        margin-top: 4px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        background: var(--canvas);
+        color: var(--ink-500);
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: .03em;
+    }
+
+    /* ============================================================
+       PHARMACIE
+       ============================================================ */
+    .depot-pharmacie {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .depot-pharmacie i {
+        margin-top: 2px;
+        color: var(--brand-600);
+        font-size: 16px;
+    }
+
+    .depot-pharmacie__name {
+        font-weight: 600;
+        color: var(--ink-700);
+    }
+
+    /* ============================================================
+       LIEU
+       ============================================================ */
+    .depot-lieu {
+        max-width: 30ch;
+        line-height: 1.45;
+    }
+
+    .depot-dash {
+        color: var(--ink-400);
+    }
+
+    /* ============================================================
+       PRINCIPAL
+       ============================================================ */
+    .depot-principal {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--warn-bg);
+        color: var(--warn-fg);
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .depot-principal i {
+        font-size: 14px;
+    }
+
+    .depot-standard {
+        color: var(--ink-400);
+        font-size: 13px;
+    }
+
+    /* ============================================================
+       STATUT
+       ============================================================ */
+    .depot-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .depot-status::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .depot-status--on {
+        background: var(--ok-bg);
+        color: var(--ok-fg);
+    }
+
+    .depot-status--off {
+        background: var(--off-bg);
+        color: var(--off-fg);
+    }
+
+    /* ============================================================
+       ACTIONS
+       ============================================================ */
+    .depot-row-actions {
+        display: inline-flex;
+        gap: 2px;
+    }
+
+    .depot-row-actions form {
+        margin: 0;
+    }
+
+    .depot-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--ink-500);
+        font-size: 17px;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+            background-color .15s ease,
+            color .15s ease;
+    }
+
+    .depot-icon-btn:hover {
+        background: var(--brand-50);
+        color: var(--brand-700);
+    }
+
+    .depot-icon-btn--danger:hover {
+        background: var(--err-bg);
+        color: var(--err-fg);
+    }
+
+    .depot-icon-btn--success:hover {
+        background: var(--ok-bg);
+        color: var(--ok-fg);
+    }
+
+    /* ============================================================
+       ÉTAT VIDE
+       ============================================================ */
+    .depot-empty {
+        padding: 64px 20px;
+        text-align: center;
+    }
+
+    .depot-empty__icon {
+        display: grid;
+        place-items: center;
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 14px;
+        border-radius: 14px;
+        background: var(--brand-50);
+        color: var(--brand-700);
+        font-size: 26px;
+    }
+
+    .depot-empty h2 {
+        margin: 0 0 6px;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .depot-empty p {
+        max-width: 46ch;
+        margin: 0 auto 18px;
+        color: var(--ink-500);
+    }
+
+    .depot-empty__actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1200px) {
+        .depot-toolbar__grid {
+            grid-template-columns: minmax(220px, 1fr) 180px 160px auto;
+        }
+    }
+
+    @media (max-width: 1100px) {
+        .depot-summary {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .depot-toolbar__grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .depot-toolbar__grid .depot-btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .depot-head__icon,
+        .depot-control__hint {
+            display: none;
+        }
+
+        .depot-head__actions,
+        .depot-head__actions .depot-btn {
+            width: 100%;
+        }
+
+        .depot-toolbar__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .depot-toolbar__grid .depot-btn {
+            width: 100%;
+        }
+
+        .depot-table {
+            min-width: 0;
+        }
+
+        .depot-table thead {
+            display: none;
+        }
+
+        .depot-table,
+        .depot-table tbody,
+        .depot-table tr,
+        .depot-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .depot-table tbody tr {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .depot-table tbody td {
+            padding: 0;
+            border: 0;
+        }
+
+        .depot-table td[data-label]::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--ink-500);
+        }
+
+        .depot-table .cell-main,
+        .depot-table .cell-pharmacie,
+        .depot-table .cell-actions {
+            grid-column: 1 / -1;
+        }
+
+        .depot-table .cell-actions {
+            padding-top: 10px;
+            border-top: 1px solid var(--line-soft);
+            text-align: left;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .depot * {
+            transition: none !important;
+        }
+    }
+</style>
+
+
+<div class="depot">
+
+    <!-- ========================================================
+         EN-TÊTE
+         ======================================================== -->
+    <header class="depot-head">
+
+        <div class="depot-head__main">
+
+            <span class="depot-head__icon" aria-hidden="true">
+                <i class="ri-archive-stack-line"></i>
+            </span>
+
+            <div>
+
+                <nav class="depot-head__crumb" aria-label="Fil d'Ariane">
+                    <a href="{% url 'stock:index' %}">Stock</a>
+                    <span aria-hidden="true">/</span>
+                    <span aria-current="page">Dépôts</span>
+                </nav>
+
+                <h1>Dépôts de stock</h1>
+
+                <p>
+                    Gérez les dépôts associés aux pharmacies et définissez,
+                    pour chaque pharmacie, son dépôt principal.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="depot-head__actions">
+
+            <a href="{% url 'stock:index' %}" class="depot-btn depot-btn--ghost">
+                <i class="ri-dashboard-line" aria-hidden="true"></i>
+                Tableau de bord
+            </a>
+
+            <a href="{% url 'stock:depot_create' %}" class="depot-btn depot-btn--primary">
+                <i class="ri-add-line" aria-hidden="true"></i>
+                Nouveau dépôt
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================================
+         SYNTHÈSE
+         ======================================================== -->
+    <section class="depot-summary" aria-label="Synthèse des dépôts">
+
+        <div class="depot-stat depot-stat--total">
+            <span class="depot-stat__label">
+                <i class="ri-archive-stack-line" aria-hidden="true"></i>
+                Dépôts
+            </span>
+
+            <span class="depot-stat__value">
+                {{ depots|length }}
+            </span>
+        </div>
+
+
+        <div class="depot-stat depot-stat--on">
+            <span class="depot-stat__label">
+                <i class="ri-checkbox-circle-line" aria-hidden="true"></i>
+                Actifs
+            </span>
+
+            <span class="depot-stat__value">
+                {% with actifs=0 %}
+                    {% for depot in depots %}
+                        {% if depot.actif %}
+                            {% with actifs=actifs|add:"1" %}{% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ actifs }}
+                {% endwith %}
+            </span>
+        </div>
+
+
+        <div class="depot-stat depot-stat--off">
+            <span class="depot-stat__label">
+                <i class="ri-pause-circle-line" aria-hidden="true"></i>
+                Inactifs
+            </span>
+
+            <span class="depot-stat__value">
+                {% with inactifs=0 %}
+                    {% for depot in depots %}
+                        {% if not depot.actif %}
+                            {% with inactifs=inactifs|add:"1" %}{% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ inactifs }}
+                {% endwith %}
+            </span>
+        </div>
+
+
+        <div class="depot-stat depot-stat--principal">
+            <span class="depot-stat__label">
+                <i class="ri-star-line" aria-hidden="true"></i>
+                Dépôts principaux
+            </span>
+
+            <span class="depot-stat__value">
+                {% with principaux=0 %}
+                    {% for depot in depots %}
+                        {% if depot.est_principal %}
+                            {% with principaux=principaux|add:"1" %}{% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ principaux }}
+                {% endwith %}
+            </span>
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================
+         LISTE
+         ======================================================== -->
+    <section class="depot-panel" aria-label="Liste des dépôts">
+
+        <!-- FILTRES -->
+        <div class="depot-toolbar">
+
+            <form method="get"
+                  action="{% url 'stock:depot_list' %}"
+                  role="search"
+                  id="depot-filters">
+
+                <div class="depot-toolbar__grid">
+
+                    <!-- RECHERCHE -->
+                    <div class="depot-control">
+
+                        <i class="ri-search-line depot-control__icon"
+                           aria-hidden="true"></i>
+
+                        <label for="depot-q"
+                               class="visually-hidden">
+                            Rechercher un dépôt
+                        </label>
+
+                        <input
+                            id="depot-q"
+                            type="search"
+                            name="q"
+                            value="{{ recherche|default:'' }}"
+                            placeholder="Code, nom, lieu ou pharmacie"
+                            autocomplete="off"
+                            aria-keyshortcuts="/"
+                        >
+
+                        <span class="depot-control__hint"
+                              aria-hidden="true">
+                            <kbd class="depot-kbd">/</kbd>
+                        </span>
+
+                    </div>
+
+
+                    <!-- STATUT -->
+                    <div>
+
+                        <label for="depot-statut"
+                               class="visually-hidden">
+                            Statut
+                        </label>
+
+                        <select id="depot-statut"
+                                name="statut"
+                                data-autosubmit>
+
+                            <option value="">
+                                Tous les statuts
+                            </option>
+
+                            <option value="actif"
+                                    {% if statut == "actif" %}selected{% endif %}>
+                                Actifs
+                            </option>
+
+                            <option value="inactif"
+                                    {% if statut == "inactif" %}selected{% endif %}>
+                                Inactifs
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- PRINCIPAL -->
+                    <div>
+
+                        <label for="depot-principal"
+                               class="visually-hidden">
+                            Type de dépôt
+                        </label>
+
+                        <select id="depot-principal"
+                                name="principal"
+                                data-autosubmit>
+
+                            <option value="">
+                                Tous les dépôts
+                            </option>
+
+                            <option value="oui"
+                                    {% if principal == "oui" %}selected{% endif %}>
+                                Principaux
+                            </option>
+
+                            <option value="non"
+                                    {% if principal == "non" %}selected{% endif %}>
+                                Secondaires
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- RECHERCHER -->
+                    <button type="submit"
+                            class="depot-btn depot-btn--primary">
+
+                        <i class="ri-search-line"
+                           aria-hidden="true"></i>
+
+                        Rechercher
+
+                    </button>
+
+                </div>
+
+
+                <div class="depot-toolbar__meta">
+
+                    <span aria-live="polite">
+
+                        <strong>{{ depots|length }}</strong>
+
+                        dépôt{{ depots|length|pluralize }}
+
+                    </span>
+
+
+                    {% if recherche or statut or principal %}
+
+                        <div class="depot-chips">
+
+                            {% if recherche %}
+                                <span class="depot-chip">
+                                    « {{ recherche }} »
+                                </span>
+                            {% endif %}
+
+                            {% if statut == "actif" %}
+                                <span class="depot-chip">
+                                    Actifs
+                                </span>
+                            {% elif statut == "inactif" %}
+                                <span class="depot-chip">
+                                    Inactifs
+                                </span>
+                            {% endif %}
+
+                            {% if principal == "oui" %}
+                                <span class="depot-chip">
+                                    Principaux
+                                </span>
+                            {% elif principal == "non" %}
+                                <span class="depot-chip">
+                                    Secondaires
+                                </span>
+                            {% endif %}
+
+                            <a href="{% url 'stock:depot_list' %}"
+                               class="depot-link">
+                                Effacer les filtres
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        {% if depots %}
+
+            <div class="depot-table-wrap">
+
+                <table class="depot-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th scope="col">
+                                Dépôt
+                            </th>
+
+                            <th scope="col">
+                                Pharmacie
+                            </th>
+
+                            <th scope="col">
+                                Lieu
+                            </th>
+
+                            <th scope="col">
+                                Type
+                            </th>
+
+                            <th scope="col">
+                                Statut
+                            </th>
+
+                            <th scope="col"
+                                class="end">
+
+                                <span class="visually-hidden">
+                                    Actions
+                                </span>
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for depot in depots %}
+
+                            <tr class="{% if not depot.actif %}is-inactive{% endif %}">
+
+                                <!-- DÉPÔT -->
+                                <td class="cell-main">
+
+                                    <div class="depot-cell">
+
+                                        <span class="depot-icon"
+                                              aria-hidden="true">
+
+                                            <i class="ri-archive-stack-line"></i>
+
+                                        </span>
+
+                                        <div>
+
+                                            <a href="{% url 'stock:depot_detail' depot.pk %}"
+                                               class="depot-name"
+                                               style="text-decoration:none;">
+
+                                                {{ depot.nom }}
+
+                                            </a>
+
+                                            <span class="depot-code depot-mono">
+
+                                                {{ depot.code }}
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- PHARMACIE -->
+                                <td class="cell-pharmacie"
+                                    data-label="Pharmacie">
+
+                                    <div class="depot-pharmacie">
+
+                                        <i class="ri-hospital-line"
+                                           aria-hidden="true"></i>
+
+                                        <span class="depot-pharmacie__name">
+
+                                            {{ depot.pharmacie }}
+
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- LIEU -->
+                                <td data-label="Lieu">
+
+                                    {% if depot.lieu %}
+
+                                        <span class="depot-lieu"
+                                              title="{{ depot.lieu }}">
+
+                                            {{ depot.lieu }}
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="depot-dash">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- TYPE -->
+                                <td data-label="Type">
+
+                                    {% if depot.est_principal %}
+
+                                        <span class="depot-principal">
+
+                                            <i class="ri-star-fill"
+                                               aria-hidden="true"></i>
+
+                                            Principal
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="depot-standard">
+                                            Secondaire
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- STATUT -->
+                                <td data-label="Statut">
+
+                                    {% if depot.actif %}
+
+                                        <span class="depot-status depot-status--on">
+                                            Actif
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="depot-status depot-status--off">
+                                            Inactif
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+                                <td class="end cell-actions">
+
+                                    <div class="depot-row-actions">
+
+                                        <!-- DÉTAIL -->
+                                        <a href="{% url 'stock:depot_detail' depot.pk %}"
+                                           class="depot-icon-btn"
+                                           title="Voir le dépôt"
+                                           aria-label="Voir le dépôt {{ depot.nom }}">
+
+                                            <i class="ri-eye-line"
+                                               aria-hidden="true"></i>
+
+                                        </a>
+
+
+                                        <!-- MODIFIER -->
+                                        <a href="{% url 'stock:depot_update' depot.pk %}"
+                                           class="depot-icon-btn"
+                                           title="Modifier"
+                                           aria-label="Modifier le dépôt {{ depot.nom }}">
+
+                                            <i class="ri-pencil-line"
+                                               aria-hidden="true"></i>
+
+                                        </a>
+
+
+                                        <!-- ACTIVER / DÉSACTIVER -->
+                                        <form method="post"
+                                              action="{% url 'stock:depot_toggle' depot.pk %}"
+                                              data-confirm="{% if depot.actif %}Désactiver le dépôt « {{ depot.nom }} » ?{% else %}Réactiver le dépôt « {{ depot.nom }} » ?{% endif %}">
+
+                                            {% csrf_token %}
+
+                                            {% if depot.actif %}
+
+                                                <button type="submit"
+                                                        class="depot-icon-btn depot-icon-btn--danger"
+                                                        title="Désactiver"
+                                                        aria-label="Désactiver le dépôt {{ depot.nom }}">
+
+                                                    <i class="ri-pause-circle-line"
+                                                       aria-hidden="true"></i>
+
+                                                </button>
+
+                                            {% else %}
+
+                                                <button type="submit"
+                                                        class="depot-icon-btn depot-icon-btn--success"
+                                                        title="Réactiver"
+                                                        aria-label="Réactiver le dépôt {{ depot.nom }}">
+
+                                                    <i class="ri-play-circle-line"
+                                                       aria-hidden="true"></i>
+
+                                                </button>
+
+                                            {% endif %}
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <!-- ====================================================
+                 ÉTAT VIDE
+                 ==================================================== -->
+            <div class="depot-empty">
+
+                <div class="depot-empty__icon"
+                     aria-hidden="true">
+
+                    <i class="{% if recherche or statut or principal %}ri-search-line{% else %}ri-archive-stack-line{% endif %}"></i>
+
+                </div>
+
+
+                {% if recherche or statut or principal %}
+
+                    <h2>
+                        Aucun dépôt ne correspond
+                    </h2>
+
+                    <p>
+                        Aucun dépôt ne correspond aux critères sélectionnés.
+                        Modifiez votre recherche ou effacez les filtres.
+                    </p>
+
+                {% else %}
+
+                    <h2>
+                        Aucun dépôt pour le moment
+                    </h2>
+
+                    <p>
+                        Créez un premier dépôt pour commencer à organiser
+                        les stocks des pharmacies.
+                    </p>
+
+                {% endif %}
+
+
+                <div class="depot-empty__actions">
+
+                    {% if recherche or statut or principal %}
+
+                        <a href="{% url 'stock:depot_list' %}"
+                           class="depot-btn depot-btn--ghost">
+
+                            <i class="ri-close-line"
+                               aria-hidden="true"></i>
+
+                            Effacer les filtres
+
+                        </a>
+
+                    {% endif %}
+
+
+                    <a href="{% url 'stock:depot_create' %}"
+                       class="depot-btn depot-btn--primary">
+
+                        <i class="ri-add-line"
+                           aria-hidden="true"></i>
+
+                        Nouveau dépôt
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- ============================================================
+     COMPORTEMENTS
+     ============================================================ -->
+<script>
+(function () {
+
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        /* ========================================================
+           FILTRES AUTOMATIQUES
+           ======================================================== */
+
+        var filters = document.getElementById('depot-filters');
+        var search = document.getElementById('depot-q');
+
+        if (filters) {
+
+            filters.querySelectorAll('[data-autosubmit]').forEach(function (select) {
+
+                select.addEventListener('change', function () {
+
+                    if (filters.requestSubmit) {
+                        filters.requestSubmit();
+                    } else {
+                        filters.submit();
+                    }
+
+                });
+
+            });
+
+        }
+
+
+        /* ========================================================
+           RACCOURCI /
+           ======================================================== */
+
+        document.addEventListener('keydown', function (event) {
+
+            var tag = (event.target.tagName || '').toLowerCase();
+
+            var typing =
+                tag === 'input' ||
+                tag === 'textarea' ||
+                tag === 'select' ||
+                event.target.isContentEditable;
+
+            if (event.key === '/' && !typing && search) {
+
+                event.preventDefault();
+
+                search.focus();
+                search.select();
+
+            }
+
+        });
+
+
+        /* ========================================================
+           CONFIRMATION ACTIVATION / DÉSACTIVATION
+           ======================================================== */
+
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+
+            form.addEventListener('submit', function (event) {
+
+                var message = form.getAttribute('data-confirm');
+
+                if (!window.confirm(message)) {
+                    event.preventDefault();
+                }
+
+            });
+
+        });
+
+    });
+
+})();
+</script>
+
+{% endblock %}
