@@ -32,3 +32,4 @@ sanita_projet_db.sql
 
 # Fichier contenant une clé Mapbox
 static/backend/assets/js/pages/leaflet-map.init.js
+add_statut_slug.py
