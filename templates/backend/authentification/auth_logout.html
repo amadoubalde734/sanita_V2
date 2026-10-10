@@ -2,116 +2,125 @@
 {% load static %}
 {% block content %}
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-    .sanita-logout-wrapper {
+    .snt-out {
+        --ink: #0f2e2b;
+        --teal: #12766e;
+        --teal-dark: #0b4f4a;
+        --teal-deep: #083b37;
+        --teal-soft: #e7f4f2;
+        --line: #dfe7e5;
+        --muted: #6b7c79;
+        font-family: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        position: relative;
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 2rem 1rem;
-        background: linear-gradient(135deg, #0b3d3a 0%, #0f5c56 45%, #12766e 100%);
+        background: var(--teal-deep);
+        overflow: hidden;
+    }
+    .snt-out-grid {
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: radial-gradient(circle at center, #000 30%, transparent 75%);
     }
 
-    .sanita-logout-card {
+    .snt-out-card {
+        position: relative;
         width: 100%;
-        max-width: 440px;
-        background: #ffffff;
-        border-radius: 20px;
-        padding: 3rem 2.5rem;
+        max-width: 420px;
+        background: #fff;
+        border-radius: 18px;
+        padding: 2.5rem 2.25rem 2rem;
         text-align: center;
-        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 24px 60px -20px rgba(0,0,0,.45);
     }
+    .snt-out-logo img { height: 36px; margin-bottom: 2rem; }
 
-    .sanita-logout-logo img {
-        height: 42px;
-        margin-bottom: 2rem;
-    }
-
-    .sanita-check-circle {
-        width: 84px;
-        height: 84px;
-        margin: 0 auto 1.75rem;
+    .snt-out-icon {
+        width: 76px; height: 76px;
+        margin: 0 auto 1.5rem;
         border-radius: 50%;
-        background: #e6f5f2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: sanita-pop 0.4s ease;
+        background: var(--teal-soft);
+        display: flex; align-items: center; justify-content: center;
     }
-
-    @keyframes sanita-pop {
-        0% { transform: scale(0.6); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+    .snt-out-icon svg { width: 36px; height: 36px; }
+    .snt-out-icon polyline {
+        fill: none; stroke: var(--teal); stroke-width: 2.5;
+        stroke-linecap: round; stroke-linejoin: round;
+        stroke-dasharray: 30; stroke-dashoffset: 30;
+        animation: snt-check .5s ease-out .15s forwards;
     }
+    @keyframes snt-check { to { stroke-dashoffset: 0; } }
 
-    .sanita-check-circle svg {
-        width: 40px;
-        height: 40px;
-        stroke: #12766e;
-    }
+    .snt-out-card h1 { font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 0 0 .4rem; letter-spacing: -.01em; }
+    .snt-out-card .snt-lead { color: var(--muted); font-size: .93rem; margin: 0 0 1.75rem; line-height: 1.5; }
 
-    .sanita-logout-card h5 {
-        font-weight: 700;
-        color: #10312e;
-        margin-bottom: 0.5rem;
-    }
-
-    .sanita-logout-card p {
-        color: #6b7c7a;
-        font-size: 0.95rem;
-        margin-bottom: 2rem;
-    }
-
-    .sanita-logout-card p .brand {
-        font-weight: 600;
-        color: #10312e;
-    }
-
-    .sanita-login-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        width: 100%;
-        padding: 0.85rem;
-        border-radius: 10px;
-        background: #12766e;
-        color: #ffffff;
-        font-weight: 600;
-        font-size: 0.975rem;
+    .snt-btn {
+        width: 100%; height: 48px;
+        border-radius: 11px;
+        background: var(--teal); color: #fff;
+        font-weight: 600; font-size: .97rem;
+        display: flex; align-items: center; justify-content: center; gap: .5rem;
         text-decoration: none;
-        transition: background 0.2s ease;
+        transition: background .15s;
     }
+    .snt-btn:hover, .snt-btn:focus-visible { background: var(--teal-dark); color: #fff; }
 
-    .sanita-login-btn:hover {
-        background: #0f5c56;
-        color: #ffffff;
+    .snt-tip {
+        display: flex; gap: .6rem; align-items: flex-start;
+        text-align: left;
+        margin-top: 1.5rem; padding: .8rem .9rem;
+        border: 1px solid var(--line); border-radius: 11px;
+        background: #f8faf9;
+        font-size: .8rem; color: var(--muted); line-height: 1.45;
+    }
+    .snt-tip i { color: var(--teal); font-size: 1rem; margin-top: 1px; }
+
+    .snt-out-copy { margin-top: 1.75rem; font-size: .76rem; color: #a3b1ae; }
+
+    .snt-out :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+        .snt-out-icon polyline { animation: none; stroke-dashoffset: 0; }
     }
 </style>
 
-<div class="sanita-logout-wrapper">
-    <div class="sanita-logout-card">
+<div class="snt-out">
+    <div class="snt-out-grid" aria-hidden="true"></div>
 
-        <div class="sanita-logout-logo">
+    <div class="snt-out-card">
+        <div class="snt-out-logo">
             <a href="{% url 'dashboard:index' %}">
-                <img src="{% static 'backend/assets/images/logo_sanita/logo-light_sanita.png' %}" alt="SANITA">
+                <img src="{% static 'backend/assets/images/logo_sanita/logo-dark_sanita.png' %}" alt="SANITA">
             </a>
         </div>
 
-        <div class="sanita-check-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
+        <div class="snt-out-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
         </div>
 
-        <h5>Vous êtes déconnecté</h5>
-        <p>Merci d'avoir utilisé <span class="brand">SANITA</span></p>
+        <h1>Vous êtes déconnecté</h1>
+        <p class="snt-lead">Votre session SANITA a été fermée en toute sécurité. À bientôt.</p>
 
-        <a href="{% url 'accounts:admin_login' %}" class="sanita-login-btn">
-            <i class="mdi mdi-login"></i>
-            Se connecter
+        <a href="{% url 'accounts:admin_login' %}" class="snt-btn">
+            <i class="ri-login-box-line"></i>Se reconnecter
         </a>
 
+        <div class="snt-tip">
+            <i class="ri-shield-check-line"></i>
+            <span>Sur un poste partagé, pensez à fermer complètement votre navigateur.</span>
+        </div>
+
+        <p class="snt-out-copy">© {% now "Y" %} SANITA</p>
     </div>
 </div>
 

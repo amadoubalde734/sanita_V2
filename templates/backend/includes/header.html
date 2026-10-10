@@ -3,28 +3,27 @@
     <div class="layout-width">
         <div class="navbar-header">
             <div class="d-flex">
-                <!-- LOGO -->
+                <!-- Logo (visible en disposition horizontale) -->
                 <div class="navbar-brand-box horizontal-logo">
                     <a href="{% url 'dashboard:index' %}" class="logo logo-dark">
                         <span class="logo-sm">
-                            <img src="{% static 'backend/assets/images/logo_sanita/logo-sm_sanita.png' %}" alt="" height="22">
+                            <img src="{% static 'backend/assets/images/logo_sanita/logo-sm_sanita.png' %}" alt="SANITA" height="24">
                         </span>
                         <span class="logo-lg">
-                            <img src="{% static 'backend/assets/images/logo-dark_sanita.png' %}" alt="" height="75">
+                            <img src="{% static 'backend/assets/images/logo_sanita/logo-dark_sanita.png' %}" alt="SANITA" height="40">
                         </span>
                     </a>
-
                     <a href="{% url 'dashboard:index' %}" class="logo logo-light">
                         <span class="logo-sm">
-                            <img src="{% static 'backend/assets/images/logo_sanita/logo-sm_sanita.png' %}" alt="" height="75">
+                            <img src="{% static 'backend/assets/images/logo_sanita/logo-sm_sanita.png' %}" alt="SANITA" height="24">
                         </span>
                         <span class="logo-lg">
-                            <img src="{% static 'backend/assets/images/logo-light_sanita.png' %}" alt="" height="70">
+                            <img src="{% static 'backend/assets/images/logo_sanita/logo-light_sanita.png' %}" alt="SANITA" height="40">
                         </span>
                     </a>
                 </div>
 
-                <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger material-shadow-none" id="topnav-hamburger-icon">
+                <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger material-shadow-none" id="topnav-hamburger-icon" aria-label="Afficher ou masquer le menu">
                     <span class="hamburger-icon">
                         <span></span>
                         <span></span>
@@ -32,18 +31,16 @@
                     </span>
                 </button>
 
-                <!-- App Search-->
-                <form class="app-search d-none d-md-block" action="javascript:void(0);">
+                <!-- Recherche -->
+                <form class="app-search d-none d-md-block" action="javascript:void(0);" role="search">
                     <div class="position-relative">
-                        <input type="text" class="form-control" placeholder="Rechercher un patient, un dossier..." autocomplete="off" id="search-options" value="">
+                        <input type="text" class="form-control" placeholder="Rechercher un patient, un dossier..." autocomplete="off" id="search-options" value="" aria-label="Rechercher">
                         <span class="mdi mdi-magnify search-widget-icon"></span>
                         <span class="mdi mdi-close-circle search-widget-icon search-widget-icon-close d-none" id="search-close-options"></span>
                     </div>
                     <div class="dropdown-menu dropdown-menu-lg" id="search-dropdown">
                         <div data-simplebar style="max-height: 200px;">
-                            <div class="p-3 text-center text-muted">
-                                Commencez à taper pour rechercher
-                            </div>
+                            <div class="p-3 text-center text-muted">Commencez à taper pour rechercher</div>
                         </div>
                     </div>
                 </form>
@@ -51,65 +48,67 @@
 
             <div class="d-flex align-items-center">
 
+                <!-- Recherche mobile -->
                 <div class="dropdown d-md-none topbar-head-dropdown header-item">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Rechercher">
                         <i class="bx bx-search fs-22"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-search-dropdown">
-                        <form class="p-3" action="javascript:void(0);">
-                            <div class="form-group m-0">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Rechercher...">
-                                    <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-                                </div>
+                        <form class="p-3" action="javascript:void(0);" role="search">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher..." aria-label="Rechercher">
+                                <button class="btn btn-primary" type="submit" aria-label="Lancer la recherche"><i class="mdi mdi-magnify"></i></button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- Language selector -->
+                <!-- Langue -->
                 <div class="dropdown ms-1 topbar-head-dropdown header-item">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img id="header-lang-img" src="{% static 'backend/assets/images/flags/french.svg' %}" alt="Langue" height="20" class="rounded">
+                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Changer de langue">
+                        <img id="header-lang-img" src="{% static 'backend/assets/images/flags/french.svg' %}" alt="Français" height="20" class="rounded">
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a href="javascript:void(0);" class="dropdown-item notify-item language py-2" data-lang="fr" title="Français">
-                            <img src="{% static 'backend/assets/images/flags/french.svg' %}" alt="fr" class="me-2 rounded" height="18">
+                            <img src="{% static 'backend/assets/images/flags/french.svg' %}" alt="" class="me-2 rounded" height="18">
                             <span class="align-middle">Français</span>
                         </a>
                         <a href="javascript:void(0);" class="dropdown-item notify-item language py-2" data-lang="en" title="English">
-                            <img src="{% static 'backend/assets/images/flags/us.svg' %}" alt="en" class="me-2 rounded" height="18">
+                            <img src="{% static 'backend/assets/images/flags/us.svg' %}" alt="" class="me-2 rounded" height="18">
                             <span class="align-middle">English</span>
                         </a>
                         <a href="javascript:void(0);" class="dropdown-item notify-item language py-2" data-lang="es" title="Español">
-                            <img src="{% static 'backend/assets/images/flags/spain.svg' %}" alt="es" class="me-2 rounded" height="18">
-                            <span class="align-middle">Española</span>
+                            <img src="{% static 'backend/assets/images/flags/spain.svg' %}" alt="" class="me-2 rounded" height="18">
+                            <span class="align-middle">Español</span>
                         </a>
                         <a href="javascript:void(0);" class="dropdown-item notify-item language py-2" data-lang="de" title="Deutsch">
-                            <img src="{% static 'backend/assets/images/flags/germany.svg' %}" alt="de" class="me-2 rounded" height="18">
-                            <span class="align-middle">Deutsche</span>
+                            <img src="{% static 'backend/assets/images/flags/germany.svg' %}" alt="" class="me-2 rounded" height="18">
+                            <span class="align-middle">Deutsch</span>
                         </a>
                     </div>
                 </div>
 
+                <!-- Plein écran -->
                 <div class="ms-1 header-item d-none d-sm-flex">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" data-toggle="fullscreen">
-                        <i class='bx bx-fullscreen fs-22'></i>
+                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" data-toggle="fullscreen" aria-label="Plein écran">
+                        <i class="bx bx-fullscreen fs-22"></i>
                     </button>
                 </div>
 
+                <!-- Mode sombre -->
                 <div class="ms-1 header-item d-none d-sm-flex">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle light-dark-mode">
-                        <i class='bx bx-moon fs-22'></i>
+                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle light-dark-mode" aria-label="Basculer le mode sombre">
+                        <i class="bx bx-moon fs-22"></i>
                     </button>
                 </div>
 
+                <!-- Notifications -->
                 <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
-                        <i class='bx bx-bell fs-22'></i>
+                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
+                        <i class="bx bx-bell fs-22"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
-                        <div class="dropdown-head bg-primary bg-pattern rounded-top">
+                        <div class="dropdown-head rounded-top" style="background: #0b3d3a;">
                             <div class="p-3">
                                 <h6 class="m-0 fs-16 fw-semibold text-white">Notifications</h6>
                             </div>
@@ -121,23 +120,38 @@
                     </div>
                 </div>
 
+                <!-- Utilisateur -->
                 <div class="dropdown ms-sm-3 header-item topbar-user">
                     <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
-                            <img class="rounded-circle header-profile-user" src="{% static 'backend/assets/images/users/avatar-1.jpg' %}" alt="Avatar">
+                            {% if user.avatar %}
+                                <img class="rounded-circle header-profile-user" src="{{ user.avatar.url }}" alt="Photo de {{ user.get_full_name|default:user.username }}" style="object-fit: cover;">
+                            {% else %}
+                                <span class="rounded-circle header-profile-user d-inline-flex align-items-center justify-content-center fw-semibold text-white" style="background: #12766e; font-size: .8rem;">
+                                    {{ user.first_name|first|upper|default:user.username|first|upper }}{{ user.last_name|first|upper }}
+                                </span>
+                            {% endif %}
                             <span class="text-start ms-xl-2">
                                 <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ user.get_full_name|default:user.username }}</span>
-                                <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">{{ user.role }}</span>
+                                <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">{{ user.role.name|default:"Utilisateur" }}</span>
                             </span>
                         </span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <h6 class="dropdown-header">Bienvenue {{ user.get_full_name|default:user.username }} !</h6>
+                        <h6 class="dropdown-header">Bienvenue {{ user.first_name|default:user.username }} !</h6>
+                        <a class="dropdown-item" href="#">
+                            <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
+                            <span class="align-middle">Mon profil</span>
+                        </a>
+                        <a class="dropdown-item" href="{% url 'accounts:change_user_password' user.id %}">
+                            <i class="mdi mdi-lock-reset text-muted fs-16 align-middle me-1"></i>
+                            <span class="align-middle">Changer le mot de passe</span>
+                        </a>
                         <div class="dropdown-divider"></div>
-                        <form action="{% url 'accounts:admin_logout' %}" method="post">
+                        <form action="{% url 'accounts:admin_logout' %}" method="post" class="m-0">
                             {% csrf_token %}
-                            <button class="dropdown-item" type="submit">
-                                <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>
+                            <button class="dropdown-item text-danger" type="submit">
+                                <i class="mdi mdi-logout fs-16 align-middle me-1"></i>
                                 <span class="align-middle">Déconnexion</span>
                             </button>
                         </form>
